@@ -1,0 +1,12 @@
+@startuml
+title State — Batch Lifecycle
+[*] --> Draft : измерения получены
+Draft --> Calculated : тариф применён
+Calculated --> Committed : чек напечатан\nистория записана
+Calculated --> Cancelled : отмена
+Committed --> Adjusted : пост-коррекция
+Adjusted --> Committed
+Committed --> [*]
+Cancelled --> [*]
+@enduml
+

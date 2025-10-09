@@ -1,0 +1,27 @@
+@startuml
+title Components — Overview
+skinparam componentStyle rectangle
+
+actor Resident
+package "Edge Site" {
+  [POS Kiosk] <<UI>>
+  [Drivers] <<IO>>
+}
+package "Cloud" {
+  [API Gateway] <<REST>>
+  [Waste Core] <<Domain>>
+  [Billing] <<Service>>
+  [Reporting] <<BI>>
+  database "PostgreSQL" as PG
+  queue "Kafka" as MQ
+}
+
+Resident --> [POS Kiosk]
+[POS Kiosk] --> [Drivers]
+[POS Kiosk] --> [API Gateway] : HTTPS
+[API Gateway] --> [Waste Core]
+[Waste Core] --> PG
+[Waste Core] --> MQ
+[Reporting] <- MQ
+[Billing] <.. [Waste Core] : Domain events
+@enduml

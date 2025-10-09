@@ -1,0 +1,65 @@
+@startuml
+title Sequence — Приём от жителей (от карты до чека)
+skinparam defaultFontName "DejaVu Sans"
+autonumber
+
+actor "Житель" as U
+participant "Лендинг" as WEB
+participant "Map API" as MAP
+participant "ИС (ядро)" as IS
+participant "POS-терминал" as POS
+participant "Принтер/Эквайринг" as FP
+
+== Поиск точки на карте (UC0) ==
+U -> WEB: Открыть карту
+WEB -> IS: GET /points?status=active
+IS --> WEB: точки со статусами
+WEB -> MAP: Tiles/Routes
+MAP --> WEB: Карта/маршрут
+U <- WEB: Выбор точки (ok/переполнена/закрыта)
+alt Точка недоступна
+  WEB -> U: Предложить альтернативные точки
+  return
+end
+
+== Начало сессии на киоске (UC1) ==
+U -> POS: Выбор языка
+U -> POS: Ввод номера телефона
+POS -> IS: POST /sessions {phone,kioskId}
+IS --> POS: 201 {sessionId}
+U -> POS: Выбор тары (XS..XXXL)
+POS -> IS: POST /containers/dispense {size,sessionId}
+IS --> POS: OK (или нет)
+alt Тара недоступна
+  POS -> U: Предложить другой размер
+  return
+end
+
+== Сдача отходов (UC2) ==
+U -> POS: Выбор типа/подтипа фракции
+POS -> IS: GET /tariffs?fraction=...
+IS --> POS: {pricePerKg|perVolume,coeff}
+U -> POS: Загрузка отходов
+POS -> POS: Фиксация приёма (объём/масса)
+alt Переполнение
+  POS -> U: Остановить/уменьшить объём/иная точка
+  return
+end
+POS -> POS: Расчёт суммы/баллов
+POS -> U: Показ суммы/баллов
+
+== Подтверждение, чек, завершение (UC3) ==
+U --> POS: Подтвердить
+POS -> IS: POST /batches {sessionId,fraction,metrics}
+IS --> POS: 201 {batchId}
+POS -> FP: print(receipt{batchId,amount,points})
+alt Ошибка печати
+  FP --> POS: error
+  POS -> U: Электронный чек / Повтор печати
+else Ок
+  FP --> POS: ok
+end
+POS -> IS: PATCH /sessions/{id} close
+IS --> POS: 200
+POS -> U: Сессия завершена
+@enduml

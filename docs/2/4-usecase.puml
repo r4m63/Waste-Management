@@ -1,0 +1,50 @@
+@startuml
+title Sequence — Выполнение точки с корректировкой
+skinparam defaultFontName "DejaVu Sans"
+autonumber
+
+actor "Водитель" as D
+participant "Приложение водителя" as APP
+participant "ИС/Операции" as OPS
+participant "Роутер/Map" as MAP
+participant "Телематика" as TEL
+participant "Объект/Весовая" as WB
+
+== Старт смены ==
+D -> APP: Открыть смену (чек-лист)
+APP -> OPS: POST /shifts/start {vehicle, odo}
+OPS --> APP: 201 {shiftId}
+
+== Прибытие к точке ==
+APP -> TEL: геопозиция/геофенс
+TEL --> APP: arrived=true
+APP -> OPS: PATCH /stops/{id}/arrive
+
+== Операция на точке ==
+D -> APP: Выполнить сбор/замену тары
+APP -> OPS: PATCH /stops/{id}/complete {volume, time}
+OPS --> APP: OK
+
+alt Точка недоступна
+  APP -> OPS: PATCH /stops/{id}/issue {reason=blocked}
+  OPS -> MAP: POST /reroute {remainingStops, currentPos}
+  MAP --> OPS: new route
+  OPS --> APP: push updated route
+end
+
+alt ТС переполнено
+  APP -> OPS: notify overload
+  OPS -> MAP: route to facility
+  MAP --> OPS: pathToFacility
+  OPS --> APP: navigate facility
+  APP -> WB: check-in / взвешивание
+  WB --> APP: net weight
+  APP -> OPS: POST /loads/commit {weights}
+  OPS --> APP: OK, continue route
+end
+
+== Завершение ==
+APP -> OPS: POST /routes/{id}/close
+OPS --> APP: OK
+D <- APP: Рейс закрыт
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+title Domain Class — Batch (simplified)
+class Batch {
+  +id: UUID
+  +fraction: Fraction
+  +netWeightKg: Decimal
+  +status: BatchStatus
+}
+enum BatchStatus { Draft; Calculated; Committed; Cancelled }
+class Tariff { +fraction: Fraction; +pricePerKg: Money }
+class Fraction { +code: String; +name: String }
+Batch "1" --> "1" Tariff : uses
+@enduml

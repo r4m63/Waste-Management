@@ -1,0 +1,20 @@
+@startuml
+title Development — Layered Packages (Waste Core)
+package "waste-core" {
+  package domain {
+    class Batch
+    class Tariff
+    class Fraction
+  }
+  package application {
+    class IntakeService
+  }
+  package adapters {
+    package rest { class BatchController }
+    package persistence { class BatchRepository }
+  }
+}
+application ..> domain
+adapters::rest ..> application
+adapters::persistence ..> domain
+@enduml

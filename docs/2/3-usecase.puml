@@ -1,0 +1,26 @@
+@startuml
+title Sequence — Ночное планирование и назначение рейсов
+skinparam defaultFontName "DejaVu Sans"
+autonumber
+
+participant "ИС/Планировщик" as IS
+participant "Инвентарь тары" as INV
+participant "История телематики" as TEL
+participant "Роутер/Map" as MAP
+participant "Приложение водителя" as APP
+
+IS -> IS: собрать статусы точек\n(заполненность/доступность)
+IS -> INV: GET /containers/availability
+INV --> IS: остатки по размерам
+IS -> TEL: GET /traffic/history?window=D-7
+TEL --> IS: паттерны/ограничения
+
+IS -> MAP: POST /route-matrix {points, constraints}
+MAP --> IS: time/distance matrix
+IS -> IS: построить маршруты\n(кластеры, окна, ограничения ТС)
+IS -> INV: reserve(containerSizes, routes)
+INV --> IS: OK/корректировки
+
+IS -> APP: POST /routes/publish {driverId, vehicleId, route}
+APP --> IS: 202 Accepted
+@enduml
