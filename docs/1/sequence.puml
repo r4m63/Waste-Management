@@ -1,0 +1,58 @@
+@startuml
+title Sequence — UC2: Сдать отходы на киоске (объединённый 2–4)
+skinparam defaultFontName "DejaVu Sans"
+autonumber
+
+actor "Житель" as U
+participant "POS-терминал" as POS
+participant "ИС (ядро)" as IS
+participant "Фискальный принтер" as FP
+
+== Старт ==
+U -> POS: Выбор языка
+U -> POS: Ввод номера телефона
+POS -> IS: POST /sessions {phone,kioskId}
+IS --> POS: 201 {sessionId}
+alt Ошибка сети/ИС
+  POS -> U: Локальный режим/отказ
+  return
+end
+
+== Тара ==
+U -> POS: Выбор тары (XS..XXXL)
+POS -> IS: POST /containers/dispense {size,sessionId}
+IS --> POS: OK (или нет)
+alt Тара недоступна
+  POS -> U: Предложить другой размер
+  return
+end
+
+== Приём и расчёт ==
+U -> POS: Выбор фракции
+U -> POS: Загрузка отходов
+POS -> IS: GET /tariffs?fraction=...
+IS --> POS: {price,coeff}
+POS -> POS: Фиксация приёма (масса/объём)\nРасчёт суммы/баллов
+alt Переполнение/ошибка фракции
+  POS -> U: Сообщение; повтор/завершение
+  return
+end
+
+== Подтверждение и чек ==
+POS -> U: Показ суммы/баллов
+U --> POS: Подтвердить
+POS -> IS: POST /batches {sessionId,fraction,metrics}
+IS --> POS: 201 {batchId}
+
+POS -> FP: print(receipt{batchId,amount,points})
+alt Ошибка печати
+  FP --> POS: error
+  POS -> U: Электронный чек / Повтор печати
+else Ок
+  FP --> POS: ok
+end
+
+POS -> IS: PATCH /sessions/{id} close
+IS --> POS: 200
+POS -> U: Сессия завершена
+@enduml

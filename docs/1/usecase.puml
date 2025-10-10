@@ -1,0 +1,28 @@
+@startuml
+title Use Cases — Приём от жителей (исправлено)
+left to right direction
+skinparam defaultFontName "DejaVu Sans"
+skinparam usecase {
+  BackgroundColor<<core>> #E3F2FD
+  BorderColor #1E88E5
+}
+
+actor "Житель" as Resident
+actor "ИС (ядро)" as Core
+actor "Фискальный принтер/Эквайринг" as Printer
+
+rectangle "Лэндинг с картой (часть ИС)" as Landing {
+  usecase "UC1 (ID:1)\nНайти точку на карте" as UC1 <<core>>
+}
+
+rectangle "POS-терминал (Киоск)" as POS {
+  usecase "UC2 (ID:2–4)\nСдать отходы на киоске\n(сессия → приём → чек)" as UC2 <<core>>
+}
+
+Resident -- UC1
+Resident -- UC2
+
+UC1 .. Core : точки/статусы\nGET /points
+UC2 .. Core : сессия/тарифы/партия
+UC2 .. Printer : печать/эл.чек
+@enduml

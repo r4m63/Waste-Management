@@ -1,0 +1,51 @@
+@startuml
+title Sequence — UC-B: Исполнение рейса (с коррекцией)
+skinparam defaultFontName "DejaVu Sans"
+autonumber
+
+actor "Водитель" as D
+participant "Приложение водителя" as APP
+participant "ИС/Операции" as OPS
+participant "Маршрутизация/карты" as MAP
+participant "Телематика" as TEL
+participant "Весовая/Объект" as WB
+
+== Старт смены ==
+D -> APP: Открыть смену (чек-лист)
+APP -> OPS: POST /shifts/start {vehicle, odo, ts}
+OPS --> APP: 201 {shiftId}
+
+== Точки маршрута ==
+loop по точкам
+  APP -> TEL: геопозиция/геофенс
+  TEL --> APP: arrived=true
+  APP -> OPS: PATCH /stops/{id}/arrive
+
+  D -> APP: Сбор/замена тары; ввод объёма/массы
+  APP -> OPS: PATCH /stops/{id}/complete {volume, mass, t}
+  OPS --> APP: OK
+
+  alt Точка недоступна / инцидент
+    APP -> OPS: PATCH /stops/{id}/issue {reason}
+    OPS -> MAP: POST /reroute {remainingStops, currentPos}
+    MAP --> OPS: new route
+    OPS --> APP: push updated route
+  end
+
+  alt ТС переполнено
+    APP -> OPS: notify overload
+    OPS -> MAP: route to facility
+    MAP --> OPS: facilityPath
+    OPS --> APP: navigate to facility
+    APP -> WB: check-in / взвешивание
+    WB --> APP: weights
+    APP -> OPS: POST /loads/commit {weights}
+    OPS --> APP: OK (continue route)
+  end
+end
+
+== Закрытие ==
+APP -> OPS: POST /routes/{id}/close
+OPS --> APP: OK
+D <- APP: Рейс/смена закрыты; отчёт сформирован
+@enduml
