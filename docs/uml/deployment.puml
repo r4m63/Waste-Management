@@ -1,27 +1,28 @@
 @startuml
-title Deployment — Edge & Cloud
-node "Edge Site (Пункт приёма)" {
-  node "Kiosk Box" {
-    [POS App]
-    artifact "Весы" as Scales
-    artifact "Фискальный принтер" as FP
-  }
+title Deployment — WildFly + PostgreSQL + Frontends
+skinparam defaultFontName "DejaVu Sans"
+
+node "Edge Site" {
+  [POS UI (React, kiosk-mode)]
 }
-node "Cloud/K8s" {
-  node "Cluster" {
-    [API Gateway Pod]
-    [Waste Core Pod]
-    [Billing Pod]
-    [Reporting Pod]
+
+node "Web/CDN" {
+  [Landing (Next.js)]
+  [Driver App (Next.js PWA)]
+}
+
+node "DC/Cloud" {
+  node "WildFly Cluster" {
+    [WMIS Monolith WAR]
   }
   database "PostgreSQL (HA)" as PG
-  queue "Kafka" as MQ
+  node "Keycloak" as AUTH
 }
-[POS App] --> [API Gateway Pod] : HTTPS mTLS
-[POS App] --> Scales : RS-232/USB/TCP
-[POS App] --> FP : ESC/POS
-[API Gateway Pod] --> [Waste Core Pod]
-[Waste Core Pod] --> PG
-[Waste Core Pod] --> MQ
-[Reporting Pod] <.. MQ
+
+[POS UI (React, kiosk-mode)] --> [WMIS Monolith WAR] : HTTPS/OIDC
+[Landing (Next.js)] --> [WMIS Monolith WAR] : HTTPS
+[Driver App (Next.js PWA)] --> [WMIS Monolith WAR] : HTTPS/OIDC
+
+[WMIS Monolith WAR] --> PG : JDBC (JTA)
+[WMIS Monolith WAR] --> AUTH : OIDC
 @enduml

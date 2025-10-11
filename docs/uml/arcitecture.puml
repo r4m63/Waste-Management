@@ -1,0 +1,44 @@
+@startuml
+title Components — Variant A: Modular Monolith
+skinparam componentStyle rectangle
+skinparam defaultFontName "DejaVu Sans"
+
+actor Resident
+actor Driver
+actor Dispatcher
+
+package "Monolith Service (Spring/Jakarta)" {
+  [API Gateway] <<REST>>
+  [Intake] <<module>>
+  [Routing] <<module>>
+  [Execution] <<module>>
+  [Adjustment] <<module>>
+  [Catalogs] <<module>>
+  [Identity] <<OIDC Client>>
+  [Reporting] <<module>>
+  database "PostgreSQL" as PG
+  queue "Outbox (table)" as OUTBOX
+}
+
+Resident --> [API Gateway]
+Driver --> [API Gateway]
+Dispatcher --> [API Gateway]
+
+[API Gateway] --> [Intake]
+[API Gateway] --> [Routing]
+[API Gateway] --> [Execution]
+[API Gateway] --> [Adjustment]
+[Intake] --> [Catalogs]
+[Routing] --> [Catalogs]
+[Execution] --> [Catalogs]
+
+[Intake] --> PG
+[Routing] --> PG
+[Execution] --> PG
+[Adjustment] --> PG
+[Reporting] --> PG
+[Identity] --> PG
+[Intake] --> OUTBOX
+[Routing] --> OUTBOX
+[Execution] --> OUTBOX
+@enduml

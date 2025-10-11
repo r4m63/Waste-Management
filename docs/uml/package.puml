@@ -1,20 +1,44 @@
 @startuml
-title Development — Layered Packages (Waste Core)
-package "waste-core" {
-  package domain {
-    class Batch
-    class Tariff
-    class Fraction
-  }
-  package application {
-    class IntakeService
-  }
-  package adapters {
-    package rest { class BatchController }
-    package persistence { class BatchRepository }
-  }
+title Packages — Layers & Modules
+skinparam defaultFontName "DejaVu Sans"
+
+package presentation.rest {
+  class IntakeResource
+  class RoutingResource
+  class ExecutionResource
 }
-application ..> domain
-adapters::rest ..> application
-adapters::persistence ..> domain
+package application.intake { class IntakeService }
+package application.routing { class PlanningService }
+package application.execution { class ExecutionService }
+package domain {
+  class Batch
+  class Route
+  class Stop
+  class Tariff
+  interface BatchRepository
+  interface RouteRepository
+}
+package adapters.persistence.jpa {
+  class BatchRepositoryJpa
+  class RouteRepositoryJpa
+}
+package infrastructure {
+  class OutboxPublisher
+  class OidcSecurity
+}
+
+presentation.rest ..> application.intake
+presentation.rest ..> application.routing
+presentation.rest ..> application.execution
+
+application.intake ..> domain
+application.routing ..> domain
+application.execution ..> domain
+adapters.persistence.jpa ..> domain
+
+domain ..> domain.BatchRepository
+domain ..> domain.RouteRepository
+
+domain.BatchRepository <|.. adapters.persistence.jpa.BatchRepositoryJpa
+domain.RouteRepository <|.. adapters.persistence.jpa.RouteRepositoryJpa
 @enduml

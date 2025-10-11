@@ -1,27 +1,50 @@
 @startuml
-title Components — Overview
+title Components — Modular Monolith (Jakarta EE on WildFly)
 skinparam componentStyle rectangle
+skinparam defaultFontName "DejaVu Sans"
 
 actor Resident
-package "Edge Site" {
-  [POS Kiosk] <<UI>>
-  [Drivers] <<IO>>
-}
-package "Cloud" {
-  [API Gateway] <<REST>>
-  [Waste Core] <<Domain>>
-  [Billing] <<Service>>
-  [Reporting] <<BI>>
+actor Driver
+actor Dispatcher
+
+package "WMIS Monolith" {
+  [API (JAX-RS)] <<Presentation>>
+  [Intake Application] <<UseCases>>
+  [Routing Application] <<UseCases>>
+  [Execution Application] <<UseCases>>
+  [Adjustment Application] <<UseCases>>
+  [Domain] <<Core Domain>>
+  [Persistence JPA] <<Adapter>>
+  [Map Adapter] <<Adapter>>
+  [Telematics Adapter] <<Adapter>>
+  [Printing Adapter] <<Adapter>>
+  [Identity/OIDC] <<Infra>>
+  [Outbox] <<Infra>>
   database "PostgreSQL" as PG
-  queue "Kafka" as MQ
 }
 
-Resident --> [POS Kiosk]
-[POS Kiosk] --> [Drivers]
-[POS Kiosk] --> [API Gateway] : HTTPS
-[API Gateway] --> [Waste Core]
-[Waste Core] --> PG
-[Waste Core] --> MQ
-[Reporting] <- MQ
-[Billing] <.. [Waste Core] : Domain events
+Resident --> [API (JAX-RS)]
+Driver --> [API (JAX-RS)]
+Dispatcher --> [API (JAX-RS)]
+
+[API (JAX-RS)] --> [Intake Application]
+[API (JAX-RS)] --> [Routing Application]
+[API (JAX-RS)] --> [Execution Application]
+[API (JAX-RS)] --> [Adjustment Application]
+
+[Intake Application] --> [Domain]
+[Routing Application] --> [Domain]
+[Execution Application] --> [Domain]
+[Adjustment Application] --> [Domain]
+
+[Intake Application] ..> [Persistence JPA]
+[Routing Application] ..> [Persistence JPA]
+[Execution Application] ..> [Persistence JPA]
+
+[Routing Application] ..> [Map Adapter]
+[Execution Application] ..> [Telematics Adapter]
+[Intake Application] ..> [Printing Adapter]
+
+[Persistence JPA] --> PG
+[Outbox] --> PG
 @enduml
