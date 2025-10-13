@@ -1,44 +1,36 @@
 @startuml
-title Components — Variant A: Modular Monolith
+title Монолит — обзор модулей (упрощённо, без Outbox и Catalogs)
 skinparam componentStyle rectangle
 skinparam defaultFontName "DejaVu Sans"
 
-actor Resident
-actor Driver
-actor Dispatcher
+actor "Житель" as Resident
+actor "Водитель" as Driver
+actor "Диспетчер" as Dispatcher
 
-package "Monolith Service (Spring/Jakarta)" {
-  [API Gateway] <<REST>>
-  [Intake] <<module>>
-  [Routing] <<module>>
-  [Execution] <<module>>
-  [Adjustment] <<module>>
-  [Catalogs] <<module>>
-  [Identity] <<OIDC Client>>
-  [Reporting] <<module>>
+package "Монолитный сервис (Jakarta)" {
+  [API-шлюз] <<REST>>
+  [Приём (Intake)] <<модуль>>
+  [Планирование (Routing)] <<модуль>>
+  [Исполнение рейса (Execution)] <<модуль>>
+  [Корректировка маршрута (Adjustment)] <<модуль>>
+  [Пользователи/Роли (Identity)] <<OIDC-клиент>>
+  [Отчётность (Reporting)] <<модуль>>
   database "PostgreSQL" as PG
-  queue "Outbox (table)" as OUTBOX
 }
 
-Resident --> [API Gateway]
-Driver --> [API Gateway]
-Dispatcher --> [API Gateway]
+Resident --> [API-шлюз]
+Driver   --> [API-шлюз]
+Dispatcher --> [API-шлюз]
 
-[API Gateway] --> [Intake]
-[API Gateway] --> [Routing]
-[API Gateway] --> [Execution]
-[API Gateway] --> [Adjustment]
-[Intake] --> [Catalogs]
-[Routing] --> [Catalogs]
-[Execution] --> [Catalogs]
+[API-шлюз] --> [Приём (Intake)]
+[API-шлюз] --> [Планирование (Routing)]
+[API-шлюз] --> [Исполнение рейса (Execution)]
+[API-шлюз] --> [Корректировка маршрута (Adjustment)]
 
-[Intake] --> PG
-[Routing] --> PG
-[Execution] --> PG
-[Adjustment] --> PG
-[Reporting] --> PG
-[Identity] --> PG
-[Intake] --> OUTBOX
-[Routing] --> OUTBOX
-[Execution] --> OUTBOX
+[Приём (Intake)] --> PG
+[Планирование (Routing)] --> PG
+[Исполнение рейса (Execution)] --> PG
+[Корректировка маршрута (Adjustment)] --> PG
+[Отчётность (Reporting)] --> PG
+[Пользователи/Роли (Identity)] --> PG
 @enduml
