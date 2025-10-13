@@ -1,0 +1,42 @@
+@startuml
+title Use Cases — Переработка и утилизация
+left to right direction
+skinparam defaultFontName "DejaVu Sans"
+skinparam usecase {
+  BackgroundColor<<core>> #E3F2FD
+  BorderColor #1E88E5
+}
+
+actor "Приёмщик площадки" as Receiver
+actor "Кладовщик" as Storekeeper
+actor "Оператор сортировочной линии" as LineOp
+actor "Технолог" as Technologist
+actor "Оператор переработки" as ProcOp
+actor "Эколог/ответственный" as Ecologist
+actor "Подрядчик утилизации" as Contractor
+actor "Весы" as Scales
+
+rectangle "ИС (Waste Management IS)" as IS {
+  usecase "UC1 Приём рейса и\nразмещение партий" as UC1 <<core>>
+  usecase "UC2 Сортировка и\nоформление результатов" as UC2 <<core>>
+  usecase "UC3 Переработка,\nсклад и утилизация" as UC3 <<core>>
+}
+
+Receiver -- UC1
+Storekeeper -- UC1
+Scales .. UC1
+UC1 .. IS
+
+Technologist -- UC2
+LineOp -- UC2
+Scales .. UC2
+UC2 .. IS
+
+Storekeeper -- UC3
+ProcOp -- UC3
+Technologist -- UC3
+Ecologist -- UC3
+Contractor -- UC3
+Scales .. UC3
+UC3 .. IS
+@enduml
