@@ -1,5 +1,5 @@
 @startuml
-title Use Cases — Транспортировка (укрупнённые)
+title Use Cases — Транспортировка (укрупнённые, один контейнер)
 left to right direction
 skinparam defaultFontName "DejaVu Sans"
 
@@ -8,26 +8,26 @@ actor "Диспетчер" as Dispatcher
 actor "Телематика/GPS" as Telematics
 actor "Весовая/Объект" as Weighbridge
 actor "Сервис маршрутизации/карт" as Router
+actor "Приложение водителя" as DriverApp
 
-rectangle "ИС (Планирование/Операции)" as IS {
+rectangle "ИС (Транспортировка: Планирование/Операции)" as IS {
   usecase "UC-A Ночное планирование\nи назначение рейсов" as UCA
+  usecase "UC-B Исполнение рейса\n(старт→точки→сдача→закрытие)" as UCB
   usecase "UC-C Динамическая\nкорректировка маршрута" as UCC
 }
 
-rectangle "Приложение водителя" as App {
-  usecase "UC-B Исполнение рейса\n(старт→точки→сдача→закрытие)" as UCB
-}
-
+' --- Связи акторов с UC ---
 Driver -- UCB
 Dispatcher -- UCC
 
-UCA .. Router
-UCA .. Telematics : история/паттерны
-UCA .. App : публикация планов
+UCA -- Router : матрица/перестроение
+UCA -- Telematics : история/паттерны
+UCA -- DriverApp : публикация планов
 
-UCB .. Telematics : геофенс/трек
-UCB .. Weighbridge : взвешивание/приёмка
-UCB .> UCC : <<request>> (недоступна точка/инцидент)
-UCC .. Router : перестроение
-UCC .. App : push обновлённого плана
+UCB -- Telematics : геофенс/трек
+UCB -- Weighbridge : взвешивание/приёмка
+UCB .> UCC : <<request>> недоступна точка/инцидент
+
+UCC -- Router : перестроение
+UCC -- DriverApp : push обновлённого плана
 @enduml

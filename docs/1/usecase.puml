@@ -9,10 +9,8 @@ actor "Фискальный принтер/Эквайринг" as Printer
 
 rectangle "Лэндинг с картой" as Landing {
   usecase "ID:1\nНайти точку на карте" as UC1
-}
-
-rectangle "POS-терминал" as POS {
   usecase "ID:2\nСдать отходы на киоске\n(сессия → приём → чек)" as UC2
+
 }
 
 Resident -- UC1

@@ -22,21 +22,19 @@ rectangle "ИС (Waste Management IS)" as IS {
   usecase "UC3 Переработка,\nсклад и утилизация" as UC3 <<core>>
 }
 
+' --- Связи акторов с UC ---
 Receiver -- UC1
 Storekeeper -- UC1
-Scales .. UC1
-UC1 .. IS
+Scales -- UC1
 
 Technologist -- UC2
 LineOp -- UC2
-Scales .. UC2
-UC2 .. IS
+Scales -- UC2
 
 Storekeeper -- UC3
 ProcOp -- UC3
 Technologist -- UC3
 Ecologist -- UC3
 Contractor -- UC3
-Scales .. UC3
-UC3 .. IS
+Scales -- UC3
 @enduml
