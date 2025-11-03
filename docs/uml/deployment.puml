@@ -1,28 +1,42 @@
 @startuml
-title Deployment — WildFly + PostgreSQL + Frontends
-skinparam defaultFontName "DejaVu Sans"
+skinparam nodeStyle rectangle
 
-node "Edge Site" {
-  [POS UI (React, kiosk-mode)]
+node "User Browser" as browser {
+  component "Landing UI"
 }
 
-node "Web/CDN" {
-  [Landing (Next.js)]
-  [Driver App (Next.js PWA)]
+node "Kiosk Host" as kiosk {
+  component "Kiosk UI"
 }
 
-node "DC/Cloud" {
-  node "WildFly Cluster" {
-    [WMIS Monolith WAR]
+node "Backend Host/Cluster" as back {
+  node "Edge" {
+    component "Nginx / API Gateway"
   }
-  database "PostgreSQL (HA)" as PG
-  node "Keycloak" as AUTH
+  node "Services" {
+    component "svc-kiosk"
+    component "svc-pricing"
+    component "svc-intake"
+    component "svc-notify"
+  }
+  node "Data" {
+    database "Postgres\n(3 схемы)" as pg
+    component "Redis"
+    component "Kafka/Redpanda"
+  }
 }
 
-[POS UI (React, kiosk-mode)] --> [WMIS Monolith WAR] : HTTPS/OIDC
-[Landing (Next.js)] --> [WMIS Monolith WAR] : HTTPS
-[Driver App (Next.js PWA)] --> [WMIS Monolith WAR] : HTTPS/OIDC
-
-[WMIS Monolith WAR] --> PG : JDBC (JTA)
-[WMIS Monolith WAR] --> AUTH : OIDC
+browser --> "Nginx / API Gateway" : HTTPS
+kiosk --> "Nginx / API Gateway" : HTTPS
+"Nginx / API Gateway" --> "svc-kiosk"
+"Nginx / API Gateway" --> "svc-pricing"
+"svc-kiosk" --> "svc-pricing" : HTTP (quote)
+"svc-kiosk" --> "Kafka/Redpanda" : intake.requested
+"svc-intake" --> "Kafka/Redpanda" : intake.recorded\nreceipt.issued
+"svc-notify" --> "Kafka/Redpanda" : consume
+"svc-kiosk" --> "Kafka/Redpanda" : consume receipt.issued
+"svc-kiosk" --> pg
+"svc-pricing" --> pg
+"svc-intake" --> pg
+"svc-kiosk" --> Redis : cache
 @enduml

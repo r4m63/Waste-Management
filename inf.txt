@@ -1,0 +1,66 @@
+
+===== NGINX =====
+fetch http://nginx.org/download/nginx-1.28.0.tar.gz
+tar xf nginx-1.28.0.tar.gz
+cd nginx-1.28.0
+
+export MAKECONF=/dev/null
+export SRCCONF=/dev/null
+
+./configure --prefix="$HOME/nginx"
+$GMAKE -j"$(sysctl -n hw.ncpu)"
+$GMAKE install
+
+или
+
+gmake -j"$(sysctl -n hw.ncpu)"
+gmake install
+
+
+
+бинарь: $HOME/nginx/sbin/nginx
+конфиги: $HOME/nginx/conf/
+логи: $HOME/nginx/logs/
+
+
+nginx                                   # старт (в фоне)
+nginx -t                                # только валидация
+nginx -T                                # валидация + печать итоговой конфигурации
+nginx -t && nginx -s reload             # горячая перезагрузка конфига
+nginx -s quit                           # останов корректно завершает воркеры после обработки
+nginx -s stop                           # останов мгновенно, соединения обрываются
+
+
+
+
+echo 'export _JAVA_OPTIONS="-Xmx1g -XX:MaxMetaspaceSize=256m -Xss256k -XX:ActiveProcessorCount=1"' >> ~/.bashrc
+
+source ~/.bashrc
+
+===== NGINX bin =====
+mkdir -p "$HOME/bin"
+cat > "$HOME/bin/nginx" <<'SH'
+exec "$HOME/nginx/sbin/nginx" -p "$HOME/nginx" "$@"
+SH
+chmod +x "$HOME/bin/nginx"
+
+
+===== ~/.bashrc =====
+export NGINX_HOME="$HOME/nginx"
+case ":$PATH:" in
+  *":$HOME/bin:"*) : ;;
+  *) export PATH="$HOME/bin:$PATH" ;;
+esac
+export _JAVA_OPTIONS="-Xmx1g -XX:MaxMetaspaceSize=256m -Xss256k -XX:ActiveProcessorCount=1"
+
+
+===== ~/.bash_profile =====
+[[ -f ~/.bashrc ]] && source ~/.bashrc
+
+
+===== ПРИМЕНИТЬ =====
+source ~/.bashrc
+hash -r
+
+
+

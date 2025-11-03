@@ -1,36 +1,59 @@
 @startuml
-title Монолит — обзор модулей (упрощённо, без Outbox и Catalogs)
 skinparam componentStyle rectangle
-skinparam defaultFontName "DejaVu Sans"
-
-actor "Житель" as Resident
-actor "Водитель" as Driver
-actor "Диспетчер" as Dispatcher
-
-package "Монолитный сервис (Jakarta)" {
-  [API-шлюз] <<REST>>
-  [Приём (Intake)] <<модуль>>
-  [Планирование (Routing)] <<модуль>>
-  [Исполнение рейса (Execution)] <<модуль>>
-  [Корректировка маршрута (Adjustment)] <<модуль>>
-  [Пользователи/Роли (Identity)] <<OIDC-клиент>>
-  [Отчётность (Reporting)] <<модуль>>
-  database "PostgreSQL" as PG
+skinparam rectangle {
+  BackgroundColor<<infra>> #EEF
+  BackgroundColor<<db>>    #FEE
+  BackgroundColor<<ms>>    #FFF
+  BorderColor #999
 }
 
-Resident --> [API-шлюз]
-Driver   --> [API-шлюз]
-Dispatcher --> [API-шлюз]
+actor "Лендинг (житель)" as Landing
+actor "Киоск" as Kiosk
+actor "Приложение водителя" as Driver
 
-[API-шлюз] --> [Приём (Intake)]
-[API-шлюз] --> [Планирование (Routing)]
-[API-шлюз] --> [Исполнение рейса (Execution)]
-[API-шлюз] --> [Корректировка маршрута (Adjustment)]
+component "API Gateway / NGINX" <<infra>> as GW
 
-[Приём (Intake)] --> PG
-[Планирование (Routing)] --> PG
-[Исполнение рейса (Execution)] --> PG
-[Корректировка маршрута (Adjustment)] --> PG
-[Отчётность (Reporting)] --> PG
-[Пользователи/Роли (Identity)] --> PG
+package "Микросервисы" {
+  [svc-catalog\n(точки, фракции, тарифы, котировки)] <<ms>> as S1
+  [svc-kiosk\n(сессии киоска, оркестрация приёма)]  <<ms>> as S2
+  [svc-intake\n(фиксация партии, чек, outbox)]      <<ms>> as S3
+  [svc-logistics\n(планирование, рейс, статусы)]    <<ms>> as S4
+  [svc-notify\n(уведомления)]                       <<ms>> as S5
+}
+
+queue "Kafka/Redpanda\n(events)" as BUS <<infra>>
+component "Redis\n(cache/idempotency)" as REDIS <<infra>>
+
+database "Postgres\nschema: catalog" as DB1 <<db>>
+database "Postgres\nschema: kiosk"   as DB2 <<db>>
+database "Postgres\nschema: intake"  as DB3 <<db>>
+database "Postgres\nschema: logist"  as DB4 <<db>>
+
+Landing --> GW : HTTP(S)
+Kiosk   --> GW : HTTP(S)
+Driver  --> GW : HTTP(S)
+
+GW --> S1 : /catalog/* (точки, фракции, тарифы, котировки)
+GW --> S2 : /kiosk/*   (сессии, confirm)
+GW --> S4 : /logist/*  (рейс, статусы)
+
+S2 --> S1 : sync: POST /quote
+S2 --> BUS : publish intake.requested
+S3 --> BUS : publish intake.recorded,\nreceipt.issued
+S4 --> BUS : publish route.updated,\nstop.status.changed
+S5 --> BUS : consume receipt.issued
+
+S1 --> DB1
+S2 --> DB2
+S3 --> DB3
+S4 --> DB4
+
+S2 --> REDIS : cache quotes (opt)
+S3 --> REDIS : idempotency keys (opt)
+
+BUS ..> S3 : consume intake.requested
+BUS ..> S2 : consume receipt.issued
+BUS ..> S1 : (opt) consume point.capacity.updated
+BUS ..> S4 : (opt) consume intake.recorded (сигнал для наполненности)
+
 @enduml
