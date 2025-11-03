@@ -17,7 +17,7 @@ CREATE TABLE users
     is_active  boolean     NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_users_role ON users (role);
+CREATE INDEX ON users (role);
 
 CREATE TABLE garbage_points
 (
@@ -29,11 +29,11 @@ CREATE TABLE garbage_points
     lon        double precision,
     created_at timestamptz NOT NULL DEFAULT now(),
     admin_id   integer     REFERENCES users (id) ON DELETE SET NULL,
-    CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)),
+    CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)), -- фикс ограничений координат
     CHECK (lon IS NULL OR (lon >= -180 AND lon <= 180))
 );
-CREATE INDEX idx_garbage_points_is_open ON garbage_points (is_open);
-CREATE INDEX idx_garbage_points_admin ON garbage_points (admin_id);
+CREATE INDEX ON garbage_points (is_open);
+CREATE INDEX ON garbage_points (admin_id);
 
 
 CREATE TABLE container_sizes
@@ -56,17 +56,17 @@ ON CONFLICT (code) DO NOTHING;
 
 CREATE TABLE fractions
 (
-    id            SERIAL PRIMARY KEY,
-    name          text UNIQUE NOT NULL,         -- "Пластик", "Стекло"
-    code          text UNIQUE NOT NULL,         -- "plastic", "glass"
-    description   text,
-    is_hazardous  boolean     NOT NULL DEFAULT false,
-    ewc_code      text,
-    created_at    timestamptz NOT NULL DEFAULT now(),
-    updated_at    timestamptz NOT NULL DEFAULT now()
+    id           SERIAL PRIMARY KEY,
+    name         text UNIQUE NOT NULL, -- "Пластик", "Стекло"
+    code         text UNIQUE NOT NULL, -- "plastic", "glass"
+    description  text,
+    is_hazardous boolean     NOT NULL DEFAULT false,
+    -- garbage classification code
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    updated_at   timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_fractions_code   ON fractions(code);
+CREATE INDEX ON fractions (code);
 
 -- M:N: какие фракции принимаются на каких точках
 CREATE TABLE garbage_point_fractions
@@ -76,7 +76,7 @@ CREATE TABLE garbage_point_fractions
     is_active        boolean NOT NULL DEFAULT true,
     PRIMARY KEY (garbage_point_id, fraction_id)
 );
-CREATE INDEX idx_gpfractions_fraction ON garbage_point_fractions (fraction_id);
+CREATE INDEX ON garbage_point_fractions (fraction_id);
 
 
 CREATE TABLE kiosk_orders
@@ -89,11 +89,10 @@ CREATE TABLE kiosk_orders
     created_at        timestamptz  NOT NULL DEFAULT now(),
     status            order_status NOT NULL DEFAULT 'confirmed'
 );
--- индексы для частых выборок
-CREATE INDEX idx_kiosk_orders_point_time ON kiosk_orders (garbage_point_id, created_at DESC);
-CREATE INDEX idx_kiosk_orders_user_time ON kiosk_orders (user_id, created_at DESC);
-CREATE INDEX idx_kiosk_orders_fraction ON kiosk_orders (fraction_id);
-CREATE INDEX idx_kiosk_orders_size ON kiosk_orders (container_size_id);
+CREATE INDEX ON kiosk_orders (garbage_point_id, created_at DESC);
+CREATE INDEX ON kiosk_orders (user_id, created_at DESC);
+CREATE INDEX ON kiosk_orders (fraction_id);
+CREATE INDEX ON kiosk_orders (container_size_id);
 
 
 CREATE TABLE vehicles
@@ -120,9 +119,9 @@ CREATE TABLE driver_shifts
     CHECK (closed_at IS NULL OR closed_at >= opened_at)
 );
 -- единственная открытая смена на водителя
-CREATE UNIQUE INDEX ux_open_shift_per_driver ON driver_shifts (driver_id) WHERE status = 'open';
-CREATE INDEX idx_driver_shifts_driver ON driver_shifts (driver_id);
-CREATE INDEX idx_driver_shifts_vehicle ON driver_shifts (vehicle_id);
+CREATE UNIQUE INDEX ON driver_shifts (driver_id) WHERE status = 'open';
+CREATE INDEX ON driver_shifts (driver_id);
+CREATE INDEX ON driver_shifts (vehicle_id);
 
 CREATE TABLE routes
 (
@@ -138,9 +137,9 @@ CREATE TABLE routes
     status           route_status NOT NULL DEFAULT 'planned'
 );
 
-CREATE INDEX idx_routes_plan_driver_status ON routes (planned_date, driver_id, status);
-CREATE INDEX idx_routes_vehicle ON routes (vehicle_id);
-CREATE INDEX idx_routes_shift ON routes (shift_id);
+CREATE INDEX ON routes (planned_date, driver_id, status);
+CREATE INDEX ON routes (vehicle_id);
+CREATE INDEX ON routes (shift_id);
 
 CREATE TABLE route_stops
 (
@@ -172,9 +171,9 @@ CREATE TABLE route_stops
         )
 );
 
-CREATE INDEX idx_route_stops_route ON route_stops (route_id);
-CREATE INDEX idx_route_stops_route_status ON route_stops (route_id, status);
-CREATE INDEX idx_route_stops_point ON route_stops (garbage_point_id);
+CREATE INDEX ON route_stops (route_id);
+CREATE INDEX ON route_stops (route_id, status);
+CREATE INDEX ON route_stops (garbage_point_id);
 
 -- Триггер автонумерации seq_no в рамках одного маршрута
 CREATE OR REPLACE FUNCTION route_stops_autoseq()
@@ -206,7 +205,7 @@ CREATE TABLE stop_events
     photo_url  text,
     comment    text
 );
-CREATE INDEX idx_stop_events_stop_time ON stop_events (stop_id, created_at);
+CREATE INDEX ON stop_events (stop_id, created_at);
 
 CREATE TABLE incidents
 (
@@ -221,10 +220,10 @@ CREATE TABLE incidents
     resolved    boolean       NOT NULL DEFAULT false,
     resolved_at timestamptz
 );
-CREATE INDEX idx_incidents_stop ON incidents (stop_id);
-CREATE INDEX idx_incidents_resolved ON incidents (resolved, created_at DESC);
-CREATE INDEX idx_incidents_type ON incidents (type);
-CREATE INDEX idx_incidents_created_by ON incidents (created_by);
+CREATE INDEX ON incidents (stop_id);
+CREATE INDEX ON incidents (resolved, created_at DESC);
+CREATE INDEX ON incidents (type);
+CREATE INDEX ON incidents (created_by);
 
 -- BEFORE UPDATE: поддержка updated_at / resolved_at
 CREATE OR REPLACE FUNCTION incidents_touch()
