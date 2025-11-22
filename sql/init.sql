@@ -25,15 +25,14 @@ CREATE TABLE garbage_points
     address    text        NOT NULL,
     capacity   integer     NOT NULL CHECK (capacity >= 0),
     is_open    boolean     NOT NULL DEFAULT true,
-    lat        double precision, -- координаты для карты
+    lat        double precision,
     lon        double precision,
     created_at timestamptz NOT NULL DEFAULT now(),
     admin_id   integer     REFERENCES users (id) ON DELETE SET NULL,
-    CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)), -- фикс ограничений координат
+    CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)),
     CHECK (lon IS NULL OR (lon >= -180 AND lon <= 180))
 );
 CREATE INDEX ON garbage_points (is_open);
-CREATE INDEX ON garbage_points (admin_id);
 
 
 CREATE TABLE container_sizes
@@ -112,13 +111,16 @@ CREATE TABLE driver_shifts
     opened_at  timestamptz  NOT NULL DEFAULT now(),
     closed_at  timestamptz,
     status     shift_status NOT NULL DEFAULT 'open',
+    -- Если смена открыта - closed_at должен быть NULL
+    -- Если смена закрыта - closed_at должен быть заполнен
     CHECK (
         (status = 'open' AND closed_at IS NULL) OR
         (status = 'closed' AND closed_at IS NOT NULL)
         ),
+    -- Если смена закрыта - время закрытия не может быть раньше времени открытия
     CHECK (closed_at IS NULL OR closed_at >= opened_at)
 );
--- единственная открытая смена на водителя
+-- гарантирует, что у одного водителя может быть только одна открытая смена
 CREATE UNIQUE INDEX ON driver_shifts (driver_id) WHERE status = 'open';
 CREATE INDEX ON driver_shifts (driver_id);
 CREATE INDEX ON driver_shifts (vehicle_id);
@@ -154,17 +156,28 @@ CREATE TABLE route_stops
     actual_capacity   integer,
     status            stop_status NOT NULL DEFAULT 'planned',
     note              text,
+    -- В рамках одного маршрута порядковые номера остановок должны быть уникальными
     UNIQUE (route_id, seq_no),
+    -- Нумерация остановок начинается с 1
     CHECK (seq_no >= 1),
+    -- Остановка должна быть:
+    -- либо по точке на карте: garbage_point_id заполнен, address пустой
+    -- либо по адресу: garbage_point_id пустой, address заполнен
+    -- Не может быть: Одновременно и точка и адрес, Ни точки ни адреса
     CHECK (
         (garbage_point_id IS NOT NULL AND (address IS NULL OR address = ''))
             OR
         (garbage_point_id IS NULL AND address IS NOT NULL AND address <> '')
         ),
+    -- Оба поля вместимости могут быть NULL, но если указаны - должны быть > 0
     CHECK (
         (expected_capacity IS NULL OR expected_capacity >= 0) AND
         (actual_capacity IS NULL OR actual_capacity >= 0)
         ),
+    -- Временное окно может быть:
+    -- либо Не указано вообще (оба поля NULL)
+    -- либо Указано полностью (оба поля заполнены, причем time_from ≤ time_to)
+    -- Не может быть: Указано только одно из времен time_from позже чем time_to
     CHECK (
         (time_from IS NULL AND time_to IS NULL) OR
         (time_from IS NOT NULL AND time_to IS NOT NULL AND time_from <= time_to)
@@ -180,7 +193,10 @@ CREATE OR REPLACE FUNCTION route_stops_autoseq()
     RETURNS trigger AS
 $$
 BEGIN
+    -- Если seq_no не указан явно
     IF NEW.seq_no IS NULL THEN
+        -- Находим максимальный существующий seq_no для этого маршрута
+        -- Находит максимальный порядковый номер среди существующих остановок маршрута, если нет то 0
         SELECT COALESCE(MAX(rs.seq_no), 0) + 1
         INTO NEW.seq_no
         FROM route_stops rs
@@ -189,17 +205,17 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER trg_route_stops_autoseq
-    BEFORE INSERT
+    BEFORE INSERT -- Перед вставкой новой записи в route_stops
     ON route_stops
-    FOR EACH ROW
+    FOR EACH ROW -- Для каждой строки
 EXECUTE FUNCTION route_stops_autoseq();
+
 
 CREATE TABLE stop_events
 (
     id         SERIAL PRIMARY KEY,
-    stop_id    integer         NOT NULL REFERENCES route_stops (id) ON DELETE CASCADE, -- удаляем точку → удаляем её события
+    stop_id    integer         NOT NULL REFERENCES route_stops (id) ON DELETE CASCADE,
     event_type stop_event_type NOT NULL,
     created_at timestamptz     NOT NULL DEFAULT now(),
     photo_url  text,
@@ -225,13 +241,18 @@ CREATE INDEX ON incidents (resolved, created_at DESC);
 CREATE INDEX ON incidents (type);
 CREATE INDEX ON incidents (created_by);
 
--- BEFORE UPDATE: поддержка updated_at / resolved_at
+
+
+
+-- автообновление временных меток
+-- Всегда обновляет updated_at при любом изменении инцидента
+-- Автоматически проставляет resolved_at при первом разрешении инцидента
 CREATE OR REPLACE FUNCTION incidents_touch()
     RETURNS trigger AS
 $$
 BEGIN
     NEW.updated_at := now();
-    IF NEW.resolved = true AND (OLD.resolved IS DISTINCT FROM NEW.resolved) AND NEW.resolved_at IS NULL THEN
+    IF NEW.resolved = true AND (OLD.resolved IS DISTINCT FROM NEW.resolved) AND NEW.resolved_at IS NULL THEN -- если значение resolved изменилось
         NEW.resolved_at := now();
     END IF;
     RETURN NEW;
@@ -244,7 +265,8 @@ CREATE TRIGGER trg_incidents_touch
     FOR EACH ROW
 EXECUTE FUNCTION incidents_touch();
 
--- AFTER INSERT: пишем событие в таймлинию и помечаем точку как 'unavailable' (если она ещё не финализирована)
+-- Логирует в таймлайн - создает запись в stop_events с информацией об инциденте
+-- Блокирует остановку - меняет статус остановки на 'unavailable'
 CREATE OR REPLACE FUNCTION incidents_after_insert()
     RETURNS trigger AS
 $$
@@ -262,14 +284,15 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER trg_incidents_ins
     AFTER INSERT
     ON incidents
     FOR EACH ROW
 EXECUTE FUNCTION incidents_after_insert();
 
--- AFTER UPDATE: логируем закрытие/переоткрытие в таймлинии
+-- отслеживание изменений статуса
+-- Отслеживает только изменения поля resolved
+-- Логирует в таймлайн разрешение или переоткрытие инцидента
 CREATE OR REPLACE FUNCTION incidents_after_update()
     RETURNS trigger AS
 $$
@@ -289,7 +312,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER trg_incidents_upd
     AFTER UPDATE
     ON incidents
