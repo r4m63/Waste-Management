@@ -1,0 +1,1029 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Top Banner */
+.topBanner {
+    background: #1a5d3a;
+    color: white;
+    padding: 12px 0;
+    font-size: 0.875rem;
+    text-align: center;
+    position: relative;
+}
+
+.topBanner .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.closeBanner {
+    position: absolute;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Header */
+.header {
+    background: #ffffff;
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.navLinks {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+}
+
+.navLinks a {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.navLinks a:hover {
+    color: #4CAF50;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.loginLink {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.signUpBtn {
+    background: #1a5d3a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.signUpBtn:hover {
+    background: #154a2f;
+}
+
+/* Hero секция */
+.hero {
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 80px 0;
+}
+
+.heroGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.heroLeft {
+    padding-right: 20px;
+}
+
+.preHeadline {
+    color: #7abf8a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.heroTitle {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    line-height: 1.1;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+}
+
+.heroTitle em {
+    font-style: italic;
+    font-family: Georgia, serif;
+}
+
+.heroDescription {
+    font-size: 1.1rem;
+    margin-bottom: 35px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.btnPrimary {
+    background: #1a5d3a;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.btnPrimary:hover {
+    background: #154a2f;
+    transform: translateY(-2px);
+}
+
+.heroRating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ratingValue {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.stars {
+    display: flex;
+    gap: 3px;
+}
+
+.stars span {
+    font-size: 1.1rem;
+    color: #ffc107;
+}
+
+.ratingText {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Правая колонка - сетка */
+.heroRight {
+    display: flex;
+    justify-content: center;
+}
+
+.heroGridRight {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Блок с изображением */
+.gridBlockImage {
+    background: #e5e5e5;
+    border-radius: 12px;
+    padding: 40px 30px;
+    position: relative;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.phoneMockup {
+    font-size: 5rem;
+    z-index: 2;
+    position: relative;
+}
+
+.decorShape1,
+.decorShape2 {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+}
+
+.decorShape1 {
+    width: 60px;
+    height: 20px;
+    top: 20px;
+    right: 30px;
+    transform: rotate(15deg);
+}
+
+.decorShape2 {
+    width: 40px;
+    height: 15px;
+    top: 50px;
+    right: 50px;
+    transform: rotate(-10deg);
+}
+
+/* Блок статистики 1 - валюта */
+.gridBlockStats1 {
+    background: #f5e6d3;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    color: #1a5d3a;
+}
+
+.gridBlockStats1 .statNumber {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a5d3a;
+    margin-bottom: 10px;
+}
+
+.gridBlockStats1 .statLabel {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1a5d3a;
+    margin-bottom: auto;
+}
+
+.globeIcon {
+    font-size: 2.5rem;
+    opacity: 0.7;
+    align-self: flex-end;
+}
+
+/* Блок статистики 2 - пользователи */
+.gridBlockStats2 {
+    background: #e8f5e9;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    color: #1a5d3a;
+}
+
+.starIcons {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.starIcons span {
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+.gridBlockStats2 .statLabel {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1a5d3a;
+    margin-bottom: auto;
+}
+
+.userAvatars {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background: #7abf8a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.moreUsers {
+    width: 40px;
+    height: 40px;
+    background: #1a5d3a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Блок статистики 3 - сохранения */
+.gridBlockStats3 {
+    background: #1a5d3a;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    color: white;
+}
+
+.savingAmount {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.savingAmount span:first-child {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.arrowUp {
+    font-size: 1.2rem;
+    color: #7abf8a;
+}
+
+.chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.chartBar {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px 4px 0 0;
+    min-width: 20px;
+}
+
+.statLabelWhite {
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+}
+
+/* Логотипы компаний */
+.logosSection {
+    background: #ffffff;
+    padding: 50px 0;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.logosContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 60px;
+}
+
+.logoItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2c5f4a;
+    font-size: 1.25rem;
+    font-weight: 600;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+    cursor: default;
+}
+
+.logoItem:hover {
+    opacity: 1;
+}
+
+.logoIcon {
+    font-size: 1.4rem;
+    display: inline-block;
+    filter: grayscale(100%) brightness(0.4) sepia(100%) hue-rotate(140deg) saturate(500%);
+}
+
+.logoText {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    letter-spacing: -0.3px;
+    font-weight: 600;
+    color: #2c5f4a;
+}
+
+/* Общие стили секций */
+section {
+    padding: 80px 0;
+}
+
+.sectionTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 50px;
+    color: #1a1a1a;
+}
+
+/* О компании */
+.about {
+    background: #f8f9fa;
+}
+
+.aboutContent {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+.aboutText {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.aboutText p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.aboutText p:first-child {
+    font-size: 1.2rem;
+}
+
+.aboutStats {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.statItem {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.statNumber {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.statLabel {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Кто мы */
+.whoWeAre {
+    background: white;
+}
+
+.teamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.teamCard {
+    padding: 40px 30px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.teamCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.teamIcon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.teamCard h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.teamCard p {
+    color: #666;
+    line-height: 1.7;
+}
+
+/* Преимущества */
+.advantages {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.advantagesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.advantageItem {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid #4CAF50;
+}
+
+.advantageItem:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.advantageNumber {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #4CAF50;
+    opacity: 0.2;
+    margin-bottom: 15px;
+}
+
+.advantageItem h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.advantageItem p {
+    color: #666;
+    line-height: 1.7;
+}
+
+/* Карта */
+.mapSection {
+    background: white;
+    padding: 80px 0;
+}
+
+/* FAQ секция */
+.faqSection {
+    background: #f8f9fa;
+    padding: 80px 0;
+}
+
+.faqContainer {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faqItem {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.faqItem:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.faqQuestion {
+    width: 100%;
+    padding: 24px 28px;
+    background: white;
+    border: none;
+    text-align: left;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.faqQuestion:hover {
+    background: #f8f9fa;
+}
+
+.faqQuestionOpen {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.faqIcon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #4CAF50;
+    min-width: 30px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.faqQuestionOpen .faqIcon {
+    transform: rotate(180deg);
+}
+
+.faqAnswer {
+    padding: 0 28px 24px 28px;
+    animation: slideDown 0.3s ease;
+}
+
+.faqAnswer p {
+    color: #666;
+    line-height: 1.7;
+    font-size: 1rem;
+    margin: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.mapDescription {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 40px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mapContainer {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+.footer {
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 80px 0 30px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.footerContent {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 80px;
+    margin-bottom: 50px;
+}
+
+.footerNav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.footerColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.footerColumnTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footerLinks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footerLinks li {
+    margin: 0;
+}
+
+.footerLinks a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.footerLinks a:hover {
+    color: #1a5d3a;
+}
+
+.footerBrand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.footerLogo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a5d3a;
+    margin-bottom: 20px;
+}
+
+.footerAddress {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 250px;
+}
+
+.footerLanguage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.flagIcon {
+    font-size: 1.2rem;
+}
+
+.footerBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 30px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.footerCopyright {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.footerLegal {
+    display: flex;
+    gap: 25px;
+}
+
+.footerLegal a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footerLegal a:hover {
+    color: #1a5d3a;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+    .heroGrid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .heroRight {
+        order: -1;
+    }
+
+    .heroGridRight {
+        max-width: 100%;
+    }
+
+    .logosContainer {
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .logoItem {
+        flex: 0 0 auto;
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+    }
+
+    .headerActions {
+        gap: 15px;
+    }
+
+    .signUpBtn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .heroTitle {
+        font-size: 2.5rem;
+    }
+
+    .heroDescription {
+        font-size: 1rem;
+    }
+
+    .heroGridRight {
+        gap: 15px;
+    }
+
+    .gridBlockImage,
+    .gridBlockStats1,
+    .gridBlockStats2,
+    .gridBlockStats3 {
+        min-height: 220px;
+    }
+
+    .logosSection {
+        padding: 40px 0;
+    }
+
+    .faqSection {
+        padding: 60px 0;
+    }
+
+    .faqQuestion {
+        padding: 20px 24px;
+        font-size: 1rem;
+    }
+
+    .faqAnswer {
+        padding: 0 24px 20px 24px;
+    }
+
+    .faqAnswer p {
+        font-size: 0.95rem;
+    }
+
+    .footerContent {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .footerNav {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .footerBrand {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .footerBottom {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .footerLegal {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .logosContainer {
+        gap: 25px;
+    }
+
+    .logoItem {
+        font-size: 1rem;
+        min-width: 90px;
+    }
+
+    .sectionTitle {
+        font-size: 2rem;
+    }
+
+    .aboutContent {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .aboutStats {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .statItem {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .advantagesGrid {
+        grid-template-columns: 1fr;
+    }
+
+    section {
+        padding: 60px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .topBanner {
+        font-size: 0.75rem;
+        padding: 10px 0;
+    }
+
+    .hero {
+        padding: 50px 0;
+    }
+
+    .heroTitle {
+        font-size: 2rem;
+    }
+
+    .heroDescription {
+        font-size: 0.95rem;
+    }
+
+    .heroGridRight {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+
+    .faqSection {
+        padding: 50px 0;
+    }
+
+    .faqQuestion {
+        padding: 18px 20px;
+        font-size: 0.95rem;
+    }
+
+    .faqAnswer {
+        padding: 0 20px 18px 20px;
+    }
+
+    .faqIcon {
+        font-size: 1.3rem;
+    }
+
+    .footer {
+        padding: 60px 0 25px;
+    }
+
+    .footerNav {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .footerContent {
+        gap: 40px;
+    }
+}
+
