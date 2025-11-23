@@ -1,106 +1,107 @@
--- 1. Создание пользователей
-INSERT INTO users (role, phone, name, is_active) VALUES
-('admin', '+79110000001', 'Администратор Системы', true),
-('courier', '+79110000002', 'Иван Петров', true),
-('courier', '+79110000003', 'Сергей Сидоров', true),
-('worker', '+79110000004', 'Алексей Козлов', true),
-('resident', '+79110000005', 'Мария Иванова', true),
-('resident', '+79110000006', 'Ольга Смирнова', true);
+-- 1. Заполняем пользователей
+INSERT INTO users (role, phone, name, is_active)
+VALUES ('admin', '+79111111111', 'Александр Иванов', true),
+       ('courier', '+79112222222', 'Петр Сидоров', true),
+       ('courier', '+79113333333', 'Мария Петрова', true),
+       ('worker', '+79114444444', 'Иван Кузнецов', true),
+       ('resident', '+79115555555', 'Сергей Смирнов', true),
+       ('resident', '+79116666666', 'Ольга Орлова', true);
 
--- 2. Создание транспортных средств
-INSERT INTO vehicles (plate_number, name, capacity, is_active) VALUES
-('А123АА77', 'Газель Next', 1500, true),
-('В456ВВ77', 'Камаз 6520', 10000, true),
-('С789СС77', 'Ford Transit', 2000, true),
-('Е000ЕЕ77', 'MAN TGS', 15000, true);
+-- 2. Заполняем точки сбора
+INSERT INTO garbage_points (address, capacity, lat, lon, admin_id)
+VALUES ('ул. Ленина, 10', 1000, 55.7558, 37.6173, 1),
+       ('пр. Мира, 25', 800, 55.7547, 37.6206, 1),
+       ('ул. Садовая, 5', 1200, 55.7580, 37.6215, 1),
+       ('пер. Бульварный, 15', 600, 55.7572, 37.6159, 1);
 
--- 3. Создание фракций (типов мусора)
-INSERT INTO fractions (name, code, description, is_hazardous) VALUES
-('Пластик', 'plastic', 'Пластиковые отходы', false),
-('Стекло', 'glass', 'Стеклянные отходы', false),
-('Металл', 'metal', 'Металлические отходы', false),
-('Бумага', 'paper', 'Бумажные отходы', false),
-('Опасные отходы', 'hazardous', 'Батарейки, лампы', true);
+-- 3. Заполняем фракции отходов
+INSERT INTO fractions (name, code, description, is_hazardous)
+VALUES ('Пластик', 'plastic', 'Пластиковые отходы', false),
+       ('Стекло', 'glass', 'Стеклянные отходы', false),
+       ('Бумага', 'paper', 'Макулатура', false),
+       ('Металл', 'metal', 'Металлические отходы', false),
+       ('Опасные отходы', 'hazardous', 'Батарейки, лампы', true);
 
--- 4. Создание мусорных точек
-INSERT INTO garbage_points (address, capacity, is_open, lat, lon, admin_id) VALUES
-('ул. Ленина, 1', 500, true, 55.7558, 37.6173, 1),
-('ул. Пушкина, 15', 800, true, 55.7600, 37.6200, 1),
-('пр. Мира, 25', 1200, true, 55.7818, 37.6168, 1),
-('ул. Гагарина, 10', 300, false, 55.7234, 37.6012, 1),
-('бульвар Космонавтов, 5', 1000, true, 55.7934, 37.6156, 1);
+-- 4. Связываем точки с фракциями
+INSERT INTO garbage_point_fractions (garbage_point_id, fraction_id)
+VALUES (1, 1),
+       (1, 2),
+       (1, 3),
+       (2, 1),
+       (2, 3),
+       (2, 4),
+       (3, 2),
+       (3, 3),
+       (3, 4),
+       (4, 1),
+       (4, 5);
 
--- 5. Связи точек и фракций
-INSERT INTO garbage_point_fractions (garbage_point_id, fraction_id, is_active) VALUES
-(1, 1, true), (1, 2, true), (1, 3, true),
-(2, 1, true), (2, 4, true),
-(3, 1, true), (3, 2, true), (3, 3, true), (3, 4, true),
-(4, 1, true),
-(5, 1, true), (5, 2, true), (5, 5, true);
+-- 5. Заказы через киоск
+INSERT INTO kiosk_orders (garbage_point_id, container_size_id, user_id, fraction_id, status)
+VALUES (1, 3, 5, 1, 'confirmed'),
+       (1, 2, 6, 2, 'confirmed'),
+       (2, 4, 5, 3, 'created'),
+       (3, 3, 6, 4, 'confirmed'),
+       (4, 1, 5, 1, 'cancelled');
 
--- 6. Заказы из киосков
-INSERT INTO kiosk_orders (garbage_point_id, container_size_id, user_id, fraction_id, status, created_at) VALUES
-(1, 2, 5, 1, 'confirmed', NOW() - INTERVAL '2 days'),
-(1, 3, 5, 2, 'confirmed', NOW() - INTERVAL '1 day'),
-(2, 4, 6, 4, 'confirmed', NOW() - INTERVAL '3 days'),
-(3, 1, 5, 1, 'confirmed', NOW()),
-(5, 3, 6, 5, 'confirmed', NOW() - INTERVAL '5 hours');
+-- 6. Транспортные средства
+INSERT INTO vehicles (plate_number, name, capacity, is_active)
+VALUES ('А123БВ777', 'ГАЗель NEXT', 3000, true),
+       ('Х456УВ777', 'Hyundai HD78', 5000, true),
+       ('М789ТР777', 'Ford Transit', 4000, false);
 
 -- 7. Смены водителей
-INSERT INTO driver_shifts (driver_id, vehicle_id, opened_at, status) VALUES
-(2, 1, NOW() - INTERVAL '3 hours', 'open'),
-(3, 2, NOW() - INTERVAL '1 day', 'closed'),
-(3, 2, NOW() - INTERVAL '2 hours', 'open');
+INSERT INTO driver_shifts (driver_id, vehicle_id, opened_at, closed_at, status)
+VALUES (2, 1, '2024-06-01 08:00:00', '2024-06-01 17:00:00', 'closed'),
+       (3, 2, '2024-06-01 09:00:00', NULL, 'open'),
+       (2, 1, '2024-06-02 08:00:00', NULL, 'open');
 
--- 8. Обновление закрытой смены
-UPDATE driver_shifts SET
-    closed_at = NOW() - INTERVAL '30 minutes',
-    status = 'closed'
-WHERE id = 2;
+-- 8. Маршруты
+INSERT INTO routes (planned_date, driver_id, vehicle_id, shift_id, planned_start_at, planned_end_at, started_at,
+                    finished_at, status)
+VALUES ('2024-06-01', 2, 1, 1, '2024-06-01 09:00:00', '2024-06-01 12:00:00', '2024-06-01 09:05:00',
+        '2024-06-01 11:45:00', 'completed'),
+       ('2024-06-01', 3, 2, 2, '2024-06-01 10:00:00', '2024-06-01 15:00:00', '2024-06-01 10:10:00', NULL,
+        'in_progress'),
+       ('2024-06-02', 2, 1, 3, '2024-06-02 09:00:00', '2024-06-02 13:00:00', NULL, NULL, 'planned');
 
--- 9. Маршруты
-INSERT INTO routes (planned_date, driver_id, vehicle_id, shift_id, planned_start_at, planned_end_at, status) VALUES
-(CURRENT_DATE, 2, 1, 1, NOW() - INTERVAL '2 hours', NOW() + INTERVAL '2 hours', 'planned'),
-(CURRENT_DATE + 1, 3, 2, 3, NOW() + INTERVAL '1 day', NOW() + INTERVAL '1 day 4 hours', 'planned'),
-(CURRENT_DATE - 1, 3, 2, 2, NOW() - INTERVAL '1 day', NOW() - INTERVAL '20 hours', 'completed');
+-- 9. Остановки маршрутов
+INSERT INTO route_stops (route_id, seq_no, garbage_point_id, address, time_from, time_to, expected_capacity,
+                         actual_capacity, status, note)
+VALUES
+-- Для первого (завершенного) маршрута
+(1, 1, 1, NULL, '2024-06-01 09:00:00', '2024-06-01 09:30:00', 150, 140, 'done', 'Пластик и стекло'),
+(1, 2, 2, NULL, '2024-06-01 10:00:00', '2024-06-01 10:40:00', 200, 180, 'done', 'Бумага'),
+(1, 3, NULL, 'ул. Непланируемая, 7', '2024-06-01 11:00:00', '2024-06-01 11:20:00', 100, 100, 'done', 'Временная точка'),
 
--- 10. Остановки маршрутов
-INSERT INTO route_stops (route_id, garbage_point_id, seq_no, time_from, time_to, expected_capacity, status) VALUES
-(1, 1, 1, NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 150, 'planned'),
-(1, 2, 2, NOW() - INTERVAL '20 minutes', NOW() + INTERVAL '10 minutes', 200, 'planned'),
-(1, 3, 3, NOW() + INTERVAL '30 minutes', NOW() + INTERVAL '1 hour', 300, 'planned'),
-(2, 4, 1, NOW() + INTERVAL '1 day', NOW() + INTERVAL '1 day 30 minutes', 100, 'planned'),
-(2, 5, 2, NOW() + INTERVAL '1 day 1 hour', NOW() + INTERVAL '1 day 2 hours', 250, 'planned'),
-(3, 1, 1, NOW() - INTERVAL '1 day', NOW() - INTERVAL '23 hours', 180, 'done'),
-(3, 3, 2, NOW() - INTERVAL '22 hours', NOW() - INTERVAL '21 hours', 220, 'done');
+-- Для второго (активного) маршрута
+(2, 1, 3, NULL, '2024-06-01 10:00:00', '2024-06-01 10:45:00', 180, 175, 'done', NULL),
+(2, 2, 4, NULL, '2024-06-01 11:30:00', '2024-06-01 12:15:00', 120, NULL, 'loading', 'Опасные отходы'),
+(2, 3, NULL, 'ул. Строителей, 20/2', '2024-06-01 13:00:00', '2024-06-01 13:40:00', 200, NULL, 'planned', 'Новый район'),
 
--- 11. События остановок
-INSERT INTO stop_events (stop_id, event_type, created_at, comment) VALUES
-(6, 'arrived', NOW() - INTERVAL '1 day', 'Прибыл на точку'),
-(6, 'loading', NOW() - INTERVAL '1 day' + INTERVAL '5 minutes', 'Начало загрузки'),
-(6, 'unloading', NOW() - INTERVAL '1 day' + INTERVAL '15 minutes', 'Выгрузка в контейнер'),
-(6, 'done', NOW() - INTERVAL '1 day' + INTERVAL '25 minutes', 'Завершено, объем: 170 кг'),
-(7, 'arrived', NOW() - INTERVAL '22 hours', 'Прибыл на вторую точку'),
-(7, 'loading', NOW() - INTERVAL '22 hours' + INTERVAL '5 minutes', 'Загрузка металла'),
-(7, 'done', NOW() - INTERVAL '22 hours' + INTERVAL '20 minutes', 'Завершено, объем: 210 кг');
+-- Для третьего (запланированного) маршрута
+(3, 1, 1, NULL, '2024-06-02 09:00:00', '2024-06-02 09:30:00', 170, NULL, 'planned', NULL),
+(3, 2, 3, NULL, '2024-06-02 10:00:00', '2024-06-02 10:45:00', 190, NULL, 'planned', NULL);
 
--- 12. Инциденты
-INSERT INTO incidents (stop_id, type, description, created_by, resolved) VALUES
-(1, 'access_denied', 'Въезд на территорию закрыт', 2, false),
-(4, 'vehicle_issue', 'Прокол колеса, требуется замена', 3, true),
-(2, 'overload', 'Контейнер переполнен, не помещается весь объем', 2, false);
+-- 10. События остановок
+INSERT INTO stop_events (stop_id, event_type, created_at, photo_url, comment)
+VALUES
+-- Для первой остановки первого маршрута
+(1, 'arrived', '2024-06-01 09:02:00', NULL, 'Прибыли к точке'),
+(1, 'loading', '2024-06-01 09:15:00', 'photo1.jpg', 'Начало погрузки'),
+(1, 'done', '2024-06-01 09:28:00', NULL, 'Погрузка завершена'),
 
--- 13. Обновление фактической вместимости для выполненных остановок
-UPDATE route_stops SET actual_capacity = 170 WHERE id = 6;
-UPDATE route_stops SET actual_capacity = 210 WHERE id = 7;
+-- Для второй остановки первого маршрута
+(2, 'arrived', '2024-06-01 10:03:00', NULL, NULL),
+(2, 'loading', '2024-06-01 10:10:00', NULL, 'Бумага прессуется'),
+(2, 'done', '2024-06-01 10:38:00', 'photo2.jpg', NULL),
 
--- 14. Обновление маршрута в процессе выполнения
-UPDATE routes SET
-    status = 'in_progress',
-    started_at = NOW() - INTERVAL '2 hours'
-WHERE id = 1;
+-- Для активной остановки
+(5, 'arrived', '2024-06-01 11:29:00', NULL, 'Подъехали к точке'),
+(5, 'loading', '2024-06-01 11:35:00', 'photo3.jpg', 'Погрузка опасных отходов');
 
--- 15. Обновление завершенного маршрута
-UPDATE routes SET
-    finished_at = NOW() - INTERVAL '20 hours'
-WHERE id = 3;
+-- 11. Инциденты
+INSERT INTO incidents (stop_id, type, description, photo_url, created_by, resolved)
+VALUES (2, 'access_denied', 'Не смогли подъехать из-за припаркованных машин', 'incident1.jpg', 2, true),
+       (5, 'vehicle_issue', 'Проблема с гидравликой подъемника', NULL, 3, false),
+       (3, 'other', 'Дополнительные отходы не помещаются в контейнер', 'incident2.jpg', 2, true);
