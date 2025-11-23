@@ -17,7 +17,6 @@ CREATE TABLE users
     is_active  boolean     NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX ON users (role);
 
 CREATE TABLE garbage_points
 (
@@ -32,8 +31,6 @@ CREATE TABLE garbage_points
     CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)),
     CHECK (lon IS NULL OR (lon >= -180 AND lon <= 180))
 );
-CREATE INDEX ON garbage_points (is_open);
-
 
 CREATE TABLE container_sizes
 (
@@ -65,8 +62,6 @@ CREATE TABLE fractions
     updated_at   timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ON fractions (code);
-
 -- M:N: какие фракции принимаются на каких точках
 CREATE TABLE garbage_point_fractions
 (
@@ -75,8 +70,6 @@ CREATE TABLE garbage_point_fractions
     is_active        boolean NOT NULL DEFAULT true,
     PRIMARY KEY (garbage_point_id, fraction_id)
 );
-CREATE INDEX ON garbage_point_fractions (fraction_id);
-
 
 CREATE TABLE kiosk_orders
 (
@@ -88,11 +81,6 @@ CREATE TABLE kiosk_orders
     created_at        timestamptz  NOT NULL DEFAULT now(),
     status            order_status NOT NULL DEFAULT 'confirmed'
 );
-CREATE INDEX ON kiosk_orders (garbage_point_id, created_at DESC);
-CREATE INDEX ON kiosk_orders (user_id, created_at DESC);
-CREATE INDEX ON kiosk_orders (fraction_id);
-CREATE INDEX ON kiosk_orders (container_size_id);
-
 
 CREATE TABLE vehicles
 (
@@ -122,8 +110,6 @@ CREATE TABLE driver_shifts
 );
 -- гарантирует, что у одного водителя может быть только одна открытая смена
 CREATE UNIQUE INDEX ON driver_shifts (driver_id) WHERE status = 'open';
-CREATE INDEX ON driver_shifts (driver_id);
-CREATE INDEX ON driver_shifts (vehicle_id);
 
 CREATE TABLE routes
 (
@@ -138,10 +124,6 @@ CREATE TABLE routes
     finished_at      timestamptz,
     status           route_status NOT NULL DEFAULT 'planned'
 );
-
-CREATE INDEX ON routes (planned_date, driver_id, status);
-CREATE INDEX ON routes (vehicle_id);
-CREATE INDEX ON routes (shift_id);
 
 CREATE TABLE route_stops
 (
@@ -184,10 +166,6 @@ CREATE TABLE route_stops
         )
 );
 
-CREATE INDEX ON route_stops (route_id);
-CREATE INDEX ON route_stops (route_id, status);
-CREATE INDEX ON route_stops (garbage_point_id);
-
 -- Триггер автонумерации seq_no в рамках одного маршрута
 CREATE OR REPLACE FUNCTION route_stops_autoseq()
     RETURNS trigger AS
@@ -211,7 +189,6 @@ CREATE TRIGGER trg_route_stops_autoseq
     FOR EACH ROW -- Для каждой строки
 EXECUTE FUNCTION route_stops_autoseq();
 
-
 CREATE TABLE stop_events
 (
     id         SERIAL PRIMARY KEY,
@@ -221,7 +198,6 @@ CREATE TABLE stop_events
     photo_url  text,
     comment    text
 );
-CREATE INDEX ON stop_events (stop_id, created_at);
 
 CREATE TABLE incidents
 (
@@ -236,9 +212,57 @@ CREATE TABLE incidents
     resolved    boolean       NOT NULL DEFAULT false,
     resolved_at timestamptz
 );
+
+-- Пользователи: фильтрация по ролям (админка, поиск курьеров)
+CREATE INDEX ON users (role);
+
+-- Точки сбора: показ только открытых точек на карте
+CREATE INDEX ON garbage_points (is_open);
+
+-- Фракции: быстрый поиск по коду (API, валидация)
+CREATE INDEX ON fractions (code);
+
+-- Связи точек и фракций: поиск точек для конкретной фракции
+CREATE INDEX ON garbage_point_fractions (fraction_id);
+
+-- Заказы: история заказов пользователя (личный кабинет)
+CREATE INDEX ON kiosk_orders (user_id, created_at DESC);
+
+-- Заказы: аналитика по типам отходов
+CREATE INDEX ON kiosk_orders (fraction_id);
+
+-- Заказы: планирование загрузки по размерам контейнеров
+CREATE INDEX ON kiosk_orders (container_size_id);
+
+-- Смены: отслеживание использования транспорта
+CREATE INDEX ON driver_shifts (vehicle_id);
+
+-- Маршруты: ежедневное планирование и мониторинг выполнения
+CREATE INDEX ON routes (planned_date, driver_id, status);
+
+-- Маршруты: загрузка автомобилей, история использования
+CREATE INDEX ON routes (vehicle_id);
+
+-- Маршруты: связь со сменами водителей
+CREATE INDEX ON routes (shift_id);
+
+-- Остановки: мониторинг прогресса маршрута в реальном времени
+CREATE INDEX ON route_stops (route_id, status);
+
+-- Остановки: история посещений и аналитика точек сбора
+CREATE INDEX ON route_stops (garbage_point_id);
+
+-- События: хронология операций на остановках (отчеты, аудит)
+CREATE INDEX ON stop_events (stop_id, created_at);
+
+-- Инциденты: все проблемы по конкретной остановке
 CREATE INDEX ON incidents (stop_id);
+
+-- Инциденты: панель управления (новые нерешенные сначала)
 CREATE INDEX ON incidents (resolved, created_at DESC);
+
+-- Инциденты: аналитика по типам проблем
 CREATE INDEX ON incidents (type);
+
+-- Инциденты: отслеживание активности сотрудников
 CREATE INDEX ON incidents (created_by);
-
-
