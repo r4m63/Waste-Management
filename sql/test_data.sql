@@ -105,3 +105,62 @@ INSERT INTO incidents (stop_id, type, description, photo_url, created_by, resolv
 VALUES (2, 'access_denied', 'Не смогли подъехать из-за припаркованных машин', 'incident1.jpg', 2, true),
        (5, 'vehicle_issue', 'Проблема с гидравликой подъемника', NULL, 3, false),
        (3, 'other', 'Дополнительные отходы не помещаются в контейнер', 'incident2.jpg', 2, true);
+
+
+-- УСПЕШНОЕ открытие смены
+CALL manage_driver_shift(2, 1, 'open');
+-- Ожидаемый результат: смена создана, исключений нет
+
+-- ОШИБКА: Повторное открытие смены
+CALL manage_driver_shift(2, 1, 'open');
+-- Ожидаемый результат: "Driver already has open shift: X"
+
+-- УСПЕШНОЕ закрытие смены
+CALL manage_driver_shift(2, NULL, 'close');
+-- Ожидаемый результат: смена закрыта, исключений нет
+
+-- ОШИБКА: Закрытие несуществующей смены
+CALL manage_driver_shift(2, NULL, 'close');
+-- Ожидаемый результат: "No open shift found for driver"
+
+-- ОШИБКА: Неверное действие
+CALL manage_driver_shift(2, 1, 'invalid_action');
+-- Ожидаемый результат: "Invalid action: invalid_action. Use 'open' or 'close'"
+
+-- Открытие смены без транспортного средства
+CALL manage_driver_shift(2, NULL, 'open');
+
+
+-- Сначала открываем смену для водителя
+CALL manage_driver_shift(2, 1, 'open');
+
+-- УСПЕШНЫЙ запуск маршрута
+SELECT start_route(3, 2);
+-- Ожидаемый результат: true
+
+-- Проверяем что маршрут обновился
+SELECT id, status, started_at, driver_id, shift_id, vehicle_id
+FROM routes WHERE id = 3;
+
+-- Проверяем что создались события остановок
+SELECT se.*, rs.seq_no
+FROM stop_events se
+JOIN route_stops rs ON rs.id = se.stop_id
+WHERE rs.route_id = 3 AND se.event_type = 'start';
+
+-- ОШИБКА: Маршрут не найден
+SELECT start_route(999, 2);
+-- Ожидаемый результат: "Route not found"
+
+-- ОШИБКА: Маршрут уже не в статусе 'planned'
+SELECT start_route(1, 2);
+-- Ожидаемый результат: "Route cannot be started. Current status: completed"
+
+-- ОШИБКА: У водителя нет открытой смены
+-- Сначала закроем смену если открыта
+CALL manage_driver_shift(2, NULL, 'close');
+SELECT start_route(3, 2);
+-- Ожидаемый результат: "Driver has no open shift"
+
+
+
