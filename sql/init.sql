@@ -273,60 +273,75 @@ CREATE OR REPLACE FUNCTION create_kiosk_order(
     p_container_size_id INTEGER,
     p_user_id INTEGER,
     p_fraction_id INTEGER
-) RETURNS INTEGER AS $$
+) RETURNS INTEGER AS
+$$
 DECLARE
-    v_order_id INTEGER;
-    v_point_open BOOLEAN;
+    v_order_id        INTEGER;
+    v_point_open      BOOLEAN;
     v_fraction_active BOOLEAN;
 BEGIN
     -- Валидация точки сбора
-    SELECT is_open INTO v_point_open
+    -- Проверяем существует ли точка и открыта ли она для приема отходов
+    SELECT is_open
+    INTO v_point_open
     FROM garbage_points
     WHERE id = p_garbage_point_id;
 
+    -- Если точка не найдена или закрыта - отказываем в создании заказа
     IF NOT FOUND OR NOT v_point_open THEN
         RAISE EXCEPTION 'Garbage point not found or closed';
     END IF;
 
     -- Валидация фракции для точки
-    SELECT EXISTS (
-        SELECT 1 FROM garbage_point_fractions
-        WHERE garbage_point_id = p_garbage_point_id
-        AND fraction_id = p_fraction_id
-        AND is_active = true
-    ) INTO v_fraction_active;
+    -- Проверяем принимает ли данная точка указанный тип отходов
+    -- Используем EXISTS для быстрой проверки наличия связи в garbage_point_fractions
+    SELECT EXISTS (SELECT 1
+                   FROM garbage_point_fractions
+                   WHERE garbage_point_id = p_garbage_point_id
+                     AND fraction_id = p_fraction_id
+                     AND is_active = true -- Проверяем что фракция активна для точки
+    )
+    INTO v_fraction_active;
 
+    -- Если точка не принимает данный тип отходов - бросаем исключение
     IF NOT v_fraction_active THEN
         RAISE EXCEPTION 'Fraction not accepted at this point';
     END IF;
 
     -- Создание заказа
+    -- Все проверки пройдены, создаем заказ со статусом 'confirmed'
     INSERT INTO kiosk_orders
         (garbage_point_id, container_size_id, user_id, fraction_id, status)
-    VALUES
-        (p_garbage_point_id, p_container_size_id, p_user_id, p_fraction_id, 'confirmed')
+    VALUES (p_garbage_point_id, p_container_size_id, p_user_id, p_fraction_id, 'confirmed')
     RETURNING id INTO v_order_id;
+    -- Получаем ID созданного заказа
 
+    -- Возвращаем ID нового заказа для дальнейшего использования
     RETURN v_order_id;
 END;
 $$ LANGUAGE plpgsql;
 
--- Открытие/закрытие смены водителя
+-- Открытие/закрытие смены водителя (ИСПРАВЛЕННАЯ ВЕРСИЯ)
 CREATE OR REPLACE PROCEDURE manage_driver_shift(
     p_driver_id INTEGER,
-    p_vehicle_id INTEGER DEFAULT NULL,
-    p_action TEXT -- 'open' or 'close'
-) AS $$
+    p_action TEXT, -- 'open' or 'close' - теперь второй параметр
+    p_vehicle_id INTEGER DEFAULT NULL -- параметр с default всегда последний
+) AS
+$$
 DECLARE
-    v_shift_id INTEGER;
+    v_shift_id      INTEGER;
     v_open_shift_id INTEGER;
 BEGIN
+    -- Обработка действия "open" - открытие новой смены
     IF p_action = 'open' THEN
-        -- Проверяем нет ли уже открытой смены
-        SELECT id INTO v_open_shift_id
+        -- Проверяем нет ли уже открытой смены у этого водителя
+        SELECT id
+        INTO v_open_shift_id
         FROM driver_shifts
-        WHERE driver_id = p_driver_id AND status = 'open';
+        WHERE driver_id = p_driver_id
+          AND status = 'open';
 
+        -- Если нашли открытую смену - бросаем исключение
         IF FOUND THEN
             RAISE EXCEPTION 'Driver already has open shift: %', v_open_shift_id;
         END IF;
@@ -336,21 +351,27 @@ BEGIN
         VALUES (p_driver_id, p_vehicle_id)
         RETURNING id INTO v_shift_id;
 
+        -- Обработка действия "close" - закрытие текущей смены
     ELSIF p_action = 'close' THEN
-        -- Находим открытую смену
-        SELECT id INTO v_shift_id
+        -- Находим открытую смену водителя
+        SELECT id
+        INTO v_shift_id
         FROM driver_shifts
-        WHERE driver_id = p_driver_id AND status = 'open';
+        WHERE driver_id = p_driver_id
+          AND status = 'open';
 
+        -- Валидация: проверяем что смена для закрытия существует
         IF NOT FOUND THEN
             RAISE EXCEPTION 'No open shift found for driver';
         END IF;
 
         -- Закрываем смену
         UPDATE driver_shifts
-        SET status = 'closed', closed_at = now()
+        SET status    = 'closed',
+            closed_at = now()
         WHERE id = v_shift_id;
 
+        -- Обработка невалидного действия
     ELSE
         RAISE EXCEPTION 'Invalid action: %. Use ''open'' or ''close''', p_action;
     END IF;
@@ -361,52 +382,65 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION start_route(
     p_route_id INTEGER,
     p_driver_id INTEGER
-) RETURNS BOOLEAN AS $$
+) RETURNS BOOLEAN AS
+$$
 DECLARE
     v_route_status route_status;
-    v_shift_id INTEGER;
-    v_vehicle_id INTEGER;
+    v_shift_id     INTEGER;
+    v_vehicle_id   INTEGER;
 BEGIN
     -- Получаем текущий статус маршрута
+    -- Проверяем существует ли маршрут и получаем его текущее состояние
     SELECT status, shift_id, vehicle_id
     INTO v_route_status, v_shift_id, v_vehicle_id
     FROM routes
     WHERE id = p_route_id;
 
+    -- Если маршрут не найден - прерываем выполнение
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Route not found';
     END IF;
 
+    -- Валидация: можно начинать только запланированные маршруты
+    -- Защита от повторного запуска или запуска в неправильном статусе
     IF v_route_status != 'planned' THEN
         RAISE EXCEPTION 'Route cannot be started. Current status: %', v_route_status;
     END IF;
 
     -- Проверяем открытую смену водителя
-    SELECT id INTO v_shift_id
+    -- Убеждаемся что водитель имеет активную смену для работы
+    SELECT id
+    INTO v_shift_id
     FROM driver_shifts
-    WHERE driver_id = p_driver_id AND status = 'open';
+    WHERE driver_id = p_driver_id
+      AND status = 'open';
 
+    -- Если у водителя нет открытой смены - нельзя начать маршрут
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Driver has no open shift';
     END IF;
 
-    -- Обновляем маршрут
+    -- Обновляем маршрут - переводим в статус "в процессе"
+    -- Фиксируем время начала, назначаем водителя и технику
     UPDATE routes
-    SET
-        status = 'in_progress',
-        started_at = now(),
-        driver_id = p_driver_id,
-        shift_id = v_shift_id,
+    SET status     = 'in_progress', -- Меняем статус на "в процессе"
+        started_at = now(),         -- Фиксируем фактическое время начала
+        driver_id  = p_driver_id,   -- Назначаем водителя
+        shift_id   = v_shift_id,    -- Связываем с текущей сменой
+        -- COALESCE: используем уже назначенный vehicle_id или берем из смены водителя
         vehicle_id = COALESCE(v_vehicle_id, (SELECT vehicle_id FROM driver_shifts WHERE id = v_shift_id))
     WHERE id = p_route_id;
 
     -- Создаем события для всех остановок маршрута
+    -- Инициируем события "start" для каждой запланированной остановки
     INSERT INTO stop_events (stop_id, event_type)
     SELECT id, 'start'
     FROM route_stops
-    WHERE route_id = p_route_id AND status = 'planned';
+    WHERE route_id = p_route_id
+      AND status = 'planned';
 
+    -- Возвращаем успешный результат
+    -- TRUE сигнализирует что операция выполнена без ошибок
     RETURN true;
 END;
 $$ LANGUAGE plpgsql;
-
