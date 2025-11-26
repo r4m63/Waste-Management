@@ -1,0 +1,4 @@
+- landing map 
+- waste point terminal
+- driver app
+- admin 

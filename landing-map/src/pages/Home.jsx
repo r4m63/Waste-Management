@@ -179,39 +179,41 @@ export default function Home() {
             </section>
 
             {/* О компании */}
-            <section className={styles.about}>
+            <section className={styles.about} id="company">
                 <div className={styles.container}>
-                    <h2 className={styles.sectionTitle}>О компании</h2>
-                    <div className={styles.aboutContent}>
-                        <div className={styles.aboutText}>
-                            <p>
-                                <strong>Waste Management</strong> — ведущая компания в области сбора, 
-                                транспортировки и утилизации отходов. Мы работаем по всей стране, 
-                                предоставляя качественные услуги частным лицам и предприятиям.
-                            </p>
-                            <p>
-                                Наша миссия — сделать процесс утилизации отходов максимально удобным 
-                                и экологически безопасным. Мы используем современные технологии и 
-                                оборудование для эффективной переработки различных видов мусора.
-                            </p>
-                            <p>
-                                За годы работы мы зарекомендовали себя как надежный партнер, 
-                                который ценит каждого клиента и стремится к постоянному улучшению 
-                                качества услуг.
-                            </p>
-                        </div>
-                        <div className={styles.aboutStats}>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>50+</div>
-                                <div className={styles.statLabel}>Точек приема</div>
+                    <div className={styles.aboutCard}>
+                        <h2 className={styles.sectionTitle}>О компании</h2>
+                        <div className={styles.aboutContent}>
+                            <div className={styles.aboutText}>
+                                <p>
+                                    <strong>Waste Management</strong> — ведущая компания в области сбора, 
+                                    транспортировки и утилизации отходов. Мы работаем по всей стране, 
+                                    предоставляя качественные услуги частным лицам и предприятиям.
+                                </p>
+                                <p>
+                                    Наша миссия — сделать процесс утилизации отходов максимально удобным 
+                                    и экологически безопасным. Мы используем современные технологии и 
+                                    оборудование для эффективной переработки различных видов мусора.
+                                </p>
+                                <p>
+                                    За годы работы мы зарекомендовали себя как надежный партнер, 
+                                    который ценит каждого клиента и стремится к постоянному улучшению 
+                                    качества услуг.
+                                </p>
                             </div>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>10000+</div>
-                                <div className={styles.statLabel}>Довольных клиентов</div>
-                            </div>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>8</div>
-                                <div className={styles.statLabel}>Лет опыта</div>
+                            <div className={styles.aboutStats}>
+                                <div className={styles.statItem}>
+                                    <div className={styles.statNumber}>50+</div>
+                                    <div className={styles.statLabel}>Точек приема</div>
+                                </div>
+                                <div className={styles.statItem}>
+                                    <div className={styles.statNumber}>10000+</div>
+                                    <div className={styles.statLabel}>Довольных клиентов</div>
+                                </div>
+                                <div className={styles.statItem}>
+                                    <div className={styles.statNumber}>8</div>
+                                    <div className={styles.statLabel}>Лет опыта</div>
+                                </div>
                             </div>
                         </div>
                     </div>
