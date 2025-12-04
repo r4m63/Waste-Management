@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.Fraction;
 
 @Repository
-public interface FractionRepository extends JpaRepository<Fraction, Long> {
+public interface FractionRepository extends JpaRepository<Fraction, Integer> {
 }
 

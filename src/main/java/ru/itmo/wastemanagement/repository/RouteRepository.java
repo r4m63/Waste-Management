@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.Route;
 
 @Repository
-public interface RouteRepository extends JpaRepository<Route, Long> {
+public interface RouteRepository extends JpaRepository<Route, Integer> {
 }
 

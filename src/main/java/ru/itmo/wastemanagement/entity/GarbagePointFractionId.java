@@ -19,9 +19,9 @@ import java.io.Serializable;
 public class GarbagePointFractionId implements Serializable {
 
     @Column(name = "garbage_point_id")
-    private Long garbagePointId;
+    private Integer garbagePointId;
 
     @Column(name = "fraction_id")
-    private Long fractionId;
+    private Integer fractionId;
 }
 

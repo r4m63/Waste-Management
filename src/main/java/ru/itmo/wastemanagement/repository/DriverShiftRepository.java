@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.DriverShift;
 
 @Repository
-public interface DriverShiftRepository extends JpaRepository<DriverShift, Long> {
+public interface DriverShiftRepository extends JpaRepository<DriverShift, Integer> {
 }
 

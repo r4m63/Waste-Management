@@ -30,7 +30,7 @@ public class Route {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "planned_date", nullable = false)
     private LocalDate plannedDate;

@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.ContainerSize;
 
 @Repository
-public interface ContainerSizeRepository extends JpaRepository<ContainerSize, Long> {
+public interface ContainerSizeRepository extends JpaRepository<ContainerSize, Integer> {
 }
 

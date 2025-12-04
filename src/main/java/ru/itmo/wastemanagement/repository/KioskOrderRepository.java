@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.KioskOrder;
 
 @Repository
-public interface KioskOrderRepository extends JpaRepository<KioskOrder, Long> {
+public interface KioskOrderRepository extends JpaRepository<KioskOrder, Integer> {
 }
 

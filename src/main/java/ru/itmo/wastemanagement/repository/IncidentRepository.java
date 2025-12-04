@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.Incident;
 
 @Repository
-public interface IncidentRepository extends JpaRepository<Incident, Long> {
+public interface IncidentRepository extends JpaRepository<Incident, Integer> {
 }
 

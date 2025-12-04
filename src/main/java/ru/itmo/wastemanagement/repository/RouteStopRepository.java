@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.RouteStop;
 
 @Repository
-public interface RouteStopRepository extends JpaRepository<RouteStop, Long> {
+public interface RouteStopRepository extends JpaRepository<RouteStop, Integer> {
 }
 

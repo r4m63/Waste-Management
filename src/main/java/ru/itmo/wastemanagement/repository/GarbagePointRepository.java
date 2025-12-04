@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.itmo.wastemanagement.entity.GarbagePoint;
 
 @Repository
-public interface GarbagePointRepository extends JpaRepository<GarbagePoint, Long> {
+public interface GarbagePointRepository extends JpaRepository<GarbagePoint, Integer> {
 }
 
