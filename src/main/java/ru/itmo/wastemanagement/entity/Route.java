@@ -18,7 +18,7 @@ import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.RouteStatus;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "routes")
@@ -48,16 +48,16 @@ public class Route {
     private DriverShift shift;
 
     @Column(name = "planned_start_at")
-    private OffsetDateTime plannedStartAt;
+    private LocalDateTime plannedStartAt;
 
     @Column(name = "planned_end_at")
-    private OffsetDateTime plannedEndAt;
+    private LocalDateTime plannedEndAt;
 
     @Column(name = "started_at")
-    private OffsetDateTime startedAt;
+    private LocalDateTime startedAt;
 
     @Column(name = "finished_at")
-    private OffsetDateTime finishedAt;
+    private LocalDateTime finishedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

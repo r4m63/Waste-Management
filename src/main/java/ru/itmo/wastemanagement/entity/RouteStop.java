@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.StopStatus;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "route_stops")
@@ -45,10 +45,10 @@ public class RouteStop {
     private String address;
 
     @Column(name = "time_from")
-    private OffsetDateTime timeFrom;
+    private LocalDateTime timeFrom;
 
     @Column(name = "time_to")
-    private OffsetDateTime timeTo;
+    private LocalDateTime timeTo;
 
     @Column(name = "expected_capacity")
     private Integer expectedCapacity;

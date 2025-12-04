@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "driver_shifts")
@@ -32,10 +32,10 @@ public class DriverShift {
     private Vehicle vehicle;
 
     @Column(name = "opened_at", nullable = false)
-    private OffsetDateTime openedAt;
+    private LocalDateTime openedAt;
 
     @Column(name = "closed_at")
-    private OffsetDateTime closedAt;
+    private LocalDateTime closedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.StopEventType;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stop_events")
@@ -40,7 +40,7 @@ public class StopEvent {
     private StopEventType eventType;
 
     @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "photo_url")
     private String photoUrl;

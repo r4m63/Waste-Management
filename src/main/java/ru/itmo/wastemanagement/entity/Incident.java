@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.IncidentType;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "incidents")
@@ -49,15 +49,15 @@ public class Incident {
     private User createdBy;
 
     @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(nullable = false)
     private boolean resolved = false;
 
     @Column(name = "resolved_at")
-    private OffsetDateTime resolvedAt;
+    private LocalDateTime resolvedAt;
 }
 

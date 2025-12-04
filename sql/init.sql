@@ -117,7 +117,7 @@ CREATE UNIQUE INDEX driver_shifts_one_open_per_driver ON driver_shifts (driver_i
 CREATE TABLE routes
 (
     id               BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    planned_date     date         NOT NULL,
+    planned_date     timestamptz  NOT NULL,
     driver_id        integer      REFERENCES users (id) ON DELETE SET NULL,
     vehicle_id       integer      REFERENCES vehicles (id) ON DELETE SET NULL,
     shift_id         integer      REFERENCES driver_shifts (id) ON DELETE SET NULL,
