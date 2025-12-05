@@ -92,3 +92,33 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+
+/* Кастомный скроллбар только внутри SidebarContent */
+.wm-sidebar-scroll {
+    /* для Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) hsl(var(--background));
+}
+
+/* WebKit-браузеры (Chrome, Edge, Safari) */
+.wm-sidebar-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.wm-sidebar-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+}
+
+.wm-sidebar-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+}
+
+/* при наведении чуть ярче */
+.wm-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+}
+
+
