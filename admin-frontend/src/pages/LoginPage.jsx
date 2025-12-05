@@ -1,26 +1,19 @@
 // pages/LoginPage.jsx
 
-import { ArrowRight, Lock, Mail } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { ModeToggle } from "@/components/provider/theme/ModeToggle.jsx"
+import {ArrowRight, Lock, Mail} from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
+import {Separator} from "@/components/ui/separator"
+import {ModeToggle} from "@/components/provider/theme/ModeToggle.jsx"
 
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-muted flex items-center justify-center px-4 relative">
             {/* Переключатель темы — отдельно, в углу экрана */}
             <div className="fixed right-4 top-4">
-                <ModeToggle />
+                <ModeToggle/>
             </div>
 
             {/* Карточка логина строго по центру */}
@@ -36,9 +29,9 @@ export default function LoginPage() {
                             <Label htmlFor="login">Логин</Label>
                             <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-4 w-4"/>
                 </span>
-                                <Input id="login" className="pl-9" />
+                                <Input id="login" className="pl-9"/>
                             </div>
                         </div>
 
@@ -46,19 +39,19 @@ export default function LoginPage() {
                             <Label htmlFor="password">Пароль</Label>
                             <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4"/>
                 </span>
-                                <Input id="password" type="password" className="pl-9" />
+                                <Input id="password" type="password" className="pl-9"/>
                             </div>
                         </div>
 
                         <Button type="submit" className="w-full">
                             Войти
-                            <ArrowRight className="ml-2 h-4 w-4" />
+                            <ArrowRight className="ml-2 h-4 w-4"/>
                         </Button>
                     </form>
 
-                    <Separator />
+                    <Separator/>
                 </CardContent>
 
                 <CardFooter className="text-xs text-muted-foreground">
