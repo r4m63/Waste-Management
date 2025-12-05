@@ -2,7 +2,6 @@
 
 import {
     Activity,
-    AlertTriangle,
     CalendarClock,
     Command,
     LifeBuoy,
@@ -15,7 +14,6 @@ import {
     Truck,
 } from "lucide-react"
 import {NavMain} from "@/components/nav-main"
-import {NavProjects} from "@/components/nav-projects"
 import {NavSecondary} from "@/components/nav-secondary"
 import {NavUser} from "@/components/nav-user"
 import {
@@ -37,7 +35,7 @@ const data = {
     },
     navMain: [
         {
-            title: "Точки и карта",
+            title: "Точки сбора и контейнеры",
             icon: MapPin,
             isActive: true,
             items: [
@@ -45,135 +43,107 @@ const data = {
                     title: "Точки",
                     url: "/points",
                 },
-                // {
-                //     title: "Карта точек",
-                //     url: "/admin/points/map",
-                // },
-                // {
-                //     title: "Статусы и заполненность",
-                //     url: "/admin/points/status",
-                // },
+                {
+                    title: "Карта точек",
+                    url: "/points/map",
+                },
             ],
         },
         {
-            title: "POS и жители",
-            url: "/admin/pos",
+            title: "POS",
             icon: Recycle,
             items: [
                 {
                     title: "POS-терминалы",
-                    url: "/admin/pos/terminals",
+                    url: "/pos/terminals",
                 },
                 {
                     title: "Тарифы и фракции",
-                    url: "/admin/pos/tariffs",
-                },
-                {
-                    title: "Жители и баллы",
-                    url: "/admin/pos/citizens",
+                    url: "/pos/tariffs",
                 },
                 {
                     title: "Операции / чеки",
-                    url: "/admin/pos/operations",
+                    url: "/pos/operations",
                 },
             ],
         },
         {
             title: "Транспорт и персонал",
-            url: "/admin/resources",
             icon: Truck,
             items: [
                 {
                     title: "ТС (автопарк)",
-                    url: "/admin/resources/vehicles",
+                    url: "/resources/vehicles",
                 },
                 {
                     title: "Водители",
-                    url: "/admin/resources/drivers",
+                    url: "/resources/drivers",
                 },
                 {
                     title: "Смены водителей",
-                    url: "/admin/resources/shifts",
-                },
-                {
-                    title: "Депо и объекты сдачи",
-                    url: "/admin/resources/depots",
+                    url: "/resources/shifts",
                 },
             ],
         },
         {
             title: "Планирование маршрутов",
-            url: "/admin/planning",
             icon: Route,
             items: [
                 {
                     title: "Потребности по точкам",
-                    url: "/admin/planning/demand",
+                    url: "/planning/demand",
                 },
                 {
                     title: "Автопланирование",
-                    url: "/admin/planning/auto",
+                    url: "/planning/auto",
                 },
                 {
                     title: "Маршруты (draft/planned)",
-                    url: "/admin/planning/routes",
+                    url: "/planning/routes",
                 },
                 {
                     title: "Непокрытые точки",
-                    url: "/admin/planning/uncovered",
+                    url: "/planning/uncovered",
                 },
             ],
         },
         {
             title: "Выполнение рейсов",
-            url: "/admin/execution",
             icon: Activity,
             items: [
                 {
                     title: "Онлайн-мониторинг",
-                    url: "/admin/execution/monitoring",
+                    url: "/execution/monitoring",
                 },
                 {
                     title: "История маршрутов",
-                    url: "/admin/execution/history",
+                    url: "/execution/history",
                 },
                 {
                     title: "События остановок",
-                    url: "/admin/execution/stop-events",
-                },
-            ],
-        },
-        {
-            title: "Инциденты",
-            url: "/admin/incidents",
-            icon: AlertTriangle,
-            items: [
-                {
-                    title: "Журнал инцидентов",
-                    url: "/admin/incidents/list",
+                    url: "/execution/stop-events",
                 },
                 {
-                    title: "Типы инцидентов",
-                    url: "/admin/incidents/types",
+                    title: "Инциденты",
+                    url: "/execution/stop-events",
                 },
             ],
         },
         {
             title: "Справочники и настройки",
-            url: "/admin/settings",
             icon: Settings2,
             items: [
                 {
                     title: "Справочники",
-                    url: "/admin/settings/dictionaries",
+                    url: "/settings/dictionaries",
                 },
                 {
                     title: "Настройки планировщика",
-                    url: "/admin/settings/planner",
+                    url: "/settings/planner",
                 },
                 {
                     title: "Интеграции (карта, SMS)",
-                    url: "/admin/settings/integrations",
+                    url: "/settings/integrations",
                 },
             ],
         },
@@ -181,12 +151,12 @@ const data = {
     navSecondary: [
         {
             title: "Отчёты и аналитика",
-            url: "/admin/reports",
+            url: "/reports",
             icon: PieChart,
         },
         {
             title: "Календарь смен и рейсов",
-            url: "/admin/calendar",
+            url: "/calendar",
             icon: CalendarClock,
         },
         {
@@ -200,23 +170,23 @@ const data = {
             icon: Send,
         },
     ],
-    projects: [
-        {
-            name: "Сегодняшний план рейсов",
-            url: "/admin/planning/routes?date=today",
-            icon: Route,
-        },
-        {
-            name: "Активные маршруты",
-            url: "/admin/execution/monitoring",
-            icon: Activity,
-        },
-        {
-            name: "Проблемные точки (инциденты)",
-            url: "/admin/incidents/list?filter=open",
-            icon: AlertTriangle,
-        },
-    ],
+    // projects: [
+    //     {
+    //         name: "Сегодняшний план рейсов",
+    //         url: "/planning/routes?date=today",
+    //         icon: Route,
+    //     },
+    //     {
+    //         name: "Активные маршруты",
+    //         url: "/execution/monitoring",
+    //         icon: Activity,
+    //     },
+    //     {
+    //         name: "Проблемные точки (инциденты)",
+    //         url: "/incidents/list?filter=open",
+    //         icon: AlertTriangle,
+    //     },
+    // ],
 }
 
 
@@ -233,8 +203,8 @@ export function AppSidebar(props) {
                                     <Command className="size-4"/>
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">Acme Inc</span>
-                                    <span className="truncate text-xs">Enterprise</span>
+                                    <span className="truncate font-medium">Waste Management</span>
+                                    <span className="truncate text-xs">Admin Panel</span>
                                 </div>
                             </a>
                         </SidebarMenuButton>
@@ -243,7 +213,7 @@ export function AppSidebar(props) {
             </SidebarHeader>
             <SidebarContent className="wm-sidebar-scroll">
                 <NavMain items={data.navMain}/>
-                <NavProjects projects={data.projects}/>
+                {/*<NavProjects projects={data.projects}/>*/}
                 <NavSecondary items={data.navSecondary} className="mt-auto"/>
             </SidebarContent>
             <SidebarFooter>
