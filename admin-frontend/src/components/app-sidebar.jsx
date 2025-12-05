@@ -38,22 +38,21 @@ const data = {
     navMain: [
         {
             title: "Точки и карта",
-            url: "/admin/points",
             icon: MapPin,
             isActive: true,
             items: [
                 {
-                    title: "Список точек",
-                    url: "/admin/points",
+                    title: "Точки",
+                    url: "/points",
                 },
-                {
-                    title: "Карта точек",
-                    url: "/admin/points/map",
-                },
-                {
-                    title: "Статусы и заполненность",
-                    url: "/admin/points/status",
-                },
+                // {
+                //     title: "Карта точек",
+                //     url: "/admin/points/map",
+                // },
+                // {
+                //     title: "Статусы и заполненность",
+                //     url: "/admin/points/status",
+                // },
             ],
         },
         {
