@@ -545,5 +545,5 @@ export default function Home() {
         </CardFooter>
       </Card>
     </section>
-  )
+    )
 }

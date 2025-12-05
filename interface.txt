@@ -1,4 +1,5 @@
 - landing map 
 - waste point terminal
 - driver app
-- admin 
+- admin
+    точки сборка мусора на карте

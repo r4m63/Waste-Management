@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <NextUIProvider>
         <main className="min-h-screen bg-background text-foreground">
-          <App />
+    <App />
         </main>
       </NextUIProvider>
     </BrowserRouter>

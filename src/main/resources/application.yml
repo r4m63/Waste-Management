@@ -1,0 +1,34 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: Waste-Management
+  config:
+    import: file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    open-in-view: false
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+
+app:
+  urls:
+    admin-frontend: ${APP_URL_ADMIN_FRONTEND}
+    landing-frontend: ${APP_URL_LANDING_FRONTEND}
+    kiosk-frontend: ${APP_URL_KIOSK_FRONTEND}
+    driver-frontend: ${APP_URL_DRIVER_FRONTEND}
+    backend: ${APP_URL_BACKEND}
