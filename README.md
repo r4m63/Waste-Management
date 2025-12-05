@@ -11,4 +11,3 @@ Description
 ## Contributing
 
 ## Команда проекта
-
