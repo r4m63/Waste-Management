@@ -11,12 +11,10 @@ import {ModeToggle} from "@/components/provider/theme/ModeToggle.jsx"
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-muted flex items-center justify-center px-4 relative">
-            {/* Переключатель темы — отдельно, в углу экрана */}
             <div className="fixed right-4 top-4">
                 <ModeToggle/>
             </div>
 
-            {/* Карточка логина строго по центру */}
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="text-2xl">Войти в аккаунт</CardTitle>
@@ -28,20 +26,31 @@ export default function LoginPage() {
                         <div className="space-y-2">
                             <Label htmlFor="login">Логин</Label>
                             <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-                  <Mail className="h-4 w-4"/>
-                </span>
-                                <Input id="login" className="pl-9"/>
+                                <span
+                                    className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
+                                  <Mail className="h-4 w-4"/>
+                                </span>
+                                <Input
+                                    id="login"
+                                    className="pl-9"
+                                    placeholder="Введите email"
+                                />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="password">Пароль</Label>
                             <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-                  <Lock className="h-4 w-4"/>
-                </span>
-                                <Input id="password" type="password" className="pl-9"/>
+                                <span
+                                    className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
+                                  <Lock className="h-4 w-4"/>
+                                </span>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    className="pl-9"
+                                    placeholder="Введите пароль"
+                                />
                             </div>
                         </div>
 
@@ -53,6 +62,7 @@ export default function LoginPage() {
 
                     <Separator/>
                 </CardContent>
+
 
                 <CardFooter className="text-xs text-muted-foreground">
                     Нет доступа? Обратитесь к администратору.
