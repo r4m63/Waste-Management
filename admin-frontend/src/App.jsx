@@ -4,6 +4,8 @@ import {BrowserRouter, Route, Routes} from "react-router-dom"
 import MainPage from "@/pages/MainPage.jsx";
 import LoginPage from "@/pages/LoginPage.jsx";
 import NotFoundPage from "@/pages/NotFoundPage.jsx";
+import PointsPage from "@/pages/PointsPage.jsx";
+import DashboardPage from "@/pages/DashboardPage.jsx";
 
 export default function App() {
     return (
@@ -11,8 +13,12 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<LoginPage/>}/>
-                    <Route path="/" element={<MainPage/>}/>
-                    <Route path="*" element={<NotFoundPage/>}/>
+
+                    <Route element={<MainPage/>}>
+                        <Route index element={<DashboardPage/>}/>
+                        <Route path="points" element={<PointsPage/>}/>
+                        <Route path="*" element={<NotFoundPage/>}/>
+                    </Route>
                 </Routes>
             </BrowserRouter>
         </>

@@ -1,13 +1,14 @@
 // components/nav-main.jsx
 
+import React from "react"
 import {ChevronRight} from "lucide-react"
+import {NavLink, useLocation} from "react-router-dom"
 
 import {Collapsible, CollapsibleContent, CollapsibleTrigger,} from "@/components/ui/collapsible"
 import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
-    SidebarMenuAction,
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarMenuSub,
@@ -15,42 +16,85 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
+const groupHasActiveItem = (groupItems = [], pathname) =>
+    groupItems.some((subItem) => pathname.startsWith(subItem.url))
+
 export function NavMain({items}) {
+    const location = useLocation()
+    const [openMap, setOpenMap] = React.useState(() =>
+        Object.fromEntries(items.map((item) => [item.title, item.isActive || false])),
+    )
+
+    React.useEffect(() => {
+        setOpenMap((prev) => {
+            const next = {...prev}
+
+            items.forEach((item) => {
+                if (groupHasActiveItem(item.items, location.pathname)) {
+                    next[item.title] = true
+                }
+            })
+
+            return next
+        })
+    }, [items, location.pathname])
+
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>Навигация</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
-                    <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+                    <Collapsible
+                        key={item.title}
+                        asChild
+                        open={openMap[item.title]}
+                        onOpenChange={(isOpen) =>
+                            setOpenMap((prev) => ({...prev, [item.title]: isOpen}))
+                        }
+                    >
                         <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={item.title}>
-                                <a href={item.url}>
-                                    <item.icon/>
-                                    <span>{item.title}</span>
-                                </a>
-                            </SidebarMenuButton>
+                            <CollapsibleTrigger asChild>
+                                <SidebarMenuButton className="group justify-between">
+                                    <span className="flex items-center gap-2">
+                                      <item.icon className="h-4 w-4"/>
+                                      <span>{item.title}</span>
+                                    </span>
+                                    {item.items?.length ? (
+                                        <ChevronRight
+                                            className="
+                                                  h-4 w-4
+                                                  transition-transform duration-200
+                                                  group-data-[state=open]:rotate-90
+                                                "
+                                        />
+                                    ) : null}
+                                </SidebarMenuButton>
+                            </CollapsibleTrigger>
+
                             {item.items?.length ? (
-                                <>
-                                    <CollapsibleTrigger asChild>
-                                        <SidebarMenuAction className="data-[state=open]:rotate-90">
-                                            <ChevronRight/>
-                                            <span className="sr-only">Toggle</span>
-                                        </SidebarMenuAction>
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            {item.items?.map((subItem) => (
+                                <CollapsibleContent
+                                    className="
+                                          overflow-hidden
+                                          data-[state=open]:animate-accordion-down
+                                          data-[state=closed]:animate-accordion-up
+                                        "
+                                >
+                                    <SidebarMenuSub>
+                                        {item.items.map((subItem) => {
+                                            const isActive = location.pathname.startsWith(subItem.url)
+
+                                            return (
                                                 <SidebarMenuSubItem key={subItem.title}>
-                                                    <SidebarMenuSubButton asChild>
-                                                        <a href={subItem.url}>
+                                                    <SidebarMenuSubButton asChild isActive={isActive}>
+                                                        <NavLink to={subItem.url}>
                                                             <span>{subItem.title}</span>
-                                                        </a>
+                                                        </NavLink>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
-                                            ))}
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </>
+                                            )
+                                        })}
+                                    </SidebarMenuSub>
+                                </CollapsibleContent>
                             ) : null}
                         </SidebarMenuItem>
                     </Collapsible>
