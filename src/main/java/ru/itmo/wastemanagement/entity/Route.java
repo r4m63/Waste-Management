@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itmo.wastemanagement.entity.enums.RouteStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +32,7 @@ public class Route {
     private Integer id;
 
     @Column(name = "planned_date", nullable = false)
-    private LocalDate plannedDate;
+    private LocalDateTime plannedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_id")
