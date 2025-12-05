@@ -1,3 +1,6 @@
+/*@import "ag-grid-community/styles/ag-grid.css";*/
+/*@import "ag-grid-community/styles/ag-theme-quartz.css";*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,6 +39,25 @@
         --ring: 222 9% 30%;
 
         --radius: 0.75rem;
+
+
+        /*--ag-background-color: hsl(var(--card));*/
+        /*--ag-foreground-color: hsl(var(--foreground));*/
+
+        /*--ag-header-background-color: hsl(var(--muted));*/
+        /*--ag-header-foreground-color: hsl(var(--muted-foreground));*/
+
+        /*--ag-odd-row-background-color: hsl(var(--background));*/
+        /*--ag-even-row-background-color: hsl(var(--card));*/
+
+        /*--ag-row-hover-color: hsl(var(--muted));*/
+        /*--ag-selected-row-background-color: hsl(var(--accent));*/
+        /*--ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
+        /*--ag-border-color: hsl(var(--border));*/
+        /*--ag-secondary-border-color: hsl(var(--border));*/
+
+        /*--ag-input-border-color: hsl(var(--border));*/
+        /*--ag-input-focus-border-color: hsl(var(--ring));*/
     }
 
     .dark {
@@ -71,6 +93,25 @@
         --ring: 220 9% 70%;
 
         --radius: 0.75rem;
+
+
+        /*--ag-background-color: hsl(var(--card));*/
+        /*--ag-foreground-color: hsl(var(--foreground));*/
+
+        /*--ag-header-background-color: hsl(var(--muted));*/
+        /*--ag-header-foreground-color: hsl(var(--muted-foreground));*/
+
+        /*--ag-odd-row-background-color: hsl(var(--background));*/
+        /*--ag-even-row-background-color: hsl(var(--card));*/
+
+        /*--ag-row-hover-color: hsl(var(--muted));*/
+        /*--ag-selected-row-background-color: hsl(var(--accent));*/
+        /*--ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
+        /*--ag-border-color: hsl(var(--border));*/
+        /*--ag-secondary-border-color: hsl(var(--border));*/
+
+        /*--ag-input-border-color: hsl(var(--border));*/
+        /*--ag-input-focus-border-color: hsl(var(--ring));*/
     }
 
     * {
@@ -101,24 +142,66 @@
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) hsl(var(--background));
 }
-
-/* WebKit-браузеры (Chrome, Edge, Safari) */
 .wm-sidebar-scroll::-webkit-scrollbar {
     width: 8px;
 }
-
 .wm-sidebar-scroll::-webkit-scrollbar-track {
     background: hsl(var(--background));
 }
-
 .wm-sidebar-scroll::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 9999px;
 }
-
-/* при наведении чуть ярче */
 .wm-sidebar-scroll::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--accent));
 }
 
+
+/* AG Grid: интеграция с темой shadcn / Tailwind */
+/* Светлая тема */
+/*.ag-theme-quartz {*/
+/*    !* фон таблицы и текст *!*/
+/*    --ag-background-color: hsl(var(--card));*/
+/*    --ag-foreground-color: hsl(var(--foreground));*/
+
+/*    !* хедер *!*/
+/*    --ag-header-background-color: hsl(var(--muted));*/
+/*    --ag-header-foreground-color: hsl(var(--muted-foreground));*/
+
+/*    !* чётные/нечётные строки *!*/
+/*    --ag-odd-row-background-color: hsl(var(--background));*/
+/*    --ag-even-row-background-color: hsl(var(--card));*/
+
+/*    !* hover, выбор строки, бордеры *!*/
+/*    --ag-row-hover-color: hsl(var(--muted));*/
+/*    --ag-selected-row-background-color: hsl(var(--accent));*/
+/*    --ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
+/*    --ag-border-color: hsl(var(--border));*/
+/*    --ag-secondary-border-color: hsl(var(--border));*/
+
+/*    !* фильтры / инпуты / фокус *!*/
+/*    --ag-input-border-color: hsl(var(--border));*/
+/*    --ag-input-focus-border-color: hsl(var(--ring));*/
+/*}*/
+
+/*!* Тёмная тема *!*/
+/*.dark .ag-theme-quartz {*/
+/*    --ag-background-color: hsl(var(--card));*/
+/*    --ag-foreground-color: hsl(var(--foreground));*/
+
+/*    --ag-header-background-color: hsl(var(--muted));*/
+/*    --ag-header-foreground-color: hsl(var(--muted-foreground));*/
+
+/*    --ag-odd-row-background-color: hsl(var(--background));*/
+/*    --ag-even-row-background-color: hsl(var(--card));*/
+
+/*    --ag-row-hover-color: hsl(var(--muted));*/
+/*    --ag-selected-row-background-color: hsl(var(--accent));*/
+/*    --ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
+/*    --ag-border-color: hsl(var(--border));*/
+/*    --ag-secondary-border-color: hsl(var(--border));*/
+
+/*    --ag-input-border-color: hsl(var(--border));*/
+/*    --ag-input-focus-border-color: hsl(var(--ring));*/
+/*}*/
 
