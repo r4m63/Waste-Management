@@ -6,6 +6,7 @@ import LoginPage from "@/pages/LoginPage.jsx";
 import NotFoundPage from "@/pages/NotFoundPage.jsx";
 import PointsPage from "@/pages/PointsPage.jsx";
 import DashboardPage from "@/pages/DashboardPage.jsx";
+import PosTerminalsPage from "@/pages/PosTerminalsPage.jsx";
 
 export default function App() {
     return (
@@ -17,6 +18,7 @@ export default function App() {
                     <Route element={<MainPage/>}>
                         <Route index element={<DashboardPage/>}/>
                         <Route path="points" element={<PointsPage/>}/>
+                        <Route path="pos/terminals" element={<PosTerminalsPage/>}/>
                         <Route path="*" element={<NotFoundPage/>}/>
                     </Route>
                 </Routes>

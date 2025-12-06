@@ -1,16 +1,8 @@
 // pages/PointsPage.jsx
 
-import {useMemo, useState} from "react"
-import {AgGridTable} from "@/components/data/AgGridTable.jsx"
+import {useCallback, useEffect, useMemo, useState} from "react"
 import {Button} from "@/components/ui/button"
-import {MoreHorizontal, Plus} from "lucide-react"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import {Plus, ChevronsUpDown} from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -22,75 +14,44 @@ import {
 import {Label} from "@/components/ui/label"
 import {Input} from "@/components/ui/input"
 import {Switch} from "@/components/ui/switch"
+import GarbagePointsTable from "@/components/data/GarbagePointsTable.jsx"
+import {API_BASE} from "../../cfg.js"
+import {toast} from "sonner"
 
-const mockRowData = [
-    {
-        id: 1,
-        address: "ул. Ленина, 14",
-        capacity: 10,
-        isOpen: true,
-        lat: 59.9386,
-        lon: 30.3141,
-        createdAt: "2025-12-01T10:15:00+03:00",
-        adminId: 101,
-        userId: 201,
-    },
-    {
-        id: 2,
-        address: "пр-т Мира, 56",
-        capacity: 6,
-        isOpen: false,
-        lat: 59.945,
-        lon: 30.32,
-        createdAt: "2025-12-02T09:30:00+03:00",
-        adminId: 102,
-        userId: 202,
-    },
-    {
-        id: 3,
-        address: "ул. Гагарина, 9",
-        capacity: 8,
-        isOpen: true,
-        lat: 59.93,
-        lon: 30.29,
-        createdAt: "2025-12-03T14:05:00+03:00",
-        adminId: 103,
-        userId: 203,
-    },
-    {
-        id: 4,
-        address: "ул. Вокзальная, 3",
-        capacity: 12,
-        isOpen: true,
-        lat: 59.92,
-        lon: 30.35,
-        createdAt: "2025-12-04T08:45:00+03:00",
-        adminId: 104,
-        userId: 204,
-    },
-    {
-        id: 5,
-        address: "ул. Индустриальная, 21",
-        capacity: 15,
-        isOpen: false,
-        lat: 59.94,
-        lon: 30.33,
-        createdAt: "2025-12-05T18:20:00+03:00",
-        adminId: 105,
-        userId: 205,
-    },
-]
+import {
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+} from "@/components/ui/popover"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+} from "@/components/ui/command"
 
 export default function PointsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    // null — создание, иначе редактирование
+    const [activePoint, setActivePoint] = useState(null)
 
     const [address, setAddress] = useState("")
     const [capacity, setCapacity] = useState("")
     const [isOpen, setIsOpen] = useState(true)
     const [lat, setLat] = useState("")
     const [lon, setLon] = useState("")
-    const [adminId, setAdminId] = useState("")
-    const [userId, setUserId] = useState("")
+    const [kioskId, setKioskId] = useState(null)
+
+    // данные для таблицы
+    const [refreshGrid, setRefreshGrid] = useState(() => () => {})
+    const [tableControls, setTableControls] = useState(null)
+
+    // данные для combobox киосков
+    const [kioskOptions, setKioskOptions] = useState([])
+    const [isKioskLoading, setIsKioskLoading] = useState(false)
+    const [isKioskPopoverOpen, setIsKioskPopoverOpen] = useState(false)
 
     const resetForm = () => {
         setAddress("")
@@ -98,160 +59,135 @@ export default function PointsPage() {
         setIsOpen(true)
         setLat("")
         setLon("")
-        setAdminId("")
-        setUserId("")
+        setKioskId(null)
+        setActivePoint(null)
+        // kioskOptions оставляем — пригодятся для следующего открытия
     }
 
-    const handleSave = () => {
-        const payload = {
-            address: address.trim(),
-            capacity: capacity ? Number(capacity) : null,
-            isOpen,
-            lat: lat ? Number(lat) : null,
-            lon: lon ? Number(lon) : null,
-            adminId: adminId ? Number(adminId) : null,
-            userId: userId ? Number(userId) : null,
+    const validate = () => {
+        if (!address.trim()) return "Заполните адрес."
+        if (!capacity || Number(capacity) <= 0) return "Вместимость должна быть > 0."
+        if (lat !== "" && (Number(lat) < -90 || Number(lat) > 90)) return "Lat должна быть между -90 и 90."
+        if (lon !== "" && (Number(lon) < -180 || Number(lon) > 180)) return "Lon должна быть между -180 и 180."
+        if (kioskId !== null && Number(kioskId) <= 0) return "kioskId должно быть > 0."
+        return null
+    }
+
+    const handleSave = async () => {
+        const err = validate()
+        if (err) {
+            toast.warning(err)
+            return
         }
 
+        const payload = {
+            id: activePoint?.id ?? null,
+            address: address.trim(),
+            capacity: capacity === "" ? null : Number(capacity),
+            open: isOpen,
+            lat: lat === "" ? null : Number(lat),
+            lon: lon === "" ? null : Number(lon),
+            kioskId: kioskId ?? null, // 👈 только kiosk_id
+        }
 
-        setIsDialogOpen(false)
-        resetForm()
+        const isEdit = Boolean(activePoint?.id)
+        const url = isEdit
+            ? `${API_BASE}/api/garbage-points/${activePoint.id}`
+            : `${API_BASE}/api/garbage-points`
+
+        try {
+            const res = await fetch(url, {
+                method: isEdit ? "PUT" : "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (res.ok) {
+                refreshGrid?.()
+                setIsDialogOpen(false)
+                resetForm()
+                toast.success("Сохранено")
+            } else {
+                const errorData = await res.json().catch(() => ({}))
+                toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+            }
+        } catch (e) {
+            console.error("Ошибка сохранения точки", e)
+            toast.error("Ошибка сохранения. Попробуйте ещё раз.")
+        }
     }
 
     const handleCancel = () => {
         setIsDialogOpen(false)
-        resetForm() // TODO: сохранять состояние и подтягивать его, уведомив в sonner и в sonner кнопку сброса состояния добавить
+        resetForm()
     }
 
-    const columnDefs = useMemo(
-        () => [
-            {
-                field: "id",
-                headerName: "ID",
-                maxWidth: 90,
-                filter: "agNumberColumnFilter",
-            },
-            {
-                headerName: "Действия",
-                colId: "actions",
-                maxWidth: 110,
-                sortable: false,
-                filter: false,
-                suppressMenu: true,
-                pinned: "left",
-                cellRenderer: (params) => {
-                    const point = params.data
+    const handleOpenEditPointModal = useCallback((row) => {
+        // TODO: тут потом заполнишь состояние для редактирования
+        console.log("edit row", row)
+    }, [])
 
-                    return (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <span className="sr-only">Открыть меню</span>
-                                    <MoreHorizontal className="h-4 w-4"/>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                    onClick={() => console.log("open-map", point)}
-                                >
-                                    Открыть на карте
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => console.log("edit", point)}
-                                >
-                                    Редактировать
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator/>
-                                <DropdownMenuItem
-                                    onClick={() => console.log("toggle-open", point)}
-                                >
-                                    {point?.isOpen ? "Закрыть точку" : "Открыть точку"}
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )
-                },
-            },
-            {
-                field: "address",
-                headerName: "Адрес",
-                flex: 1.6,
-            },
-            {
-                field: "capacity",
-                headerName: "Вместимость",
-                filter: "agNumberColumnFilter",
-                maxWidth: 150,
-            },
-            {
-                field: "isOpen",
-                headerName: "Открыта",
-                maxWidth: 130,
-                filter: "agSetColumnFilter",
-                valueFormatter: ({value}) =>
-                    value === true ? "Да" : value === false ? "Нет" : "",
-            },
-            {
-                field: "lat",
-                headerName: "Широта (lat)",
-                filter: "agNumberColumnFilter",
-                maxWidth: 160,
-                valueFormatter: ({value}) =>
-                    value != null ? value.toFixed(5) : "",
-            },
-            {
-                field: "lon",
-                headerName: "Долгота (lon)",
-                filter: "agNumberColumnFilter",
-                maxWidth: 160,
-                valueFormatter: ({value}) =>
-                    value != null ? value.toFixed(5) : "",
-            },
-            {
-                field: "createdAt",
-                headerName: "Создано",
-                flex: 1.2,
-                valueFormatter: ({value}) => {
-                    if (!value) return ""
-                    const d = new Date(value)
-                    if (Number.isNaN(d.getTime())) return value
-                    return d.toLocaleString("ru-RU", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
-                },
-            },
-            {
-                field: "adminId",
-                headerName: "Админ (ID)",
-                filter: "agNumberColumnFilter",
-                maxWidth: 140,
-            },
-            {
-                field: "userId",
-                headerName: "Пользователь (ID)",
-                filter: "agNumberColumnFilter",
-                maxWidth: 160,
-            },
-        ],
-        [],
-    )
+    // === Загрузка списка киосков (users с role=KIOSK) для комбобокса ===
 
-    const defaultColDef = useMemo(
-        () => ({
-            resizable: true,
-            sortable: true,
-            filter: true,
-        }),
-        [],
-    )
+    const fetchKiosks = useCallback(async () => {
+        // если уже загружали — не дёргаем бэк ещё раз
+        if (kioskOptions.length > 0 || isKioskLoading) return
+
+        setIsKioskLoading(true)
+        try {
+            const body = {
+                startRow: 0,
+                endRow: 50,
+                sortModel: [{colId: "createdAt", sort: "desc"}],
+                // можно подтянуть только активные, если хочешь
+                filterModel: {
+                    role: {filterType: "text", type: "equals", filter: "KIOSK"},
+                },
+            }
+
+            const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(body),
+            })
+
+            if (!res.ok) {
+                console.error("Не удалось получить список киосков", res.status, res.statusText)
+                return
+            }
+
+            const data = await res.json()
+            // ожидаем data.rows: [{id,name,login,active,...}]
+            setKioskOptions(data.rows || [])
+        } catch (e) {
+            console.error("Ошибка загрузки киосков", e)
+        } finally {
+            setIsKioskLoading(false)
+        }
+    }, [kioskOptions.length, isKioskLoading])
+
+    // При открытии диалога — один раз подгружаем киоски
+    useEffect(() => {
+        if (isDialogOpen) {
+            fetchKiosks()
+        }
+    }, [isDialogOpen, fetchKiosks])
+
+    const selectedKioskLabel = useMemo(() => {
+        if (kioskId == null) return ""
+        const found = kioskOptions.find((k) => k.id === kioskId || k.id === Number(kioskId))
+        if (!found) return `ID ${kioskId}`
+        const name = found.name || "(без имени)"
+        return found.login ? `${name} (${found.login})` : name
+    }, [kioskId, kioskOptions])
 
     return (
         <>
@@ -269,22 +205,20 @@ export default function PointsPage() {
                     <Button
                         size="sm"
                         className="gap-2"
-                        onClick={() => setIsDialogOpen(true)}
+                        onClick={() => {
+                            resetForm()
+                            setIsDialogOpen(true)
+                        }}
                     >
-                        <Plus className="h-4 w-4"/>
-                        Добавить точку
+                        <Plus className="h-4 w-4"/> Добавить точку
                     </Button>
                 </div>
 
                 <div className="flex-1 min-h-[400px]">
-                    <AgGridTable
-                        columnDefs={columnDefs}
-                        rowData={mockRowData}
-                        defaultColDef={defaultColDef}
-                        gridOptions={{
-                            rowSelection: "multiple",
-                        }}
-                        height="500px"
+                    <GarbagePointsTable
+                        onOpenEditPointModal={handleOpenEditPointModal}
+                        onReadyRefresh={(fn) => setRefreshGrid(() => fn)}
+                        onReadyControls={(controls) => setTableControls(controls)}
                     />
                 </div>
             </div>
@@ -292,7 +226,9 @@ export default function PointsPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Новая точка сбора</DialogTitle>
+                        <DialogTitle>
+                            {activePoint ? "Редактирование точки" : "Новая точка сбора"}
+                        </DialogTitle>
                         <DialogDescription>
                             Заполните данные точки, они будут сохранены в системе.
                         </DialogDescription>
@@ -360,27 +296,65 @@ export default function PointsPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="adminId">Админ (ID)</Label>
-                                    <Input
-                                        id="adminId"
-                                        type="number"
-                                        placeholder="ID администратора"
-                                        value={adminId}
-                                        onChange={(e) => setAdminId(e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="userId">Пользователь (ID)</Label>
-                                    <Input
-                                        id="userId"
-                                        type="number"
-                                        placeholder="ID пользователя"
-                                        value={userId}
-                                        onChange={(e) => setUserId(e.target.value)}
-                                    />
-                                </div>
+                            {/* Combobox для kiosk_id */}
+                            <div className="space-y-2">
+                                <Label>Киоск (user с ролью KIOSK)</Label>
+                                <Popover
+                                    open={isKioskPopoverOpen}
+                                    onOpenChange={(open) => {
+                                        setIsKioskPopoverOpen(open)
+                                        if (open) {
+                                            fetchKiosks()
+                                        }
+                                    }}
+                                >
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            className="w-full justify-between"
+                                        >
+                                            {selectedKioskLabel || "Выберите киоск"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[420px] p-0">
+                                        <Command>
+                                            <CommandInput
+                                                placeholder="Найти киоск..."
+                                                // Command сам фильтрует по value CommandItem'ов
+                                            />
+                                            <CommandEmpty>
+                                                {isKioskLoading
+                                                    ? "Загрузка..."
+                                                    : "Ничего не найдено"}
+                                            </CommandEmpty>
+                                            <CommandGroup>
+                                                {kioskOptions.map((k) => (
+                                                    <CommandItem
+                                                        key={k.id}
+                                                        value={`${k.name || ""} ${k.login || ""}`.trim() || `#${k.id}`}
+                                                        onSelect={() => {
+                                                            setKioskId(k.id)
+                                                            setIsKioskPopoverOpen(false)
+                                                        }}
+                                                    >
+                                                        <span className="mr-2 text-muted-foreground">
+                                                            #{k.id}
+                                                        </span>
+                                                        <span>{k.name || "(без имени)"}</span>
+                                                        {k.login && (
+                                                            <span
+                                                                className="ml-2 text-xs text-muted-foreground">
+                                                                ({k.login})
+                                                            </span>
+                                                        )}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
                     </div>
