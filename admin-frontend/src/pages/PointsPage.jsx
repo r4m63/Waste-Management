@@ -2,7 +2,7 @@
 
 import {useCallback, useEffect, useMemo, useState} from "react"
 import {Button} from "@/components/ui/button"
-import {Plus, ChevronsUpDown} from "lucide-react"
+import {ChevronsUpDown, Plus} from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -18,18 +18,8 @@ import GarbagePointsTable from "@/components/data/GarbagePointsTable.jsx"
 import {API_BASE} from "../../cfg.js"
 import {toast} from "sonner"
 
-import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-} from "@/components/ui/popover"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from "@/components/ui/command"
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
 
 export default function PointsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -45,7 +35,8 @@ export default function PointsPage() {
     const [kioskId, setKioskId] = useState(null)
 
     // данные для таблицы
-    const [refreshGrid, setRefreshGrid] = useState(() => () => {})
+    const [refreshGrid, setRefreshGrid] = useState(() => () => {
+    })
     const [tableControls, setTableControls] = useState(null)
 
     // данные для combobox киосков
@@ -61,7 +52,6 @@ export default function PointsPage() {
         setLon("")
         setKioskId(null)
         setActivePoint(null)
-        // kioskOptions оставляем — пригодятся для следующего открытия
     }
 
     const validate = () => {
@@ -87,7 +77,7 @@ export default function PointsPage() {
             open: isOpen,
             lat: lat === "" ? null : Number(lat),
             lon: lon === "" ? null : Number(lon),
-            kioskId: kioskId ?? null, // 👈 только kiosk_id
+            kioskId: kioskId ?? null,
         }
 
         const isEdit = Boolean(activePoint?.id)
@@ -126,15 +116,68 @@ export default function PointsPage() {
         resetForm()
     }
 
+    // === Открытие модалки на редактирование ===
     const handleOpenEditPointModal = useCallback((row) => {
-        // TODO: тут потом заполнишь состояние для редактирования
-        console.log("edit row", row)
+        if (!row) return
+        setActivePoint(row)
+        setAddress(row.address ?? "")
+        setCapacity(
+            row.capacity !== null && row.capacity !== undefined
+                ? String(row.capacity)
+                : ""
+        )
+        // поле называется open в DTO/сущности
+        setIsOpen(row.open ?? true)
+        setLat(
+            row.lat !== null && row.lat !== undefined
+                ? String(row.lat)
+                : ""
+        )
+        setLon(
+            row.lon !== null && row.lon !== undefined
+                ? String(row.lon)
+                : ""
+        )
+        // kioskId может быть либо kioskId, либо kiosk.id (если вдруг вернёшь вложенный объект)
+        setKioskId(
+            row.kioskId ??
+            row.kiosk?.id ??
+            null
+        )
+
+        setIsDialogOpen(true)
     }, [])
 
-    // === Загрузка списка киосков (users с role=KIOSK) для комбобокса ===
+    // === Удаление точки ===
+    const handleDeletePoint = useCallback(
+        async (row) => {
+            if (!row?.id) return
+            const ok = window.confirm(`Удалить точку #${row.id}?`)
+            if (!ok) return
 
+            try {
+                const res = await fetch(`${API_BASE}/api/garbage-points/${row.id}`, {
+                    method: "DELETE",
+                    credentials: "include",
+                })
+
+                if (res.ok) {
+                    toast.success(`Точка #${row.id} удалена`)
+                    refreshGrid?.()
+                } else {
+                    const errData = await res.json().catch(() => ({}))
+                    toast.error(errData.message || `Ошибка удаления: ${res.status}`)
+                }
+            } catch (e) {
+                console.error("Ошибка удаления точки", e)
+                toast.error("Ошибка удаления. Попробуйте ещё раз.")
+            }
+        },
+        [refreshGrid],
+    )
+
+    // === Загрузка списка киосков (users с role=KIOSK) для комбобокса ===
     const fetchKiosks = useCallback(async () => {
-        // если уже загружали — не дёргаем бэк ещё раз
         if (kioskOptions.length > 0 || isKioskLoading) return
 
         setIsKioskLoading(true)
@@ -143,7 +186,6 @@ export default function PointsPage() {
                 startRow: 0,
                 endRow: 50,
                 sortModel: [{colId: "createdAt", sort: "desc"}],
-                // можно подтянуть только активные, если хочешь
                 filterModel: {
                     role: {filterType: "text", type: "equals", filter: "KIOSK"},
                 },
@@ -165,7 +207,6 @@ export default function PointsPage() {
             }
 
             const data = await res.json()
-            // ожидаем data.rows: [{id,name,login,active,...}]
             setKioskOptions(data.rows || [])
         } catch (e) {
             console.error("Ошибка загрузки киосков", e)
@@ -174,7 +215,6 @@ export default function PointsPage() {
         }
     }, [kioskOptions.length, isKioskLoading])
 
-    // При открытии диалога — один раз подгружаем киоски
     useEffect(() => {
         if (isDialogOpen) {
             fetchKiosks()
@@ -183,7 +223,9 @@ export default function PointsPage() {
 
     const selectedKioskLabel = useMemo(() => {
         if (kioskId == null) return ""
-        const found = kioskOptions.find((k) => k.id === kioskId || k.id === Number(kioskId))
+        const found = kioskOptions.find(
+            (k) => k.id === kioskId || k.id === Number(kioskId),
+        )
         if (!found) return `ID ${kioskId}`
         const name = found.name || "(без имени)"
         return found.login ? `${name} (${found.login})` : name
@@ -217,6 +259,7 @@ export default function PointsPage() {
                 <div className="flex-1 min-h-[400px]">
                     <GarbagePointsTable
                         onOpenEditPointModal={handleOpenEditPointModal}
+                        onDeletePoint={handleDeletePoint}
                         onReadyRefresh={(fn) => setRefreshGrid(() => fn)}
                         onReadyControls={(controls) => setTableControls(controls)}
                     />
@@ -320,10 +363,7 @@ export default function PointsPage() {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[420px] p-0">
                                         <Command>
-                                            <CommandInput
-                                                placeholder="Найти киоск..."
-                                                // Command сам фильтрует по value CommandItem'ов
-                                            />
+                                            <CommandInput placeholder="Найти киоск..."/>
                                             <CommandEmpty>
                                                 {isKioskLoading
                                                     ? "Загрузка..."
@@ -344,8 +384,7 @@ export default function PointsPage() {
                                                         </span>
                                                         <span>{k.name || "(без имени)"}</span>
                                                         {k.login && (
-                                                            <span
-                                                                className="ml-2 text-xs text-muted-foreground">
+                                                            <span className="ml-2 text-xs text-muted-foreground">
                                                                 ({k.login})
                                                             </span>
                                                         )}

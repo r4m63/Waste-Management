@@ -3,13 +3,13 @@
 import React, {useCallback, useMemo, useRef} from "react"
 import {AgGridTable} from "@/components/data/AgGridTable.jsx"
 import {API_BASE} from "../../../cfg.js"
-
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 
 export default function GarbagePointsTable({
                                                onOpenEditPointModal,
+                                               onDeletePoint,
                                                onReadyRefresh,
                                                onReadyControls,
                                            }) {
@@ -21,7 +21,7 @@ export default function GarbagePointsTable({
                 headerName: "ID",
                 field: "id",
                 colId: "id",
-                width: 90,
+                width: 80,
                 sortable: true,
                 filter: "agNumberColumnFilter",
                 floatingFilter: true,
@@ -48,7 +48,8 @@ export default function GarbagePointsTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => console.log("TODO: удалить", p.data.id)}
+                                className="text-red-600"
+                                onClick={() => onDeletePoint?.(p.data)}
                             >
                                 Удалить
                             </DropdownMenuItem>
@@ -86,29 +87,25 @@ export default function GarbagePointsTable({
                     value === true ? "Да" : value === false ? "Нет" : "",
             },
             {
-                headerName: "Широта (lat)",
+                headerName: "Широта",
                 field: "lat",
                 colId: "lat",
-                width: 150,
+                width: 140,
                 sortable: true,
                 filter: "agNumberColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({value}) =>
-                    value != null ? Number(value).toFixed(5) : "",
             },
             {
-                headerName: "Долгота (lon)",
+                headerName: "Долгота",
                 field: "lon",
                 colId: "lon",
-                width: 150,
+                width: 140,
                 sortable: true,
                 filter: "agNumberColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({value}) =>
-                    value != null ? Number(value).toFixed(5) : "",
             },
             {
-                headerName: "Создано",
+                headerName: "Создана",
                 field: "createdAt",
                 colId: "createdAt",
                 width: 200,
@@ -128,26 +125,8 @@ export default function GarbagePointsTable({
                     })
                 },
             },
-            {
-                headerName: "Админ (ID)",
-                field: "adminId",
-                colId: "admin.id", // ВАЖНО: colId соответствует пути в JPA
-                width: 140,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
-            {
-                headerName: "Киоск (ID)",
-                field: "kioskId",
-                colId: "kiosk.id",
-                width: 140,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
         ],
-        [onOpenEditPointModal],
+        [onOpenEditPointModal, onDeletePoint],
     )
 
     const mapSortModel = (sm = []) => sm.map((s) => ({colId: s.colId, sort: s.sort}))
@@ -196,7 +175,6 @@ export default function GarbagePointsTable({
         gridApiRef.current.purgeInfiniteCache()
     }, [makeDatasource])
 
-    // наружу — функция refresh
     const exposeRefresh = useCallback(() => {
         onReadyRefresh?.(() => {
             if (!gridApiRef.current) return
@@ -204,7 +182,6 @@ export default function GarbagePointsTable({
         })
     }, [onReadyRefresh])
 
-    // наружу — набор контролов (фильтры и т.п.)
     const exposeControls = useCallback(() => {
         if (!onReadyControls) return
         const api = gridApiRef.current
@@ -230,11 +207,6 @@ export default function GarbagePointsTable({
                 clearSort()
                 api.purgeInfiniteCache()
                 api.ensureIndexVisible(0)
-            },
-            filterOnlyOpen: () => {
-                setAndGo({
-                    open: {filterType: "set", values: [true]},
-                })
             },
         })
     }, [onReadyControls])

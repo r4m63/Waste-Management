@@ -27,8 +27,7 @@ export default function PosTerminalsPage() {
     const [password, setPassword] = useState("")
     const [isActive, setIsActive] = useState(true)
 
-    const [refreshGrid, setRefreshGrid] = useState(() => () => {
-    })
+    const [refreshGrid, setRefreshGrid] = useState(() => () => {})
     const [tableControls, setTableControls] = useState(null)
 
     const resetForm = () => {
@@ -49,7 +48,7 @@ export default function PosTerminalsPage() {
     const handleSave = async () => {
         const err = validate()
         if (err) {
-            alert(err)
+            toast.warning(err)
             return
         }
 
@@ -106,6 +105,33 @@ export default function PosTerminalsPage() {
         setIsDialogOpen(true)
     }, [])
 
+    // 🔥 УДАЛЕНИЕ
+    const handleDeleteTerminal = useCallback(
+        async (row) => {
+            if (!row?.id) return
+
+            if (!window.confirm(`Удалить терминал #${row.id}?`)) return
+
+            try {
+                const res = await fetch(`${API_BASE}/api/kiosk/${row.id}`, {
+                    method: "DELETE",
+                    credentials: "include",
+                })
+
+                if (res.ok) {
+                    toast.success("Терминал удалён")
+                    refreshGrid?.()
+                } else {
+                    const errorData = await res.json().catch(() => ({}))
+                    toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+                }
+            } catch (e) {
+                console.error("Ошибка удаления терминала", e)
+                toast.error("Ошибка удаления. Попробуйте ещё раз.")
+            }
+        },
+        [refreshGrid],
+    )
 
     return (
         <>
@@ -128,7 +154,7 @@ export default function PosTerminalsPage() {
                             setIsDialogOpen(true)
                         }}
                     >
-                        <Plus className="h-4 w-4"/>
+                        <Plus className="h-4 w-4" />
                         Добавить терминал
                     </Button>
                 </div>
@@ -136,12 +162,14 @@ export default function PosTerminalsPage() {
                 <div className="flex-1 min-h-[400px]">
                     <PosTerminalsTable
                         onOpenEditTerminalModal={handleOpenEditTerminalModal}
+                        onDeleteTerminal={handleDeleteTerminal}   // 👈 ПРОКИНУЛИ
                         onReadyRefresh={(fn) => setRefreshGrid(() => fn)}
                         onReadyControls={(controls) => setTableControls(controls)}
                     />
                 </div>
             </div>
 
+            {/* Dialog создания/редактирования — как было */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>

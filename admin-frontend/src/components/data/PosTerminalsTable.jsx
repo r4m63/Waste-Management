@@ -5,10 +5,16 @@ import {AgGridTable} from "@/components/data/AgGridTable.jsx"
 import {API_BASE} from "../../../cfg.js"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function PosTerminalsTable({
                                               onOpenEditTerminalModal,
+                                              onDeleteTerminal,          // 👈 НОВЫЙ проп
                                               onReadyRefresh,
                                               onReadyControls,
                                           }) {
@@ -37,7 +43,7 @@ export default function PosTerminalsTable({
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
                                 <span className="sr-only">Открыть меню</span>
-                                <MoreHorizontal className="h-4 w-4"/>
+                                <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -47,7 +53,8 @@ export default function PosTerminalsTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => console.log("TODO: удалить терминал", p.data.id)}
+                                className="text-red-600 focus:text-red-600"
+                                onClick={() => onDeleteTerminal?.(p.data)}
                             >
                                 Удалить
                             </DropdownMenuItem>
@@ -81,7 +88,7 @@ export default function PosTerminalsTable({
                 sortable: true,
                 filter: "agSetColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({value}) =>
+                valueFormatter: ({ value }) =>
                     value === true ? "Да" : value === false ? "Нет" : "",
             },
             {
@@ -92,7 +99,7 @@ export default function PosTerminalsTable({
                 sortable: true,
                 filter: "agDateColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({value}) => {
+                valueFormatter: ({ value }) => {
                     if (!value) return ""
                     const d = typeof value === "string" ? new Date(value) : value
                     if (!Number.isFinite(d?.getTime?.())) return String(value)
@@ -106,10 +113,10 @@ export default function PosTerminalsTable({
                 },
             },
         ],
-        [onOpenEditTerminalModal],
+        [onOpenEditTerminalModal, onDeleteTerminal],
     )
 
-    const mapSortModel = (sm = []) => sm.map((s) => ({colId: s.colId, sort: s.sort}))
+    const mapSortModel = (sm = []) => sm.map((s) => ({ colId: s.colId, sort: s.sort }))
 
     const makeDatasource = useCallback(
         () => ({
@@ -168,7 +175,7 @@ export default function PosTerminalsTable({
         if (!api) return
 
         const clearSort = () => {
-            api.applyColumnState?.({defaultState: {sort: null, sortIndex: null}})
+            api.applyColumnState?.({ defaultState: { sort: null, sortIndex: null } })
             api.setGridOption?.("sortModel", null)
         }
 
@@ -190,7 +197,7 @@ export default function PosTerminalsTable({
             },
             filterOnlyActive: () => {
                 setAndGo({
-                    active: {filterType: "set", values: [true]},
+                    active: { filterType: "set", values: [true] },
                 })
             },
         })
