@@ -1,4 +1,4 @@
-package ru.itmo.wastemanagement.dto;
+package ru.itmo.wastemanagement.dto.garbagepoint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

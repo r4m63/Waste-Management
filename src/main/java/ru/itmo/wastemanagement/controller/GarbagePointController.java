@@ -5,15 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.itmo.wastemanagement.dto.GarbagePointDto;
-import ru.itmo.wastemanagement.dto.GarbagePointRowDto;
-import ru.itmo.wastemanagement.dto.GarbagePointUpsertDto;
+import ru.itmo.wastemanagement.dto.garbagepoint.GarbagePointCreateUpdateDto;
+import ru.itmo.wastemanagement.dto.garbagepoint.GarbagePointRowDto;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.service.GarbagePointService;
 
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/api/garbage-points")
@@ -23,12 +21,15 @@ public class GarbagePointController {
     private final GarbagePointService garbagePointService;
 
     @PostMapping("/query")
-    public GridTableResponse<GarbagePointRowDto> query(@Valid @RequestBody GridTableRequest req) {
-        return garbagePointService.queryGrid(req);
+    public ResponseEntity<?> query(@RequestBody @Valid GridTableRequest req) {
+        GridTableResponse<GarbagePointRowDto> res = garbagePointService.queryGrid(req);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(res);
     }
 
     @PostMapping
-    public ResponseEntity<?> createGarbagePoint(@Valid @RequestBody GarbagePointDto dto) {
+    public ResponseEntity<?> createGarbagePoint(@RequestBody @Valid GarbagePointCreateUpdateDto dto) {
         Integer id = garbagePointService.createNewGarbagePoint(dto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -36,16 +37,21 @@ public class GarbagePointController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@PathVariable Integer id,
-                       @RequestBody @Valid GarbagePointUpsertDto dto) {
+    public ResponseEntity<?> update(
+            @PathVariable Integer id,
+            @RequestBody @Valid GarbagePointCreateUpdateDto dto
+    ) {
         garbagePointService.update(id, dto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Integer id) {
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         garbagePointService.delete(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
-
 }

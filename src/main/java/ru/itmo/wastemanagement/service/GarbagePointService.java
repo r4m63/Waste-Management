@@ -1,17 +1,16 @@
 package ru.itmo.wastemanagement.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import ru.itmo.wastemanagement.dto.GarbagePointDto;
-import ru.itmo.wastemanagement.dto.GarbagePointRowDto;
-import ru.itmo.wastemanagement.dto.GarbagePointUpsertDto;
+import ru.itmo.wastemanagement.dto.garbagepoint.GarbagePointCreateUpdateDto;
+import ru.itmo.wastemanagement.dto.garbagepoint.GarbagePointRowDto;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.entity.GarbagePoint;
 import ru.itmo.wastemanagement.entity.User;
+import ru.itmo.wastemanagement.exception.BadRequestException;
+import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
 import ru.itmo.wastemanagement.repository.GarbagePointGridRepository;
 import ru.itmo.wastemanagement.repository.GarbagePointRepository;
 import ru.itmo.wastemanagement.repository.UserRepository;
@@ -44,65 +43,47 @@ public class GarbagePointService {
     }
 
     @Transactional
-    public Integer createNewGarbagePoint(GarbagePointDto dto) {
-        GarbagePoint gp = GarbagePointDto.toEntity(dto, null);
+    public Integer createNewGarbagePoint(GarbagePointCreateUpdateDto dto) {
+        GarbagePoint gp = GarbagePointCreateUpdateDto.toEntity(dto, null);
         gp.setCreatedAt(LocalDateTime.now());
-        if (dto.getAdminId() != null) {
-            User adminRef = userRepository.getReferenceById(dto.getAdminId());
-            gp.setAdmin(adminRef);
-        }
+
         if (dto.getKioskId() != null) {
-            User kioskRef = userRepository.getReferenceById(dto.getKioskId());
-            gp.setKiosk(kioskRef);
+            User kiosk = userRepository.findById(dto.getKioskId())
+                    .orElseThrow(() -> new BadRequestException("Kiosk user not found: " + dto.getKioskId()));
+            gp.setKiosk(kiosk);
         }
 
-        garbagePointRepository.save(gp);
-        return gp.getId();
+        return garbagePointRepository.save(gp).getId();
     }
 
 
     @Transactional
-    public void update(Integer id, GarbagePointUpsertDto dto) {
+    public void update(Integer id, GarbagePointCreateUpdateDto dto) {
         GarbagePoint gp = garbagePointRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Garbage point not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GarbagePoint", "id", id));
 
-        // на всякий ставим id внутрь dto, если вдруг понадобится
-        dto.setId(id);
+        gp.setAddress(dto.getAddress().trim());
+        gp.setCapacity(dto.getCapacity());
+        gp.setOpen(dto.getOpen() != null ? dto.getOpen() : true);
+        gp.setLat(dto.getLat());
+        gp.setLon(dto.getLon());
 
-        applyUpsertFields(gp, dto);
+        if (dto.getKioskId() != null) {
+            User kiosk = userRepository.findById(dto.getKioskId())
+                    .orElseThrow(() -> new BadRequestException("Kiosk user not found: " + dto.getKioskId()));
+            gp.setKiosk(kiosk);
+        } else {
+            gp.setKiosk(null);
+        }
 
         garbagePointRepository.save(gp);
     }
 
     @Transactional
     public void delete(Integer id) {
-        if (!garbagePointRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Garbage point not found");
-        }
-        garbagePointRepository.deleteById(id);
+        GarbagePoint gp = garbagePointRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("GarbagePoint", "id", id));
+        garbagePointRepository.delete(gp);
     }
-
-    private void applyUpsertFields(GarbagePoint gp, GarbagePointUpsertDto dto) {
-        gp.setAddress(dto.getAddress().trim());
-        gp.setCapacity(dto.getCapacity());
-        gp.setOpen(dto.getOpen() == null ? true : dto.getOpen());
-        gp.setLat(dto.getLat());
-        gp.setLon(dto.getLon());
-
-        // admin
-        gp.setAdmin(null);
-
-        // kiosk
-        if (dto.getKioskId() != null) {
-            User kiosk = userRepository.findById(dto.getKioskId())
-                    .orElseThrow(() ->
-                            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kiosk user not found: " + dto.getKioskId()));
-            gp.setKiosk(kiosk);
-        } else {
-            gp.setKiosk(null);
-        }
-    }
-
 
 }

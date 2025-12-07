@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
-import ru.itmo.wastemanagement.dto.kiosk.KioskCreateDto;
+import ru.itmo.wastemanagement.dto.kiosk.KioskCreateUpdateDto;
 import ru.itmo.wastemanagement.dto.kiosk.KioskRowDto;
-import ru.itmo.wastemanagement.dto.kiosk.KioskUpdateDto;
 import ru.itmo.wastemanagement.entity.User;
 import ru.itmo.wastemanagement.entity.enums.UserRole;
 import ru.itmo.wastemanagement.exception.BadRequestException;
@@ -42,7 +41,7 @@ public class KioskService {
     }
 
     @Transactional
-    public Integer createKioskUser(KioskCreateDto dto) {
+    public Integer createKioskUser(KioskCreateUpdateDto dto) {
         if (userRepository.existsByLogin(dto.getLogin()))
             throw new ConflictException("Пользователь с логином '%s' уже существует".formatted(dto.getLogin()));
 
@@ -58,7 +57,7 @@ public class KioskService {
     }
 
     @Transactional
-    public void updateKioskUser(Integer id, KioskUpdateDto dto) {
+    public void updateKioskUser(Integer id, KioskCreateUpdateDto dto) {
         User kiosk = userRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of(User.class, "id", id));
 
