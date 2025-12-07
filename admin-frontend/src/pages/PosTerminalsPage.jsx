@@ -14,7 +14,7 @@ import {
 import {Label} from "@/components/ui/label"
 import {Input} from "@/components/ui/input"
 import {Switch} from "@/components/ui/switch"
-import PosTerminalsTable from "@/components/data/PosTerminalsTable.jsx"
+import PosTerminalsTable from "@/components/tableData/PosTerminalsTable.jsx"
 import {API_BASE} from "../../cfg.js"
 import {toast} from "sonner";
 

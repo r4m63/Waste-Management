@@ -1,27 +1,53 @@
-// components/data/PosTerminalsTable.jsx
+// components/data/GarbagePointsTable.jsx
 
 import React, {useCallback, useMemo, useRef} from "react"
-import {AgGridTable} from "@/components/data/AgGridTable.jsx"
+import {AgGridTable} from "@/components/tableData/AgGridTable.jsx"
 import {API_BASE} from "../../../cfg.js"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 
-export default function PosTerminalsTable({
-                                              onOpenEditTerminalModal,
-                                              onDeleteTerminal,          // 👈 НОВЫЙ проп
-                                              onReadyRefresh,
-                                              onReadyControls,
-                                          }) {
+export default function GarbagePointsTable({
+                                               onOpenEditPointModal,
+                                               onDeletePoint,
+                                               onReadyRefresh,
+                                               onReadyControls,
+                                           }) {
     const gridApiRef = useRef(null)
 
     const columnDefs = useMemo(
         () => [
+            {
+                headerName: "Действия",
+                colId: "actions",
+                width: 80,
+                sortable: false,
+                filter: false,
+                floatingFilter: false,
+                cellRenderer: (p) => (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Открыть меню</span>
+                                <MoreHorizontal className="h-4 w-4"/>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                onClick={() => onOpenEditPointModal?.(p.data)}
+                            >
+                                Редактировать
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => onDeletePoint?.(p.data)}
+                            >
+                                Удалить
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ),
+            },
             {
                 headerName: "ID",
                 field: "id",
@@ -32,74 +58,61 @@ export default function PosTerminalsTable({
                 floatingFilter: true,
             },
             {
-                headerName: "Действия",
-                colId: "actions",
-                width: 90,
-                sortable: false,
-                filter: false,
-                floatingFilter: false,
-                cellRenderer: (p) => (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Открыть меню</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                                onClick={() => onOpenEditTerminalModal?.(p.data)}
-                            >
-                                Редактировать
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onClick={() => onDeleteTerminal?.(p.data)}
-                            >
-                                Удалить
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                ),
-            },
-            {
-                headerName: "Имя",
-                field: "name",
-                colId: "name",
-                flex: 1.2,
+                headerName: "Адрес",
+                field: "address",
+                colId: "address",
+                flex: 1.6,
                 sortable: true,
                 filter: "agTextColumnFilter",
                 floatingFilter: true,
             },
             {
-                headerName: "Логин",
-                field: "login",
-                colId: "login",
-                flex: 1.2,
+                headerName: "Вместимость",
+                field: "capacity",
+                colId: "capacity",
+                width: 140,
                 sortable: true,
-                filter: "agTextColumnFilter",
+                filter: "agNumberColumnFilter",
                 floatingFilter: true,
             },
             {
-                headerName: "Активен",
-                field: "active",
-                colId: "active",
+                headerName: "Открыта",
+                field: "open",
+                colId: "open",
                 width: 120,
                 sortable: true,
                 filter: "agSetColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({ value }) =>
+                valueFormatter: ({value}) =>
                     value === true ? "Да" : value === false ? "Нет" : "",
             },
             {
-                headerName: "Создан",
+                headerName: "Широта",
+                field: "lat",
+                colId: "lat",
+                width: 140,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
+            },
+            {
+                headerName: "Долгота",
+                field: "lon",
+                colId: "lon",
+                width: 140,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
+            },
+            {
+                headerName: "Создана",
                 field: "createdAt",
                 colId: "createdAt",
                 width: 200,
                 sortable: true,
                 filter: "agDateColumnFilter",
                 floatingFilter: true,
-                valueFormatter: ({ value }) => {
+                valueFormatter: ({value}) => {
                     if (!value) return ""
                     const d = typeof value === "string" ? new Date(value) : value
                     if (!Number.isFinite(d?.getTime?.())) return String(value)
@@ -113,10 +126,10 @@ export default function PosTerminalsTable({
                 },
             },
         ],
-        [onOpenEditTerminalModal, onDeleteTerminal],
+        [onOpenEditPointModal, onDeletePoint],
     )
 
-    const mapSortModel = (sm = []) => sm.map((s) => ({ colId: s.colId, sort: s.sort }))
+    const mapSortModel = (sm = []) => sm.map((s) => ({colId: s.colId, sort: s.sort}))
 
     const makeDatasource = useCallback(
         () => ({
@@ -129,7 +142,7 @@ export default function PosTerminalsTable({
                         filterModel: params.filterModel || {},
                     }
 
-                    const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+                    const res = await fetch(`${API_BASE}/api/garbage-points/query`, {
                         method: "POST",
                         credentials: "include",
                         headers: {
@@ -175,7 +188,7 @@ export default function PosTerminalsTable({
         if (!api) return
 
         const clearSort = () => {
-            api.applyColumnState?.({ defaultState: { sort: null, sortIndex: null } })
+            api.applyColumnState?.({defaultState: {sort: null, sortIndex: null}})
             api.setGridOption?.("sortModel", null)
         }
 
@@ -194,11 +207,6 @@ export default function PosTerminalsTable({
                 clearSort()
                 api.purgeInfiniteCache()
                 api.ensureIndexVisible(0)
-            },
-            filterOnlyActive: () => {
-                setAndGo({
-                    active: { filterType: "set", values: [true] },
-                })
             },
         })
     }, [onReadyControls])

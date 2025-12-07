@@ -170,23 +170,6 @@ const data = {
             icon: Send,
         },
     ],
-    // projects: [
-    //     {
-    //         name: "Сегодняшний план рейсов",
-    //         url: "/planning/routes?date=today",
-    //         icon: Route,
-    //     },
-    //     {
-    //         name: "Активные маршруты",
-    //         url: "/execution/monitoring",
-    //         icon: Activity,
-    //     },
-    //     {
-    //         name: "Проблемные точки (инциденты)",
-    //         url: "/incidents/list?filter=open",
-    //         icon: AlertTriangle,
-    //     },
-    // ],
 }
 
 
@@ -213,7 +196,6 @@ export function AppSidebar(props) {
             </SidebarHeader>
             <SidebarContent className="wm-sidebar-scroll">
                 <NavMain items={data.navMain}/>
-                {/*<NavProjects projects={data.projects}/>*/}
                 <NavSecondary items={data.navSecondary} className="mt-auto"/>
             </SidebarContent>
             <SidebarFooter>

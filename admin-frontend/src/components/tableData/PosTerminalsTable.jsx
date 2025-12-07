@@ -1,35 +1,26 @@
-// components/data/GarbagePointsTable.jsx
+// components/data/PosTerminalsTable.jsx
 
 import React, {useCallback, useMemo, useRef} from "react"
-import {AgGridTable} from "@/components/data/AgGridTable.jsx"
+import {AgGridTable} from "@/components/tableData/AgGridTable.jsx"
 import {API_BASE} from "../../../cfg.js"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 
-export default function GarbagePointsTable({
-                                               onOpenEditPointModal,
-                                               onDeletePoint,
-                                               onReadyRefresh,
-                                               onReadyControls,
-                                           }) {
+export default function PosTerminalsTable({
+                                              onOpenEditTerminalModal,
+                                              onDeleteTerminal,
+                                              onReadyRefresh,
+                                              onReadyControls,
+                                          }) {
     const gridApiRef = useRef(null)
 
     const columnDefs = useMemo(
         () => [
             {
-                headerName: "ID",
-                field: "id",
-                colId: "id",
-                width: 80,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
-            {
                 headerName: "Действия",
                 colId: "actions",
-                width: 80,
+                width: 90,
                 sortable: false,
                 filter: false,
                 floatingFilter: false,
@@ -43,13 +34,13 @@ export default function GarbagePointsTable({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                                onClick={() => onOpenEditPointModal?.(p.data)}
+                                onClick={() => onOpenEditTerminalModal?.(p.data)}
                             >
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="text-red-600"
-                                onClick={() => onDeletePoint?.(p.data)}
+                                className="text-red-600 focus:text-red-600"
+                                onClick={() => onDeleteTerminal?.(p.data)}
                             >
                                 Удалить
                             </DropdownMenuItem>
@@ -58,27 +49,36 @@ export default function GarbagePointsTable({
                 ),
             },
             {
-                headerName: "Адрес",
-                field: "address",
-                colId: "address",
-                flex: 1.6,
-                sortable: true,
-                filter: "agTextColumnFilter",
-                floatingFilter: true,
-            },
-            {
-                headerName: "Вместимость",
-                field: "capacity",
-                colId: "capacity",
-                width: 140,
+                headerName: "ID",
+                field: "id",
+                colId: "id",
+                width: 80,
                 sortable: true,
                 filter: "agNumberColumnFilter",
                 floatingFilter: true,
             },
             {
-                headerName: "Открыта",
-                field: "open",
-                colId: "open",
+                headerName: "Имя",
+                field: "name",
+                colId: "name",
+                flex: 1.2,
+                sortable: true,
+                filter: "agTextColumnFilter",
+                floatingFilter: true,
+            },
+            {
+                headerName: "Логин",
+                field: "login",
+                colId: "login",
+                flex: 1.2,
+                sortable: true,
+                filter: "agTextColumnFilter",
+                floatingFilter: true,
+            },
+            {
+                headerName: "Активен",
+                field: "active",
+                colId: "active",
                 width: 120,
                 sortable: true,
                 filter: "agSetColumnFilter",
@@ -87,25 +87,7 @@ export default function GarbagePointsTable({
                     value === true ? "Да" : value === false ? "Нет" : "",
             },
             {
-                headerName: "Широта",
-                field: "lat",
-                colId: "lat",
-                width: 140,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
-            {
-                headerName: "Долгота",
-                field: "lon",
-                colId: "lon",
-                width: 140,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
-            {
-                headerName: "Создана",
+                headerName: "Создан",
                 field: "createdAt",
                 colId: "createdAt",
                 width: 200,
@@ -126,7 +108,7 @@ export default function GarbagePointsTable({
                 },
             },
         ],
-        [onOpenEditPointModal, onDeletePoint],
+        [onOpenEditTerminalModal, onDeleteTerminal],
     )
 
     const mapSortModel = (sm = []) => sm.map((s) => ({colId: s.colId, sort: s.sort}))
@@ -142,7 +124,7 @@ export default function GarbagePointsTable({
                         filterModel: params.filterModel || {},
                     }
 
-                    const res = await fetch(`${API_BASE}/api/garbage-points/query`, {
+                    const res = await fetch(`${API_BASE}/api/kiosk/query`, {
                         method: "POST",
                         credentials: "include",
                         headers: {
@@ -207,6 +189,11 @@ export default function GarbagePointsTable({
                 clearSort()
                 api.purgeInfiniteCache()
                 api.ensureIndexVisible(0)
+            },
+            filterOnlyActive: () => {
+                setAndGo({
+                    active: {filterType: "set", values: [true]},
+                })
             },
         })
     }, [onReadyControls])
