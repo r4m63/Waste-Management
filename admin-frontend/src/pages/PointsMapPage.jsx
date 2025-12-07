@@ -17,7 +17,7 @@ import {Label} from "@/components/ui/label"
 import {Input} from "@/components/ui/input"
 import {Switch} from "@/components/ui/switch"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,} from "@/components/ui/command"
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
 import {toast} from "sonner"
 import {API_BASE} from "../../cfg.js"
 
@@ -43,7 +43,7 @@ export default function PointsMapPage() {
     const [isKioskPopoverOpen, setIsKioskPopoverOpen] = useState(false)
 
     // карта
-    const [mapCenter, setMapCenter] = useState([59.93, 30.31]) // СПб по дефолту
+    const [mapCenter, setMapCenter] = useState([59.93, 30.31]) // СПб
     const [mapZoom, setMapZoom] = useState(11)
 
     const resetForm = () => {
@@ -61,7 +61,6 @@ export default function PointsMapPage() {
     const fetchPoints = useCallback(async () => {
         setIsPointsLoading(true)
         try {
-            // Тянем точки через /query — первые 1000 штук
             const body = {
                 startRow: 0,
                 endRow: 1000,
@@ -100,21 +99,16 @@ export default function PointsMapPage() {
     // ================== Загрузка киосков для combobox ==================
 
     const fetchKiosks = useCallback(async () => {
-        // если уже загружали — не дёргаем бэк ещё раз
-        if (kioskOptions.length > 0 || isKioskLoading) return;
+        if (kioskOptions.length > 0 || isKioskLoading) return
 
-        setIsKioskLoading(true);
+        setIsKioskLoading(true)
         try {
             const body = {
                 startRow: 0,
                 endRow: 50,
                 sortModel: [{colId: "createdAt", sort: "desc"}],
-                // ❌ filterModel по role не нужен — репозиторий и так режет только KIOSK
-                // filterModel: {
-                //   role: { filterType: "text", type: "equals", filter: "KIOSK" },
-                // },
-                filterModel: {}, // или вообще не слать это поле
-            };
+                filterModel: {}, // репозиторий сам отдаёт только KIOSK
+            }
 
             const res = await fetch(`${API_BASE}/api/kiosk/query`, {
                 method: "POST",
@@ -124,25 +118,22 @@ export default function PointsMapPage() {
                     Accept: "application/json",
                 },
                 body: JSON.stringify(body),
-            });
+            })
 
             if (!res.ok) {
-                const text = await res.text().catch(() => "");
-                console.error("Не удалось получить список киосков", res.status, res.statusText, text);
-                return;
+                const text = await res.text().catch(() => "")
+                console.error("Не удалось получить список киосков", res.status, res.statusText, text)
+                return
             }
 
-            const data = await res.json();
-            console.log("kiosk query result:", data);
-            // ожидаем data.rows: [{id,name,login,active,createdAt,...}]
-            setKioskOptions(data.rows || []);
+            const data = await res.json()
+            setKioskOptions(data.rows || [])
         } catch (e) {
-            console.error("Ошибка загрузки киосков", e);
+            console.error("Ошибка загрузки киосков", e)
         } finally {
-            setIsKioskLoading(false);
+            setIsKioskLoading(false)
         }
-    }, [kioskOptions.length, isKioskLoading]);
-
+    }, [kioskOptions.length, isKioskLoading])
 
     useEffect(() => {
         if (isDialogOpen) {
@@ -151,12 +142,12 @@ export default function PointsMapPage() {
     }, [isDialogOpen, fetchKiosks])
 
     const selectedKioskLabel = useMemo(() => {
-        if (kioskId == null) return "";
-        const found = kioskOptions.find((k) => k.id === kioskId || k.id === Number(kioskId),);
-        if (!found) return `ID ${kioskId}`;
-        const name = found.name || "(без имени)";
-        return found.login ? `${name} (${found.login})` : name;
-    }, [kioskId, kioskOptions]);
+        if (kioskId == null) return ""
+        const found = kioskOptions.find((k) => k.id === kioskId || k.id === Number(kioskId))
+        if (!found) return `ID ${kioskId}`
+        const name = found.name || "(без имени)"
+        return found.login ? `${name} (${found.login})` : name
+    }, [kioskId, kioskOptions])
 
     // ================== Валидация и сохранение ==================
 
@@ -224,7 +215,6 @@ export default function PointsMapPage() {
 
     // ================== Работа с картой ==================
 
-    // клик по карте — ставим координаты (для создания / редактирования)
     const handleMapClick = useCallback(
         (e) => {
             const coords = e.get("coords") // [lat, lon]
@@ -234,11 +224,9 @@ export default function PointsMapPage() {
             setLat(latVal.toFixed(6))
             setLon(lonVal.toFixed(6))
 
-            // если сейчас ничего не редактируем — открываем модалку создания
             if (!activePoint) {
                 setIsOpen(true)
                 setCapacity("")
-                setAddress("")
                 setKioskId(null)
                 setIsDialogOpen(true)
             }
@@ -246,7 +234,6 @@ export default function PointsMapPage() {
         [activePoint],
     )
 
-    // клик по маркеру — редактирование существующей точки
     const handlePlacemarkClick = useCallback((point) => {
         setActivePoint(point)
         setAddress(point.address ?? "")
@@ -254,13 +241,7 @@ export default function PointsMapPage() {
         setIsOpen(point.open ?? true)
         setLat(point.lat != null ? String(point.lat) : "")
         setLon(point.lon != null ? String(point.lon) : "")
-        // kioskId — подстраиваемся к тому, как выглядет dto для rows
-        setKioskId(
-            point.kioskId ??
-            point.kiosk_id ??
-            point.kiosk?.id ??
-            null,
-        )
+        setKioskId(point.kioskId ?? point.kiosk_id ?? point.kiosk?.id ?? null)
 
         if (point.lat && point.lon) {
             setMapCenter([point.lat, point.lon])
@@ -272,7 +253,6 @@ export default function PointsMapPage() {
 
     const ymapsQuery = useMemo(
         () => ({
-            apikey: "YOUR_YANDEX_MAPS_API_KEY", // TODO: подставь свой ключ
             lang: "ru_RU",
         }),
         [],
@@ -296,7 +276,6 @@ export default function PointsMapPage() {
                         className="gap-2"
                         onClick={() => {
                             resetForm()
-                            // Центрируемся на дефолт / последней точке
                             setIsDialogOpen(true)
                         }}
                     >
@@ -323,28 +302,27 @@ export default function PointsMapPage() {
                                 suppressMapOpenBlock: true,
                             }}
                         >
-                            {/* существующие точки */}
-                            {points.map((p) =>
-                                p.lat != null && p.lon != null ? (
-                                    <Placemark
-                                        key={p.id}
-                                        geometry={[p.lat, p.lon]}
-                                        onClick={() => handlePlacemarkClick(p)}
-                                        options={{
-                                            preset: "islands#greenDotIcon",
-                                        }}
-                                        properties={{
-                                            balloonContentHeader: p.address || "Точка",
-                                            balloonContentBody: `
-                                                Вместимость: ${p.capacity ?? "-"}<br/>
-                                                Открыта: ${p.open ? "Да" : "Нет"}
-                                            `,
-                                        }}
-                                    />
-                                ) : null,
-                            )}
+                            {!isPointsLoading &&
+                                points.map((p) =>
+                                    p.lat != null && p.lon != null ? (
+                                        <Placemark
+                                            key={p.id}
+                                            geometry={[p.lat, p.lon]}
+                                            onClick={() => handlePlacemarkClick(p)}
+                                            options={{
+                                                preset: "islands#greenDotIcon",
+                                            }}
+                                            properties={{
+                                                balloonContentHeader: p.address || "Точка",
+                                                balloonContentBody: `
+                          Вместимость: ${p.capacity ?? "-"}<br/>
+                          Открыта: ${p.open ? "Да" : "Нет"}
+                        `,
+                                            }}
+                                        />
+                                    ) : null,
+                                )}
 
-                            {/* текущая редактируемая/создаваемая точка (если lat/lon заданы) */}
                             {lat !== "" && lon !== "" && (
                                 <Placemark
                                     geometry={[Number(lat), Number(lon)]}
@@ -369,7 +347,6 @@ export default function PointsMapPage() {
                 </div>
             </div>
 
-            {/* Модалка создания/редактирования точки */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -431,7 +408,7 @@ export default function PointsMapPage() {
                                         onChange={(e) => setLat(e.target.value)}
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="spacey-2">
                                     <Label htmlFor="lon">Долгота (lon)</Label>
                                     <Input
                                         id="lon"
@@ -444,7 +421,6 @@ export default function PointsMapPage() {
                                 </div>
                             </div>
 
-                            {/* Combobox для kiosk_id */}
                             <div className="space-y-2">
                                 <Label>Киоск (user с ролью KIOSK)</Label>
                                 <Popover
@@ -470,9 +446,7 @@ export default function PointsMapPage() {
                                         <Command>
                                             <CommandInput placeholder="Найти киоск..."/>
                                             <CommandEmpty>
-                                                {isKioskLoading
-                                                    ? "Загрузка..."
-                                                    : "Ничего не найдено"}
+                                                {isKioskLoading ? "Загрузка..." : "Ничего не найдено"}
                                             </CommandEmpty>
                                             <CommandGroup>
                                                 {kioskOptions.map((k) => (
@@ -480,22 +454,21 @@ export default function PointsMapPage() {
                                                         key={k.id}
                                                         value={`${k.name || ""} ${k.login || ""}`.trim() || `#${k.id}`}
                                                         onSelect={() => {
-                                                            setKioskId(k.id);      // сохраняем ID
-                                                            setIsKioskPopoverOpen(false);
+                                                            setKioskId(k.id)
+                                                            setIsKioskPopoverOpen(false)
                                                         }}
                                                     >
-                                                        <span className="mr-2 text-muted-foreground">
-                                                            #{k.id}
-                                                        </span>
+                            <span className="mr-2 text-muted-foreground">
+                              #{k.id}
+                            </span>
                                                         <span>{k.name || "(без имени)"}</span>
                                                         {k.login && (
                                                             <span className="ml-2 text-xs text-muted-foreground">
-                                                                ({k.login})
-                                                            </span>
+                                ({k.login})
+                              </span>
                                                         )}
                                                     </CommandItem>
                                                 ))}
-
                                             </CommandGroup>
                                         </Command>
                                     </PopoverContent>
