@@ -7,6 +7,7 @@ import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kiosk.KioskCreateDto;
 import ru.itmo.wastemanagement.dto.kiosk.KioskRowDto;
+import ru.itmo.wastemanagement.dto.kiosk.KioskUpdateDto;
 import ru.itmo.wastemanagement.entity.User;
 import ru.itmo.wastemanagement.entity.enums.UserRole;
 import ru.itmo.wastemanagement.repository.KioskGridRepository;
@@ -53,6 +54,54 @@ public class UserService {
                 .rows(dtos)
                 .lastRow((int) total)
                 .build();
+    }
+
+    @Transactional
+    public void updateKioskUser(Integer id, KioskUpdateDto dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Киоск с id=" + id + " не найден"));
+
+        if (user.getRole() != UserRole.KIOSK) {
+            throw new IllegalStateException("Пользователь с id=" + id + " не является киоском");
+        }
+
+        // Проверка логина на уникальность при изменении
+        String newLogin = dto.getLogin() != null ? dto.getLogin().trim() : null;
+        if (newLogin != null && !newLogin.equals(user.getLogin())) {
+            if (userRepository.existsByLogin(newLogin)) {
+                throw new IllegalArgumentException("Пользователь с таким логином уже существует");
+            }
+            user.setLogin(newLogin);
+        }
+
+        if (dto.getName() != null) {
+            user.setName(dto.getName().trim());
+        }
+
+        if (dto.getActive() != null) {
+            user.setActive(dto.getActive());
+        }
+
+        // Пароль меняем только если не пустой
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(dto.getPassword().trim());
+            // TODO: passwordEncoder.encode(...)
+        }
+
+        // role / phone / createdAt не трогаем
+        // userRepository.save(user); // не обязательно, JPA сам засинхает entity
+    }
+
+    @Transactional
+    public void deleteKioskUser(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Киоск с id=" + id + " не найден"));
+
+        if (user.getRole() != UserRole.KIOSK) {
+            throw new IllegalStateException("Пользователь с id=" + id + " не является киоском");
+        }
+
+        userRepository.delete(user);
     }
 
 }

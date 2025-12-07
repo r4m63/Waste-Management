@@ -4,12 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.itmo.wastemanagement.dto.GarbagePointDto;
 import ru.itmo.wastemanagement.dto.GarbagePointRowDto;
+import ru.itmo.wastemanagement.dto.GarbagePointUpsertDto;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.service.GarbagePointService;
@@ -35,6 +33,19 @@ public class GarbagePointController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Map.of("id", id));
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable Integer id,
+                       @RequestBody @Valid GarbagePointUpsertDto dto) {
+        garbagePointService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id) {
+        garbagePointService.delete(id);
     }
 
 }

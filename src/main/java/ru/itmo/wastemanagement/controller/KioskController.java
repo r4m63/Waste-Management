@@ -8,6 +8,7 @@ import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kiosk.KioskCreateDto;
 import ru.itmo.wastemanagement.dto.kiosk.KioskRowDto;
+import ru.itmo.wastemanagement.dto.kiosk.KioskUpdateDto;
 import ru.itmo.wastemanagement.service.UserService;
 
 import java.util.Map;
@@ -29,6 +30,22 @@ public class KioskController {
     @PostMapping("/query")
     public GridTableResponse<KioskRowDto> query(@Valid @RequestBody GridTableRequest req) {
         return userService.queryKioskGrid(req);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateKioskUser(
+            @PathVariable Integer id,
+            @RequestBody @Valid KioskUpdateDto dto
+    ) {
+        userService.updateKioskUser(id, dto);
+    }
+
+    // Удаление киоска
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteKioskUser(@PathVariable Integer id) {
+        userService.deleteKioskUser(id);
     }
 
 }
