@@ -1,5 +1,5 @@
 BEGIN;
-CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
+-- CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
 CREATE TYPE order_status AS ENUM ('created','confirmed','cancelled');
 CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
@@ -12,7 +12,7 @@ CREATE TYPE incident_type AS ENUM ('access_denied','traffic','vehicle_issue','ov
 CREATE TABLE users
 (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    role       user_role   NOT NULL,
+    role       text        NOT NULL CHECK (role IN ('RESIDENT', 'ADMIN', 'DRIVER', 'KIOSK')),
     phone      text UNIQUE,
     name       text,
     is_active  boolean     NOT NULL DEFAULT true,
