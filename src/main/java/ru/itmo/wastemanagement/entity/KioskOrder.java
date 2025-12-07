@@ -11,20 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.itmo.wastemanagement.entity.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "kiosk_orders")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "kiosk_orders")
 public class KioskOrder {
 
     @Id

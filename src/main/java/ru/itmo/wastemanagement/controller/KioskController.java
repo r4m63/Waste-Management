@@ -3,13 +3,14 @@ package ru.itmo.wastemanagement.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kiosk.KioskCreateDto;
 import ru.itmo.wastemanagement.dto.kiosk.KioskRowDto;
 import ru.itmo.wastemanagement.dto.kiosk.KioskUpdateDto;
-import ru.itmo.wastemanagement.service.UserService;
+import ru.itmo.wastemanagement.service.KioskService;
 
 import java.util.Map;
 
@@ -18,34 +19,42 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KioskController {
 
-    private final UserService userService;
+    private final KioskService kioskService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Integer> createKioskUser(@RequestBody @Valid KioskCreateDto dto) {
-        Integer id = userService.createKioskUser(dto);
-        return Map.of("id", id);
+    public ResponseEntity<?> createKioskUser(@RequestBody @Valid KioskCreateDto dto) {
+        Integer id = kioskService.createKioskUser(dto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(Map.of("id", id));
     }
 
     @PostMapping("/query")
-    public GridTableResponse<KioskRowDto> query(@Valid @RequestBody GridTableRequest req) {
-        return userService.queryKioskGrid(req);
+    public ResponseEntity<?> query(@RequestBody @Valid GridTableRequest req) {
+        GridTableResponse<KioskRowDto> body = kioskService.queryKioskGrid(req);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(body);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateKioskUser(
+    public ResponseEntity<?> updateKioskUser(
             @PathVariable Integer id,
             @RequestBody @Valid KioskUpdateDto dto
     ) {
-        userService.updateKioskUser(id, dto);
+        kioskService.updateKioskUser(id, dto);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
-    // Удаление киоска
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteKioskUser(@PathVariable Integer id) {
-        userService.deleteKioskUser(id);
+    public ResponseEntity<?> deleteKioskUser(@PathVariable Integer id) {
+        kioskService.deleteKioskUser(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
+
 
 }

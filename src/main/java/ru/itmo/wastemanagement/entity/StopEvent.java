@@ -11,20 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.itmo.wastemanagement.entity.enums.StopEventType;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "stop_events")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "stop_events")
 public class StopEvent {
 
     @Id
