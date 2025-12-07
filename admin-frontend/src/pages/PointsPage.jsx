@@ -17,6 +17,7 @@ import {Switch} from "@/components/ui/switch"
 import GarbagePointsTable from "@/components/tableData/GarbagePointsTable.jsx"
 import {API_BASE} from "../../cfg.js"
 import {toast} from "sonner"
+import {parseApiError} from "@/lib/utils.js"
 
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
@@ -101,12 +102,12 @@ export default function PointsPage() {
                 resetForm()
                 toast.success("Сохранено")
             } else {
-                const errorData = await res.json().catch(() => ({}))
-                toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+                const errorMessage = await parseApiError(res, "Ошибка сохранения")
+                toast.error(errorMessage)
             }
         } catch (e) {
             console.error("Ошибка сохранения точки", e)
-            toast.error("Ошибка сохранения. Попробуйте ещё раз.")
+            toast.error("Ошибка сети. Попробуйте ещё раз.")
         }
     }
 
@@ -164,12 +165,12 @@ export default function PointsPage() {
                     toast.success(`Точка #${row.id} удалена`)
                     refreshGrid?.()
                 } else {
-                    const errData = await res.json().catch(() => ({}))
-                    toast.error(errData.message || `Ошибка удаления: ${res.status}`)
+                    const errorMessage = await parseApiError(res, "Ошибка удаления")
+                    toast.error(errorMessage)
                 }
             } catch (e) {
                 console.error("Ошибка удаления точки", e)
-                toast.error("Ошибка удаления. Попробуйте ещё раз.")
+                toast.error("Ошибка сети. Попробуйте ещё раз.")
             }
         },
         [refreshGrid],

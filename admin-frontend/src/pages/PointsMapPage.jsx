@@ -20,6 +20,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
 import {toast} from "sonner"
 import {API_BASE} from "../../cfg.js"
+import {parseApiError} from "@/lib/utils.js"
 
 export default function PointsMapPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -199,12 +200,12 @@ export default function PointsMapPage() {
                 resetForm()
                 toast.success("Сохранено")
             } else {
-                const errorData = await res.json().catch(() => ({}))
-                toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+                const errorMessage = await parseApiError(res, "Ошибка сохранения")
+                toast.error(errorMessage)
             }
         } catch (e) {
             console.error("Ошибка сохранения точки", e)
-            toast.error("Ошибка сохранения. Попробуйте ещё раз.")
+            toast.error("Ошибка сети. Попробуйте ещё раз.")
         }
     }
 
