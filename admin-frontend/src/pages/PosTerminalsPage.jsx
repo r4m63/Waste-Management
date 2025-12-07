@@ -16,7 +16,8 @@ import {Input} from "@/components/ui/input"
 import {Switch} from "@/components/ui/switch"
 import PosTerminalsTable from "@/components/tableData/PosTerminalsTable.jsx"
 import {API_BASE} from "../../cfg.js"
-import {toast} from "sonner";
+import {toast} from "sonner"
+import {parseApiError} from "@/lib/utils.js"
 
 export default function PosTerminalsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -82,12 +83,12 @@ export default function PosTerminalsPage() {
                 resetForm()
                 toast.success("Сохранено")
             } else {
-                const errorData = await res.json().catch(() => ({}))
-                toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+                const errorMessage = await parseApiError(res, "Ошибка сохранения")
+                toast.error(errorMessage)
             }
         } catch (e) {
             console.error("Ошибка сохранения терминала", e)
-            toast.error("Ошибка сохранения. Попробуйте ещё раз.")
+            toast.error("Ошибка сети. Попробуйте ещё раз.")
         }
     }
 
@@ -122,12 +123,12 @@ export default function PosTerminalsPage() {
                     toast.success("Терминал удалён")
                     refreshGrid?.()
                 } else {
-                    const errorData = await res.json().catch(() => ({}))
-                    toast.error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+                    const errorMessage = await parseApiError(res, "Ошибка удаления")
+                    toast.error(errorMessage)
                 }
             } catch (e) {
                 console.error("Ошибка удаления терминала", e)
-                toast.error("Ошибка удаления. Попробуйте ещё раз.")
+                toast.error("Ошибка сети. Попробуйте ещё раз.")
             }
         },
         [refreshGrid],
