@@ -73,7 +73,7 @@ const data = {
             items: [
                 {
                     title: "ТС (автопарк)",
-                    url: "/resources/vehicles",
+                    url: "/vehicles",
                 },
                 {
                     title: "Водители",

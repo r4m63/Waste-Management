@@ -106,7 +106,6 @@ export default function PosTerminalsPage() {
         setIsDialogOpen(true)
     }, [])
 
-    // 🔥 УДАЛЕНИЕ
     const handleDeleteTerminal = useCallback(
         async (row) => {
             if (!row?.id) return
@@ -163,7 +162,7 @@ export default function PosTerminalsPage() {
                 <div className="flex-1 min-h-[400px]">
                     <PosTerminalsTable
                         onOpenEditTerminalModal={handleOpenEditTerminalModal}
-                        onDeleteTerminal={handleDeleteTerminal}   // 👈 ПРОКИНУЛИ
+                        onDeleteTerminal={handleDeleteTerminal}
                         onReadyRefresh={(fn) => setRefreshGrid(() => fn)}
                         onReadyControls={(controls) => setTableControls(controls)}
                     />
