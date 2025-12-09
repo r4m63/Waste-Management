@@ -3,6 +3,8 @@ package ru.itmo.wastemanagement.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -26,5 +28,8 @@ public class Vehicle {
 
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
+
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
 
