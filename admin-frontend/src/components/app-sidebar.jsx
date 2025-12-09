@@ -29,8 +29,8 @@ import {
 
 const data = {
     user: {
-        name: "Dispatcher",
-        email: "dispatcher@example.com",
+        name: "User",
+        email: "user@example.com",
         avatar: "/avatars/dispatcher.jpg",
     },
     navMain: [
@@ -180,7 +180,7 @@ export function AppSidebar(props) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <a href="#">
+                            <div>
                                 <div
                                     className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <Command className="size-4"/>
@@ -189,7 +189,7 @@ export function AppSidebar(props) {
                                     <span className="truncate font-medium">Waste Management</span>
                                     <span className="truncate text-xs">Admin Panel</span>
                                 </div>
-                            </a>
+                            </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

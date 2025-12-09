@@ -23,8 +23,8 @@ export function extractErrorMessage(errorData, fallback = "Произошла о
     // Если есть errors (объект с полями валидации), форматируем их
     if (errorData.errors && typeof errorData.errors === 'object') {
         const fieldErrors = Object.entries(errorData.errors)
-            .map(([field, msg]) => `${field}: ${msg}`)
-            .join('; ')
+            .map(([field, msg]) => `• ${field}: ${msg}`)
+            .join('\n')
         
         if (fieldErrors) {
             return fieldErrors

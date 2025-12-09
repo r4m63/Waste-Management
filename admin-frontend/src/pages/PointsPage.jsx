@@ -103,10 +103,14 @@ export default function PointsPage() {
                 toast.success("Сохранено")
             } else {
                 const errorMessage = await parseApiError(res, "Ошибка сохранения")
-                toast.error(errorMessage)
+                toast.error(
+                    <div className="whitespace-pre-line">
+                        {errorMessage}
+                    </div>
+                )
             }
         } catch (e) {
-            console.error("Ошибка сохранения точки", e)
+            console.error("Ошибка сети. Попробуйте ещё раз: ", e)
             toast.error("Ошибка сети. Попробуйте ещё раз.")
         }
     }
@@ -126,7 +130,6 @@ export default function PointsPage() {
                 ? String(row.capacity)
                 : ""
         )
-        // поле называется open в DTO/сущности
         setIsOpen(row.open ?? true)
         setLat(
             row.lat !== null && row.lat !== undefined
@@ -138,7 +141,6 @@ export default function PointsPage() {
                 ? String(row.lon)
                 : ""
         )
-        // kioskId может быть либо kioskId, либо kiosk.id (если вдруг вернёшь вложенный объект)
         setKioskId(
             row.kioskId ??
             row.kiosk?.id ??
@@ -148,9 +150,7 @@ export default function PointsPage() {
         setIsDialogOpen(true)
     }, [])
 
-    // Удаление точки
-    const handleDeletePoint = useCallback(
-        async (row) => {
+    const handleDeletePoint = useCallback(async (row) => {
             if (!row?.id) return
             const ok = window.confirm(`Удалить точку #${row.id}?`)
             if (!ok) return
