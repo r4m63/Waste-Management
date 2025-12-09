@@ -1,20 +1,18 @@
 package ru.itmo.wastemanagement.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "driver_shifts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "driver_shifts")
 public class DriverShift {
 
     @Id

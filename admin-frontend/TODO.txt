@@ -1,0 +1,11 @@
+shadcn Alert Dialog - на подтверждение удаления
+shadcn alert - в sonner уведомление
+shadcn combobox - для выбора REFERENCES BY ID в создании сущностей
+shadcn сontext menu - для обновления таблицы и для удаления записи (2 варианта сделать)
+
+shadcn data table - нажатие на 3 точки - реализовать у себя в таблцие так же
+shadcn Dropdown Menu - для нажатия на 3 точки в таблице
+shadcn Dialog - модальное окно для создания сущностей
+
+shadcn Hover Card - информация при наведении
+

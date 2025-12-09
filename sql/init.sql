@@ -1,5 +1,5 @@
 BEGIN;
-CREATE TYPE user_role AS ENUM ('resident','admin','courier','worker');
+-- CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
 CREATE TYPE order_status AS ENUM ('created','confirmed','cancelled');
 CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
@@ -12,11 +12,13 @@ CREATE TYPE incident_type AS ENUM ('access_denied','traffic','vehicle_issue','ov
 CREATE TABLE users
 (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    role       user_role   NOT NULL,
+    role       text        NOT NULL CHECK (role IN ('RESIDENT', 'ADMIN', 'DRIVER', 'KIOSK')),
     phone      text UNIQUE,
     name       text,
     is_active  boolean     NOT NULL DEFAULT true,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    login      text UNIQUE,
+    password   text
 );
 
 CREATE TABLE garbage_points
@@ -29,6 +31,7 @@ CREATE TABLE garbage_points
     lon        double precision,
     created_at timestamptz NOT NULL DEFAULT now(),
     admin_id   integer     REFERENCES users (id) ON DELETE SET NULL,
+    kiosk_id   integer     REFERENCES users (id) ON DELETE SET NULL,
     CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)),
     CHECK (lon IS NULL OR (lon >= -180 AND lon <= 180))
 );
@@ -117,7 +120,7 @@ CREATE UNIQUE INDEX driver_shifts_one_open_per_driver ON driver_shifts (driver_i
 CREATE TABLE routes
 (
     id               BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    planned_date     timestamptz  NOT NULL,
+    planned_date     date         NOT NULL,
     driver_id        integer      REFERENCES users (id) ON DELETE SET NULL,
     vehicle_id       integer      REFERENCES vehicles (id) ON DELETE SET NULL,
     shift_id         integer      REFERENCES driver_shifts (id) ON DELETE SET NULL,

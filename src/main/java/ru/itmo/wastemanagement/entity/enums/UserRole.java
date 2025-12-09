@@ -6,4 +6,3 @@ public enum UserRole {
     DRIVER,
     KIOSK
 }
-

@@ -1,6 +1,6 @@
 // components/nav-user.jsx
 
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles,} from "lucide-react"
+import {Bell, ChevronsUpDown, CircleUser, LogOut, Settings,} from "lucide-react"
 
 import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {
@@ -55,22 +55,22 @@ export function NavUser({user}) {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
+                        {/*<DropdownMenuSeparator/>*/}
+                        {/*<DropdownMenuGroup>*/}
+                        {/*    <DropdownMenuItem>*/}
+                        {/*        <Sparkles/>*/}
+                        {/*        Upgrade to Pro*/}
+                        {/*    </DropdownMenuItem>*/}
+                        {/*</DropdownMenuGroup>*/}
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                <Sparkles/>
-                                Upgrade to Pro
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <BadgeCheck/>
+                                <CircleUser/>
                                 Account
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <CreditCard/>
-                                Billing
+                                <Settings/>
+                                Settings
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <Bell/>
