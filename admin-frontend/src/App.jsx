@@ -9,6 +9,7 @@ import DashboardPage from "@/pages/DashboardPage.jsx";
 import PosTerminalsPage from "@/pages/PosTerminalsPage.jsx";
 import PointsMapPage from "@/pages/PointsMapPage.jsx";
 import VehiclesPage from "@/pages/VehiclesPage.jsx";
+import DriversPage from "@/pages/DriversPage.jsx";
 
 export default function App() {
     return (
@@ -23,6 +24,7 @@ export default function App() {
                         <Route path="points/map" element={<PointsMapPage/>}/>
                         <Route path="pos/terminals" element={<PosTerminalsPage/>}/>
                         <Route path="vehicles" element={<VehiclesPage/>}/>
+                        <Route path="vehicles/drivers" element={<DriversPage/>}/>
                         <Route path="*" element={<NotFoundPage/>}/>
                     </Route>
                 </Routes>

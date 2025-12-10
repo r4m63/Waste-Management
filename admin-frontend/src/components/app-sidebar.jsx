@@ -77,7 +77,7 @@ const data = {
                 },
                 {
                     title: "Водители",
-                    url: "/resources/drivers",
+                    url: "/vehicles/drivers",
                 },
                 {
                     title: "Смены водителей",
