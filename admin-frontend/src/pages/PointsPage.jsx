@@ -18,6 +18,7 @@ import GarbagePointsTable from "@/components/tableData/GarbagePointsTable.jsx"
 import {API_BASE} from "../../cfg.js"
 import {toast} from "sonner"
 import {parseApiError} from "@/lib/utils.js"
+import {apiFetch} from "@/lib/apiClient.js"
 
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
@@ -86,9 +87,8 @@ export default function PointsPage() {
             : `${API_BASE}/api/garbage-points`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
@@ -156,9 +156,8 @@ export default function PointsPage() {
             if (!ok) return
 
             try {
-                const res = await fetch(`${API_BASE}/api/garbage-points/${row.id}`, {
+                const res = await apiFetch(`${API_BASE}/api/garbage-points/${row.id}`, {
                     method: "DELETE",
-                    credentials: "include",
                 })
 
                 if (res.ok) {
@@ -191,9 +190,8 @@ export default function PointsPage() {
                 },
             }
 
-            const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+            const res = await apiFetch(`${API_BASE}/api/kiosk/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",

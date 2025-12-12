@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {parseApiError} from "@/lib/utils.js";
 import {toast} from "sonner";
+import {apiFetch} from "@/lib/apiClient.js";
 
 export default function VehiclesTable({
                                           onOpenEditVehicleModal,
@@ -119,9 +120,8 @@ export default function VehiclesTable({
                         filterModel: params.filterModel || {},
                     }
 
-                    const res = await fetch(`${API_BASE}/api/vehicles/query`, {
+                    const res = await apiFetch(`${API_BASE}/api/vehicles/query`, {
                         method: "POST",
-                        credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
                             Accept: "application/json",

@@ -15,6 +15,7 @@ import {Label} from "@/components/ui/label"
 import {toast} from "sonner"
 import {API_BASE} from "../../cfg.js"
 import KioskOrdersTable from "@/components/tableData/KioskOrdersTable.jsx"
+import {apiFetch} from "@/lib/apiClient.js"
 
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,} from "@/components/ui/command"
@@ -70,9 +71,8 @@ export default function KioskOrdersPage() {
                 filterModel: {},
             }
 
-            const res = await fetch(`${API_BASE}/api/garbage-points/query`, {
+            const res = await apiFetch(`${API_BASE}/api/garbage-points/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -109,9 +109,8 @@ export default function KioskOrdersPage() {
             }
 
             // предполагаемый эндпоинт — сделаешь под него бэк
-            const res = await fetch(`${API_BASE}/api/container-sizes/query`, {
+            const res = await apiFetch(`${API_BASE}/api/container-sizes/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -148,9 +147,8 @@ export default function KioskOrdersPage() {
             }
 
             // предполагаемый эндпоинт
-            const res = await fetch(`${API_BASE}/api/fractions/query`, {
+            const res = await apiFetch(`${API_BASE}/api/fractions/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -249,9 +247,8 @@ export default function KioskOrdersPage() {
             : `${API_BASE}/api/kiosk-orders`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -314,9 +311,8 @@ export default function KioskOrdersPage() {
             if (!window.confirm(`Удалить заказ киоска #${row.id}?`)) return
 
             try {
-                const res = await fetch(`${API_BASE}/api/kiosk-orders/${row.id}`, {
+                const res = await apiFetch(`${API_BASE}/api/kiosk-orders/${row.id}`, {
                     method: "DELETE",
-                    credentials: "include",
                 })
 
                 if (res.ok) {

@@ -17,6 +17,7 @@ import {Switch} from "@/components/ui/switch"
 import {toast} from "sonner"
 import {API_BASE} from "../../cfg.js"
 import DriversTable from "@/components/tableData/DriversTable.jsx"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function DriversPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -72,9 +73,8 @@ export default function DriversPage() {
             : `${API_BASE}/api/drivers`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -118,9 +118,8 @@ export default function DriversPage() {
             if (!window.confirm(`Удалить водителя #${row.id}?`)) return
 
             try {
-                const res = await fetch(`${API_BASE}/api/drivers/${row.id}`, {
+                const res = await apiFetch(`${API_BASE}/api/drivers/${row.id}`, {
                     method: "DELETE",
-                    credentials: "include",
                 })
 
                 if (res.ok) {

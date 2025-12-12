@@ -21,6 +21,7 @@ import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/
 import {toast} from "sonner"
 import {API_BASE} from "../../cfg.js"
 import {parseApiError} from "@/lib/utils.js"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function PointsMapPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -69,9 +70,8 @@ export default function PointsMapPage() {
                 filterModel: {},
             }
 
-            const res = await fetch(`${API_BASE}/api/garbage-points/query`, {
+            const res = await apiFetch(`${API_BASE}/api/garbage-points/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -111,9 +111,8 @@ export default function PointsMapPage() {
                 filterModel: {}, // репозиторий сам отдаёт только KIOSK
             }
 
-            const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+            const res = await apiFetch(`${API_BASE}/api/kiosk/query`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -184,9 +183,8 @@ export default function PointsMapPage() {
             : `${API_BASE}/api/garbage-points`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",

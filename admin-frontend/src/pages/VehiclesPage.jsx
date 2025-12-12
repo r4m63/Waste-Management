@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { API_BASE } from "../../cfg.js"
 import VehiclesTable from "@/components/tableData/VehiclesTable.jsx"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function VehiclesPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -67,9 +68,8 @@ export default function VehiclesPage() {
             : `${API_BASE}/api/vehicles`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -116,9 +116,8 @@ export default function VehiclesPage() {
             if (!window.confirm(`Удалить транспортное средство #${row.id}?`)) return
 
             try {
-                const res = await fetch(`${API_BASE}/api/vehicles/${row.id}`, {
+                const res = await apiFetch(`${API_BASE}/api/vehicles/${row.id}`, {
                     method: "DELETE",
-                    credentials: "include",
                 })
 
                 if (res.ok) {

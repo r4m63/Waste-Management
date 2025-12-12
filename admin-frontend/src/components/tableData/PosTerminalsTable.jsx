@@ -6,6 +6,7 @@ import {API_BASE} from "../../../cfg.js"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function PosTerminalsTable({
                                               onOpenEditTerminalModal,
@@ -124,9 +125,8 @@ export default function PosTerminalsTable({
                         filterModel: params.filterModel || {},
                     }
 
-                    const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+                    const res = await apiFetch(`${API_BASE}/api/kiosk/query`, {
                         method: "POST",
-                        credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
                             Accept: "application/json",

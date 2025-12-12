@@ -1,4 +1,4 @@
-// vite.config.js
+// vite.cfg.js
 
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react-swc'
