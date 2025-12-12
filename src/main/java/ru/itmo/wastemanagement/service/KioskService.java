@@ -3,6 +3,7 @@ package ru.itmo.wastemanagement.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kiosk.KioskCreateUpdateDto;
@@ -24,6 +25,7 @@ public class KioskService {
 
     private final UserRepository userRepository;
     private final KioskGridRepository kioskGridRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public GridTableResponse<KioskRowDto> queryKioskGrid(GridTableRequest req) {
@@ -51,7 +53,7 @@ public class KioskService {
                 .login(dto.getLogin().trim())
                 .active(dto.getActive())
                 .createdAt(LocalDateTime.now())
-                .password(dto.getPassword().trim()) // TODO: заменить на passwordEncoder.encode(req.getPassword())
+                .password(passwordEncoder.encode(dto.getPassword().trim()))
                 .build();
         return userRepository.save(user).getId();
     }
@@ -80,7 +82,7 @@ public class KioskService {
             kiosk.setActive(dto.getActive());
 
         if (dto.getPassword() != null && !dto.getPassword().isBlank())
-            kiosk.setPassword(dto.getPassword().trim()); // TODO: passwordEncoder.encode(...)
+            kiosk.setPassword(passwordEncoder.encode(dto.getPassword().trim()));
 
         userRepository.save(kiosk);
     }

@@ -3,6 +3,7 @@ package ru.itmo.wastemanagement.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.itmo.wastemanagement.dto.driver.DriverCreateUpdateDto;
 import ru.itmo.wastemanagement.dto.driver.DriverRowDto;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
@@ -24,6 +25,7 @@ public class DriverService {
 
     private final UserRepository userRepository;
     private final DriverGridRepository driverGridRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public GridTableResponse<DriverRowDto> queryDriverGrid(GridTableRequest req) {
@@ -61,7 +63,7 @@ public class DriverService {
                 .login(login)
                 .active(dto.getActive() != null ? dto.getActive() : true)
                 .createdAt(LocalDateTime.now())
-                .password(dto.getPassword().trim()) // TODO: passwordEncoder.encode(...)
+                .password(passwordEncoder.encode(dto.getPassword().trim()))
                 .build();
 
         return userRepository.save(user).getId();
@@ -100,8 +102,7 @@ public class DriverService {
 
         // пароль меняем только если передан и не пустой
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            driver.setPassword(dto.getPassword().trim());
-            // TODO: passwordEncoder.encode(...)
+            driver.setPassword(passwordEncoder.encode(dto.getPassword().trim()));
         }
 
         userRepository.save(driver); // можно и не вызывать, но так явно
