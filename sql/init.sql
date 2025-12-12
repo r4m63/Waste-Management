@@ -38,10 +38,14 @@ CREATE TABLE garbage_points
 
 CREATE TABLE container_sizes
 (
-    id       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    code     container_size_code UNIQUE NOT NULL,
-    capacity integer                    NOT NULL CHECK (capacity > 0)
-    -- еще длина/ширина/высота
+    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    code       text UNIQUE NOT NULL,
+    capacity   integer                    NOT NULL CHECK (capacity > 0),
+    length     double precision,
+    width      double precision,
+    height     double precision,
+    description text,
+    created_at timestamptz                NOT NULL DEFAULT now()
 );
 
 INSERT INTO container_sizes (code, capacity)
@@ -79,7 +83,7 @@ CREATE TABLE kiosk_orders
 (
     id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     garbage_point_id  integer     NOT NULL REFERENCES garbage_points (id) ON DELETE RESTRICT,
-    container_size_id integer     NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
+    container_size_id BIGINT      NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
     user_id           integer     REFERENCES users (id) ON DELETE SET NULL,
     fraction_id       integer     NOT NULL REFERENCES fractions (id) ON DELETE RESTRICT,
     created_at        timestamptz NOT NULL DEFAULT now(),

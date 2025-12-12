@@ -16,7 +16,7 @@ public class KioskOrderRowDto {
     Integer garbagePointId;
     String garbagePointAddress;
 
-    Integer containerSizeId;
+    Long containerSizeId;
     String containerSizeCode;
 
     Integer fractionId;

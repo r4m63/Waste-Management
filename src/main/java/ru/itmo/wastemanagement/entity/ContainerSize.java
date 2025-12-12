@@ -2,7 +2,8 @@ package ru.itmo.wastemanagement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.itmo.wastemanagement.entity.enums.ContainerSizeCode;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,13 +16,18 @@ public class ContainerSize {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
-    private ContainerSizeCode code;
+    private String code;
 
-    @Column(nullable = false)
     private Integer capacity;
-}
 
+    private Double length;
+    private Double width;
+    private Double height;
+
+    private String description;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+}
