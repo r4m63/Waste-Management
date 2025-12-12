@@ -12,6 +12,7 @@ import VehiclesPage from "@/pages/VehiclesPage.jsx";
 import DriversPage from "@/pages/DriversPage.jsx";
 import KioskOrdersPage from "@/pages/KioskOrdersPage.jsx";
 import {AuthProvider, useAuth} from "@/context/AuthContext.jsx";
+import FractionsPage from "@/pages/FractionsPage.jsx";
 
 export default function App() {
     return (
@@ -47,6 +48,7 @@ function AppRoutes() {
                 <Route path="points/map" element={<PointsMapPage/>}/>
                 <Route path="pos/terminals" element={<PosTerminalsPage/>}/>
                 <Route path="pos/operations" element={<KioskOrdersPage/>}/>
+                <Route path="pos/fractions" element={<FractionsPage/>}/>
                 <Route path="vehicles" element={<VehiclesPage/>}/>
                 <Route path="vehicles/drivers" element={<DriversPage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>

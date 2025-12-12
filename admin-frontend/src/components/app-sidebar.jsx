@@ -58,11 +58,11 @@ const data = {
                     url: "/pos/terminals",
                 },
                 {
-                    title: "Тарифы и фракции",
-                    url: "/pos/tariffs",
+                    title: "Фракции и контейнеры",
+                    url: "/pos/fractions",
                 },
                 {
-                    title: "Операции / чеки",
+                    title: "Заказы",
                     url: "/pos/operations",
                 },
             ],
