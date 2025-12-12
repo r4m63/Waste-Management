@@ -1,6 +1,6 @@
 BEGIN;
 -- CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
-CREATE TYPE order_status AS ENUM ('created','confirmed','cancelled');
+-- CREATE TYPE order_status AS ENUM ('CREATED','CONFIRMED','CANCELLED');
 CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
 CREATE TYPE route_status AS ENUM ('planned','in_progress','completed','cancelled');
@@ -78,12 +78,12 @@ CREATE TABLE garbage_point_fractions
 CREATE TABLE kiosk_orders
 (
     id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    garbage_point_id  integer      NOT NULL REFERENCES garbage_points (id) ON DELETE RESTRICT,
-    container_size_id integer      NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
-    user_id           integer      REFERENCES users (id) ON DELETE SET NULL,
-    fraction_id       integer      NOT NULL REFERENCES fractions (id) ON DELETE RESTRICT,
-    created_at        timestamptz  NOT NULL DEFAULT now(),
-    status            order_status NOT NULL DEFAULT 'confirmed'
+    garbage_point_id  integer     NOT NULL REFERENCES garbage_points (id) ON DELETE RESTRICT,
+    container_size_id integer     NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
+    user_id           integer     REFERENCES users (id) ON DELETE SET NULL,
+    fraction_id       integer     NOT NULL REFERENCES fractions (id) ON DELETE RESTRICT,
+    created_at        timestamptz NOT NULL DEFAULT now(),
+    status            text        NOT NULL CHECK (status IN ('CREATED', 'CONFIRMED', 'CANCELLED'))
 );
 
 CREATE TABLE vehicles
@@ -92,7 +92,8 @@ CREATE TABLE vehicles
     plate_number text UNIQUE NOT NULL,
     name         text,
     capacity     integer,
-    is_active    boolean     NOT NULL DEFAULT true
+    is_active    boolean     NOT NULL DEFAULT true,
+    created_at   timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE driver_shifts
