@@ -1,7 +1,7 @@
 BEGIN;
 -- CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
 -- CREATE TYPE order_status AS ENUM ('CREATED','CONFIRMED','CANCELLED');
-CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
+-- CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
 CREATE TYPE route_status AS ENUM ('planned','in_progress','completed','cancelled');
 CREATE TYPE stop_status AS ENUM ('planned','enroute','arrived','loading','unloading','done','skipped','unavailable');
@@ -39,7 +39,7 @@ CREATE TABLE garbage_points
 CREATE TABLE container_sizes
 (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    code       text UNIQUE NOT NULL,
+    code       TEXT UNIQUE NOT NULL,
     capacity   integer                    NOT NULL CHECK (capacity > 0),
     length     double precision,
     width      double precision,
@@ -322,7 +322,7 @@ BEGIN
     -- Создание заказа
     -- Все проверки пройдены, создаем заказ со статусом 'confirmed'
     INSERT INTO kiosk_orders
-        (garbage_point_id, container_size_id, user_id, fraction_id, status)
+    (garbage_point_id, container_size_id, user_id, fraction_id, status)
     VALUES (p_garbage_point_id, p_container_size_id, p_user_id, p_fraction_id, 'confirmed')
     RETURNING id INTO v_order_id;
     -- Получаем ID созданного заказа
