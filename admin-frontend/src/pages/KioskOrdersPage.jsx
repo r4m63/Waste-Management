@@ -1,8 +1,8 @@
 // src/pages/KioskOrdersPage.jsx
 
-import {useCallback, useEffect, useMemo, useState} from "react"
-import {Button} from "@/components/ui/button"
-import {ChevronsUpDown, Plus} from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { ChevronsUpDown, Plus } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -11,15 +11,15 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {Label} from "@/components/ui/label"
-import {toast} from "sonner"
-import {API_BASE} from "../../cfg.js"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+import { API_BASE } from "../../cfg.js"
 import KioskOrdersTable from "@/components/tableData/KioskOrdersTable.jsx"
-import {apiFetch} from "@/lib/apiClient.js"
+import { apiFetch } from "@/lib/apiClient.js"
 
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,} from "@/components/ui/command"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function KioskOrdersPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -32,8 +32,7 @@ export default function KioskOrdersPage() {
     const [status, setStatus] = useState("CREATED")
 
     // таблица
-    const [refreshGrid, setRefreshGrid] = useState(() => () => {
-    })
+    const [refreshGrid, setRefreshGrid] = useState(() => () => {})
     const [tableControls, setTableControls] = useState(null)
 
     // справочники
@@ -49,6 +48,11 @@ export default function KioskOrdersPage() {
     const [isCsPopoverOpen, setIsCsPopoverOpen] = useState(false)
     const [isFractionPopoverOpen, setIsFractionPopoverOpen] = useState(false)
 
+    // FIX: флаги “уже пытались загрузить” (даже если пришёл пустой список)
+    const [gpsFetched, setGpsFetched] = useState(false)
+    const [csFetched, setCsFetched] = useState(false)
+    const [fractionsFetched, setFractionsFetched] = useState(false)
+
     const resetForm = () => {
         setActiveOrder(null)
         setGarbagePointId(null)
@@ -57,17 +61,17 @@ export default function KioskOrdersPage() {
         setStatus("CREATED")
     }
 
-    // ============= Загрузка справочных данных =============
+    // ============= Загрузка справочных данных (без бесконечной загрузки) =============
 
     const fetchGarbagePoints = useCallback(async () => {
-        if (gpOptions.length > 0 || isGpLoading) return
+        if (gpsFetched || isGpLoading) return
 
         setIsGpLoading(true)
         try {
             const body = {
                 startRow: 0,
                 endRow: 100,
-                sortModel: [{colId: "createdAt", sort: "desc"}],
+                sortModel: [{ colId: "createdAt", sort: "desc" }],
                 filterModel: {},
             }
 
@@ -83,21 +87,23 @@ export default function KioskOrdersPage() {
             if (!res.ok) {
                 const text = await res.text().catch(() => "")
                 console.error("Не удалось получить точки сбора", res.status, res.statusText, text)
+                setGpOptions([])
                 return
             }
 
             const data = await res.json()
-            // ожидаем data.rows: [{id,address,...}]
-            setGpOptions(data.rows || [])
+            setGpOptions(Array.isArray(data.rows) ? data.rows : [])
         } catch (e) {
             console.error("Ошибка загрузки точек сбора", e)
+            setGpOptions([])
         } finally {
             setIsGpLoading(false)
+            setGpsFetched(true)
         }
-    }, [gpOptions.length, isGpLoading])
+    }, [gpsFetched, isGpLoading])
 
     const fetchContainerSizes = useCallback(async () => {
-        if (csOptions.length > 0 || isCsLoading) return
+        if (csFetched || isCsLoading) return
 
         setIsCsLoading(true)
         try {
@@ -108,7 +114,6 @@ export default function KioskOrdersPage() {
                 filterModel: {},
             }
 
-            // предполагаемый эндпоинт — сделаешь под него бэк
             const res = await apiFetch(`${API_BASE}/api/container-sizes/query`, {
                 method: "POST",
                 headers: {
@@ -121,21 +126,23 @@ export default function KioskOrdersPage() {
             if (!res.ok) {
                 const text = await res.text().catch(() => "")
                 console.error("Не удалось получить размеры контейнеров", res.status, res.statusText, text)
+                setCsOptions([])
                 return
             }
 
             const data = await res.json()
-            // ожидаем data.rows: [{id,code,name,...}]
-            setCsOptions(data.rows || [])
+            setCsOptions(Array.isArray(data.rows) ? data.rows : [])
         } catch (e) {
             console.error("Ошибка загрузки размеров контейнеров", e)
+            setCsOptions([])
         } finally {
             setIsCsLoading(false)
+            setCsFetched(true)
         }
-    }, [csOptions.length, isCsLoading])
+    }, [csFetched, isCsLoading])
 
     const fetchFractions = useCallback(async () => {
-        if (fractionOptions.length > 0 || isFractionLoading) return
+        if (fractionsFetched || isFractionLoading) return
 
         setIsFractionLoading(true)
         try {
@@ -146,7 +153,6 @@ export default function KioskOrdersPage() {
                 filterModel: {},
             }
 
-            // предполагаемый эндпоинт
             const res = await apiFetch(`${API_BASE}/api/fractions/query`, {
                 method: "POST",
                 headers: {
@@ -159,35 +165,26 @@ export default function KioskOrdersPage() {
             if (!res.ok) {
                 const text = await res.text().catch(() => "")
                 console.error("Не удалось получить фракции", res.status, res.statusText, text)
+                setFractionOptions([])
                 return
             }
 
             const data = await res.json()
-            // ожидаем data.rows: [{id,name,code,...}]
-            setFractionOptions(data.rows || [])
+            setFractionOptions(Array.isArray(data.rows) ? data.rows : [])
         } catch (e) {
             console.error("Ошибка загрузки фракций", e)
+            setFractionOptions([])
         } finally {
             setIsFractionLoading(false)
+            setFractionsFetched(true)
         }
-    }, [fractionOptions.length, isFractionLoading])
-
-    // При открытии модалки — подгружаем справочники
-    useEffect(() => {
-        if (isDialogOpen) {
-            fetchGarbagePoints()
-            fetchContainerSizes()
-            fetchFractions()
-        }
-    }, [isDialogOpen, fetchGarbagePoints, fetchContainerSizes, fetchFractions])
+    }, [fractionsFetched, isFractionLoading])
 
     // ============= Лейблы для комбобоксов =============
 
     const selectedGpLabel = useMemo(() => {
         if (garbagePointId == null) return ""
-        const gp = gpOptions.find(
-            (g) => g.id === garbagePointId || g.id === Number(garbagePointId),
-        )
+        const gp = gpOptions.find((g) => g.id === garbagePointId || g.id === Number(garbagePointId))
         if (!gp) return `Точка #${garbagePointId}`
         const addr = gp.address || "(без адреса)"
         return `${addr} (#${gp.id})`
@@ -195,9 +192,7 @@ export default function KioskOrdersPage() {
 
     const selectedCsLabel = useMemo(() => {
         if (containerSizeId == null) return ""
-        const cs = csOptions.find(
-            (c) => c.id === containerSizeId || c.id === Number(containerSizeId),
-        )
+        const cs = csOptions.find((c) => c.id === containerSizeId || c.id === Number(containerSizeId))
         if (!cs) return `Размер #${containerSizeId}`
         const code = cs.code || ""
         const name = cs.name || ""
@@ -207,9 +202,7 @@ export default function KioskOrdersPage() {
 
     const selectedFractionLabel = useMemo(() => {
         if (fractionId == null) return ""
-        const fr = fractionOptions.find(
-            (f) => f.id === fractionId || f.id === Number(fractionId),
-        )
+        const fr = fractionOptions.find((f) => f.id === fractionId || f.id === Number(fractionId))
         if (!fr) return `Фракция #${fractionId}`
         const code = fr.code || ""
         const name = fr.name || ""
@@ -279,27 +272,9 @@ export default function KioskOrdersPage() {
     const handleOpenEditOrderModal = useCallback((row) => {
         setActiveOrder(row)
 
-        setGarbagePointId(
-            row?.garbagePointId ??
-            row?.garbage_point_id ??
-            row?.garbagePoint?.id ??
-            null,
-        )
-
-        setContainerSizeId(
-            row?.containerSizeId ??
-            row?.container_size_id ??
-            row?.containerSize?.id ??
-            null,
-        )
-
-        setFractionId(
-            row?.fractionId ??
-            row?.fraction_id ??
-            row?.fraction?.id ??
-            null,
-        )
-
+        setGarbagePointId(row?.garbagePointId ?? row?.garbage_point_id ?? row?.garbagePoint?.id ?? null)
+        setContainerSizeId(row?.containerSizeId ?? row?.container_size_id ?? row?.containerSize?.id ?? null)
+        setFractionId(row?.fractionId ?? row?.fraction_id ?? row?.fraction?.id ?? null)
         setStatus(row?.status ?? "CREATED")
 
         setIsDialogOpen(true)
@@ -335,12 +310,8 @@ export default function KioskOrdersPage() {
             <div className="flex flex-1 min-h-0 flex-col gap-4">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold leading-none tracking-tight">
-                            Заказы киосков
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Заявки от киосков на вывоз контейнеров.
-                        </p>
+                        <h1 className="text-2xl font-semibold leading-none tracking-tight">Заказы киосков</h1>
+                        <p className="text-sm text-muted-foreground">Заявки от киосков на вывоз контейнеров.</p>
                     </div>
 
                     <Button
@@ -351,7 +322,7 @@ export default function KioskOrdersPage() {
                             setIsDialogOpen(true)
                         }}
                     >
-                        <Plus className="h-4 w-4"/>
+                        <Plus className="h-4 w-4" />
                         Новый заказ
                     </Button>
                 </div>
@@ -366,12 +337,22 @@ export default function KioskOrdersPage() {
                 </div>
             </div>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog
+                open={isDialogOpen}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+
+                    // (опционально) если хочешь при каждом открытии модалки заново подтягивать справочники:
+                    // if (open) {
+                    //   setGpsFetched(false); setGpOptions([]);
+                    //   setCsFetched(false); setCsOptions([]);
+                    //   setFractionsFetched(false); setFractionOptions([]);
+                    // }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            {activeOrder ? "Редактирование заказа" : "Новый заказ киоска"}
-                        </DialogTitle>
+                        <DialogTitle>{activeOrder ? "Редактирование заказа" : "Новый заказ киоска"}</DialogTitle>
                         <DialogDescription>
                             Выберите точку сбора, размер контейнера и фракцию — заказ будет сохранён в системе.
                         </DialogDescription>
@@ -390,21 +371,15 @@ export default function KioskOrdersPage() {
                                     }}
                                 >
                                     <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                        >
+                                        <Button variant="outline" role="combobox" className="w-full justify-between">
                                             {selectedGpLabel || "Выберите точку сбора"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[420px] p-0">
                                         <Command>
-                                            <CommandInput placeholder="Найти точку по адресу..."/>
-                                            <CommandEmpty>
-                                                {isGpLoading ? "Загрузка..." : "Ничего не найдено"}
-                                            </CommandEmpty>
+                                            <CommandInput placeholder="Найти точку по адресу..." />
+                                            <CommandEmpty>{isGpLoading ? "Загрузка..." : "Ничего не найдено"}</CommandEmpty>
                                             <CommandGroup>
                                                 {gpOptions.map((g) => (
                                                     <CommandItem
@@ -415,9 +390,7 @@ export default function KioskOrdersPage() {
                                                             setIsGpPopoverOpen(false)
                                                         }}
                                                     >
-                            <span className="mr-2 text-muted-foreground">
-                              #{g.id}
-                            </span>
+                                                        <span className="mr-2 text-muted-foreground">#{g.id}</span>
                                                         <span>{g.address || "(без адреса)"}</span>
                                                     </CommandItem>
                                                 ))}
@@ -438,21 +411,15 @@ export default function KioskOrdersPage() {
                                     }}
                                 >
                                     <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                        >
+                                        <Button variant="outline" role="combobox" className="w-full justify-between">
                                             {selectedCsLabel || "Выберите размер контейнера"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[420px] p-0">
                                         <Command>
-                                            <CommandInput placeholder="Найти размер..."/>
-                                            <CommandEmpty>
-                                                {isCsLoading ? "Загрузка..." : "Ничего не найдено"}
-                                            </CommandEmpty>
+                                            <CommandInput placeholder="Найти размер..." />
+                                            <CommandEmpty>{isCsLoading ? "Загрузка..." : "Ничего не найдено"}</CommandEmpty>
                                             <CommandGroup>
                                                 {csOptions.map((c) => (
                                                     <CommandItem
@@ -463,14 +430,10 @@ export default function KioskOrdersPage() {
                                                             setIsCsPopoverOpen(false)
                                                         }}
                                                     >
-                            <span className="mr-2 text-muted-foreground">
-                              #{c.id}
-                            </span>
+                                                        <span className="mr-2 text-muted-foreground">#{c.id}</span>
                                                         <span>{c.code || c.name || "(без имени)"}</span>
                                                         {c.name && c.code && (
-                                                            <span className="ml-2 text-xs text-muted-foreground">
-                                ({c.name})
-                              </span>
+                                                            <span className="ml-2 text-xs text-muted-foreground">({c.name})</span>
                                                         )}
                                                     </CommandItem>
                                                 ))}
@@ -491,21 +454,15 @@ export default function KioskOrdersPage() {
                                     }}
                                 >
                                     <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                        >
+                                        <Button variant="outline" role="combobox" className="w-full justify-between">
                                             {selectedFractionLabel || "Выберите фракцию"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[420px] p-0">
                                         <Command>
-                                            <CommandInput placeholder="Найти фракцию..."/>
-                                            <CommandEmpty>
-                                                {isFractionLoading ? "Загрузка..." : "Ничего не найдено"}
-                                            </CommandEmpty>
+                                            <CommandInput placeholder="Найти фракцию..." />
+                                            <CommandEmpty>{isFractionLoading ? "Загрузка..." : "Ничего не найдено"}</CommandEmpty>
                                             <CommandGroup>
                                                 {fractionOptions.map((f) => (
                                                     <CommandItem
@@ -516,15 +473,9 @@ export default function KioskOrdersPage() {
                                                             setIsFractionPopoverOpen(false)
                                                         }}
                                                     >
-                            <span className="mr-2 text-muted-foreground">
-                              #{f.id}
-                            </span>
+                                                        <span className="mr-2 text-muted-foreground">#{f.id}</span>
                                                         <span>{f.name || "(без имени)"}</span>
-                                                        {f.code && (
-                                                            <span className="ml-2 text-xs text-muted-foreground">
-                                ({f.code})
-                              </span>
-                                                        )}
+                                                        {f.code && <span className="ml-2 text-xs text-muted-foreground">({f.code})</span>}
                                                     </CommandItem>
                                                 ))}
                                             </CommandGroup>
@@ -538,7 +489,7 @@ export default function KioskOrdersPage() {
                                 <Label htmlFor="status">Статус</Label>
                                 <Select value={status} onValueChange={setStatus}>
                                     <SelectTrigger id="status" className="w-full">
-                                        <SelectValue placeholder="Выберите статус"/>
+                                        <SelectValue placeholder="Выберите статус" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="CREATED">Создан</SelectItem>
@@ -551,11 +502,7 @@ export default function KioskOrdersPage() {
                     </div>
 
                     <DialogFooter className="mt-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCancel}
-                        >
+                        <Button type="button" variant="outline" onClick={handleCancel}>
                             Отмена
                         </Button>
                         <Button type="button" onClick={handleSave}>

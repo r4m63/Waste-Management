@@ -1,8 +1,8 @@
-// pages/PointsPage.jsx
+// src/pages/PointsPage.jsx
 
-import {useCallback, useEffect, useMemo, useState} from "react"
-import {Button} from "@/components/ui/button"
-import {ChevronsUpDown, Plus} from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { ChevronsUpDown, Plus } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -11,17 +11,17 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {Label} from "@/components/ui/label"
-import {Input} from "@/components/ui/input"
-import {Switch} from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import GarbagePointsTable from "@/components/tableData/GarbagePointsTable.jsx"
-import {API_BASE} from "../../cfg.js"
-import {toast} from "sonner"
-import {parseApiError} from "@/lib/utils.js"
-import {apiFetch} from "@/lib/apiClient.js"
+import { API_BASE } from "../../cfg.js"
+import { toast } from "sonner"
+import { parseApiError } from "@/lib/utils.js"
+import { apiFetch } from "@/lib/apiClient.js"
 
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 
 export default function PointsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -37,14 +37,16 @@ export default function PointsPage() {
     const [kioskId, setKioskId] = useState(null)
 
     // данные для таблицы
-    const [refreshGrid, setRefreshGrid] = useState(() => () => {
-    })
+    const [refreshGrid, setRefreshGrid] = useState(() => () => {})
     const [tableControls, setTableControls] = useState(null)
 
     // данные для combobox киосков
     const [kioskOptions, setKioskOptions] = useState([])
     const [isKioskLoading, setIsKioskLoading] = useState(false)
     const [isKioskPopoverOpen, setIsKioskPopoverOpen] = useState(false)
+
+    // Флаг: уже пробовали грузить киоски (даже если пришёл пустой список)
+    const [kiosksFetched, setKiosksFetched] = useState(false)
 
     const resetForm = () => {
         setAddress("")
@@ -91,7 +93,7 @@ export default function PointsPage() {
                 method: isEdit ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json",
+                    Accept: "application/json",
                 },
                 body: JSON.stringify(payload),
             })
@@ -103,11 +105,7 @@ export default function PointsPage() {
                 toast.success("Сохранено")
             } else {
                 const errorMessage = await parseApiError(res, "Ошибка сохранения")
-                toast.error(
-                    <div className="whitespace-pre-line">
-                        {errorMessage}
-                    </div>
-                )
+                toast.error(<div className="whitespace-pre-line">{errorMessage}</div>)
             }
         } catch (e) {
             console.error("Ошибка сети. Попробуйте ещё раз: ", e)
@@ -125,32 +123,17 @@ export default function PointsPage() {
         if (!row) return
         setActivePoint(row)
         setAddress(row.address ?? "")
-        setCapacity(
-            row.capacity !== null && row.capacity !== undefined
-                ? String(row.capacity)
-                : ""
-        )
+        setCapacity(row.capacity !== null && row.capacity !== undefined ? String(row.capacity) : "")
         setIsOpen(row.open ?? true)
-        setLat(
-            row.lat !== null && row.lat !== undefined
-                ? String(row.lat)
-                : ""
-        )
-        setLon(
-            row.lon !== null && row.lon !== undefined
-                ? String(row.lon)
-                : ""
-        )
-        setKioskId(
-            row.kioskId ??
-            row.kiosk?.id ??
-            null
-        )
+        setLat(row.lat !== null && row.lat !== undefined ? String(row.lat) : "")
+        setLon(row.lon !== null && row.lon !== undefined ? String(row.lon) : "")
+        setKioskId(row.kioskId ?? row.kiosk?.id ?? null)
 
         setIsDialogOpen(true)
     }, [])
 
-    const handleDeletePoint = useCallback(async (row) => {
+    const handleDeletePoint = useCallback(
+        async (row) => {
             if (!row?.id) return
             const ok = window.confirm(`Удалить точку #${row.id}?`)
             if (!ok) return
@@ -176,17 +159,18 @@ export default function PointsPage() {
     )
 
     // Загрузка списка киосков (users с role=KIOSK) для комбобокса
+    // FIX: без бесконечного цикла (используем kiosksFetched, а не kioskOptions.length)
     const fetchKiosks = useCallback(async () => {
-        if (kioskOptions.length > 0 || isKioskLoading) return
+        if (kiosksFetched || isKioskLoading) return
 
         setIsKioskLoading(true)
         try {
             const body = {
                 startRow: 0,
                 endRow: 50,
-                sortModel: [{colId: "createdAt", sort: "desc"}],
+                sortModel: [{ colId: "createdAt", sort: "desc" }],
                 filterModel: {
-                    role: {filterType: "text", type: "equals", filter: "KIOSK"},
+                    role: { filterType: "text", type: "equals", filter: "KIOSK" },
                 },
             }
 
@@ -201,29 +185,24 @@ export default function PointsPage() {
 
             if (!res.ok) {
                 console.error("Не удалось получить список киосков", res.status, res.statusText)
+                setKioskOptions([])
                 return
             }
 
             const data = await res.json()
-            setKioskOptions(data.rows || [])
+            setKioskOptions(Array.isArray(data.rows) ? data.rows : [])
         } catch (e) {
             console.error("Ошибка загрузки киосков", e)
+            setKioskOptions([])
         } finally {
             setIsKioskLoading(false)
+            setKiosksFetched(true)
         }
-    }, [kioskOptions.length, isKioskLoading])
-
-    useEffect(() => {
-        if (isDialogOpen) {
-            fetchKiosks()
-        }
-    }, [isDialogOpen, fetchKiosks])
+    }, [kiosksFetched, isKioskLoading])
 
     const selectedKioskLabel = useMemo(() => {
         if (kioskId == null) return ""
-        const found = kioskOptions.find(
-            (k) => k.id === kioskId || k.id === Number(kioskId),
-        )
+        const found = kioskOptions.find((k) => k.id === kioskId || k.id === Number(kioskId))
         if (!found) return `ID ${kioskId}`
         const name = found.name || "(без имени)"
         return found.login ? `${name} (${found.login})` : name
@@ -234,12 +213,8 @@ export default function PointsPage() {
             <div className="flex flex-1 min-h-0 flex-col gap-4">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold leading-none tracking-tight">
-                            Точки сбора
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Список точек сбора мусора.
-                        </p>
+                        <h1 className="text-2xl font-semibold leading-none tracking-tight">Точки сбора</h1>
+                        <p className="text-sm text-muted-foreground">Список точек сбора мусора.</p>
                     </div>
 
                     <Button
@@ -250,7 +225,7 @@ export default function PointsPage() {
                             setIsDialogOpen(true)
                         }}
                     >
-                        <Plus className="h-4 w-4"/> Добавить точку
+                        <Plus className="h-4 w-4" /> Добавить точку
                     </Button>
                 </div>
 
@@ -264,15 +239,18 @@ export default function PointsPage() {
                 </div>
             </div>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog
+                open={isDialogOpen}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    // (опционально) если хочешь каждый раз обновлять список киосков при новом открытии модалки:
+                    // if (open) { setKiosksFetched(false); setKioskOptions([]); }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            {activePoint ? "Редактирование точки" : "Новая точка сбора"}
-                        </DialogTitle>
-                        <DialogDescription>
-                            Заполните данные точки, они будут сохранены в системе.
-                        </DialogDescription>
+                        <DialogTitle>{activePoint ? "Редактирование точки" : "Новая точка сбора"}</DialogTitle>
+                        <DialogDescription>Заполните данные точки, они будут сохранены в системе.</DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-4">
@@ -301,11 +279,7 @@ export default function PointsPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3 pt-6">
-                                    <Switch
-                                        id="isOpen"
-                                        checked={isOpen}
-                                        onCheckedChange={(checked) => setIsOpen(checked)}
-                                    />
+                                    <Switch id="isOpen" checked={isOpen} onCheckedChange={(checked) => setIsOpen(checked)} />
                                     <Label htmlFor="isOpen" className="cursor-pointer">
                                         Точка открыта
                                     </Label>
@@ -340,33 +314,26 @@ export default function PointsPage() {
                             {/* Combobox для kiosk_id */}
                             <div className="space-y-2">
                                 <Label>Киоск (user с ролью KIOSK)</Label>
+
                                 <Popover
                                     open={isKioskPopoverOpen}
                                     onOpenChange={(open) => {
                                         setIsKioskPopoverOpen(open)
-                                        if (open) {
-                                            fetchKiosks()
-                                        }
+                                        if (open) fetchKiosks()
                                     }}
                                 >
                                     <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                        >
+                                        <Button variant="outline" role="combobox" className="w-full justify-between">
                                             {selectedKioskLabel || "Выберите киоск"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
+
                                     <PopoverContent className="w-[420px] p-0">
                                         <Command>
-                                            <CommandInput placeholder="Найти киоск..."/>
-                                            <CommandEmpty>
-                                                {isKioskLoading
-                                                    ? "Загрузка..."
-                                                    : "Ничего не найдено"}
-                                            </CommandEmpty>
+                                            <CommandInput placeholder="Найти киоск..." />
+                                            <CommandEmpty>{isKioskLoading ? "Загрузка..." : "Ничего не найдено"}</CommandEmpty>
+
                                             <CommandGroup>
                                                 {kioskOptions.map((k) => (
                                                     <CommandItem
@@ -377,15 +344,9 @@ export default function PointsPage() {
                                                             setIsKioskPopoverOpen(false)
                                                         }}
                                                     >
-                                                        <span className="mr-2 text-muted-foreground">
-                                                            #{k.id}
-                                                        </span>
+                                                        <span className="mr-2 text-muted-foreground">#{k.id}</span>
                                                         <span>{k.name || "(без имени)"}</span>
-                                                        {k.login && (
-                                                            <span className="ml-2 text-xs text-muted-foreground">
-                                                                ({k.login})
-                                                            </span>
-                                                        )}
+                                                        {k.login && <span className="ml-2 text-xs text-muted-foreground">({k.login})</span>}
                                                     </CommandItem>
                                                 ))}
                                             </CommandGroup>
@@ -397,11 +358,7 @@ export default function PointsPage() {
                     </div>
 
                     <DialogFooter className="mt-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCancel}
-                        >
+                        <Button type="button" variant="outline" onClick={handleCancel}>
                             Отмена
                         </Button>
                         <Button type="button" onClick={handleSave}>
