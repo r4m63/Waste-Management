@@ -16,23 +16,14 @@ import {parseApiError} from "@/lib/utils.js";
 import {toast} from "sonner";
 
 export default function ContainerSizesTable({
-                                               onOpenEditSizeModal,
-                                               onDeleteSize,
-                                               onReadyRefresh,
-                                           }) {
+                                                onOpenEditSizeModal,
+                                                onDeleteSize,
+                                                onReadyRefresh,
+                                            }) {
     const gridApiRef = useRef(null);
 
     const columnDefs = useMemo(
         () => [
-            {
-                headerName: "ID",
-                field: "id",
-                colId: "id",
-                width: 80,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
             {
                 headerName: "Действия",
                 colId: "actions",
@@ -55,6 +46,7 @@ export default function ContainerSizesTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                                className="text-red-600 focus:text-red-700 focus:bg-red-100 dark:focus:bg-red-900/30"
                                 onClick={() => onDeleteSize?.(p.data)}
                             >
                                 Удалить
@@ -62,6 +54,15 @@ export default function ContainerSizesTable({
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ),
+            },
+            {
+                headerName: "ID",
+                field: "id",
+                colId: "id",
+                width: 80,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
             },
             {
                 headerName: "Код",

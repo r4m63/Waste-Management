@@ -40,7 +40,7 @@ export default function PosTerminalsTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
+                                className="text-red-600 focus:text-red-700 focus:bg-red-100 dark:focus:bg-red-900/30"
                                 onClick={() => onDeleteTerminal?.(p.data)}
                             >
                                 Удалить

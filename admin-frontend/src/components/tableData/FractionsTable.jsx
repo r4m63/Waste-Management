@@ -22,15 +22,6 @@ export default function FractionsTable({
     const columnDefs = useMemo(
         () => [
             {
-                headerName: "ID",
-                field: "id",
-                colId: "id",
-                width: 80,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
-            {
                 headerName: "Действия",
                 colId: "actions",
                 width: 90,
@@ -52,6 +43,7 @@ export default function FractionsTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                                className="text-red-600 focus:text-red-700 focus:bg-red-100 dark:focus:bg-red-900/30"
                                 onClick={() => onDeleteFraction?.(p.data)}
                             >
                                 Удалить
@@ -59,6 +51,15 @@ export default function FractionsTable({
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ),
+            },
+            {
+                headerName: "ID",
+                field: "id",
+                colId: "id",
+                width: 80,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
             },
             {
                 headerName: "Название",

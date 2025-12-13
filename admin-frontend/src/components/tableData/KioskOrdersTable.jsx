@@ -1,3 +1,4 @@
+
 // src/components/tableData/KioskOrdersTable.jsx
 
 import React, {useCallback, useMemo, useRef} from "react"
@@ -18,15 +19,6 @@ export default function KioskOrdersTable({
 
     const columnDefs = useMemo(
         () => [
-            {
-                headerName: "ID",
-                field: "id",
-                colId: "id",
-                width: 80,
-                sortable: true,
-                filter: "agNumberColumnFilter",
-                floatingFilter: true,
-            },
             {
                 headerName: "Действия",
                 colId: "actions",
@@ -49,6 +41,7 @@ export default function KioskOrdersTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                                className="text-red-600 focus:text-red-700 focus:bg-red-100 dark:focus:bg-red-900/30"
                                 onClick={() => onDeleteOrder?.(p.data)}
                             >
                                 Удалить
@@ -56,6 +49,24 @@ export default function KioskOrdersTable({
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ),
+            },
+            {
+                headerName: "ID",
+                field: "id",
+                colId: "id",
+                width: 80,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
+            },
+            {
+                headerName: "Вес, кг",
+                field: "weight",
+                colId: "weight",
+                width: 120,
+                sortable: true,
+                filter: "agNumberColumnFilter",
+                floatingFilter: true,
             },
             {
                 headerName: "Точка сбора",
