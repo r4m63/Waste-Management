@@ -86,6 +86,7 @@ CREATE TABLE kiosk_orders
     container_size_id BIGINT      NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
     user_id           integer     REFERENCES users (id) ON DELETE SET NULL,
     fraction_id       integer     NOT NULL REFERENCES fractions (id) ON DELETE RESTRICT,
+    weight            double precision,
     created_at        timestamptz NOT NULL DEFAULT now(),
     status            text        NOT NULL CHECK (status IN ('CREATED', 'CONFIRMED', 'CANCELLED'))
 );

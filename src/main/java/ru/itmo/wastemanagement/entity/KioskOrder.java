@@ -45,6 +45,9 @@ public class KioskOrder {
     @JoinColumn(name = "fraction_id", nullable = false)
     private Fraction fraction;
 
+    @Column(name = "weight")
+    private Double weight;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -52,4 +55,3 @@ public class KioskOrder {
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.CONFIRMED;
 }
-

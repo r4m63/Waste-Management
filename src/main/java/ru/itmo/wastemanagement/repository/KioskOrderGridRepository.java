@@ -25,7 +25,7 @@ public class KioskOrderGridRepository {
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
         // 1) лёгкий запрос только по id
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<KioskOrder> root = cq.from(KioskOrder.class);
 
         // WHERE по filterModel
@@ -56,9 +56,9 @@ public class KioskOrderGridRepository {
         }
 
         // выбираем только id
-        cq.select(root.get("id").as(Long.class));
+        cq.select(root.get("id").as(Integer.class));
 
-        List<Long> ids = em.createQuery(cq)
+        List<Integer> ids = em.createQuery(cq)
                 .setFirstResult(offset)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -81,13 +81,13 @@ public class KioskOrderGridRepository {
                 .getResultList();
 
         // восстановить порядок как в ids
-        Map<Long, Integer> rank = new HashMap<>(ids.size() * 2);
+        Map<Integer, Integer> rank = new HashMap<>(ids.size() * 2);
         for (int i = 0; i < ids.size(); i++) {
             rank.put(ids.get(i), i);
         }
 
         items.sort(Comparator.comparingInt(
-                ko -> rank.getOrDefault(ko.getId().longValue(), Integer.MAX_VALUE)
+                ko -> rank.getOrDefault(ko.getId(), Integer.MAX_VALUE)
         ));
 
         return items;

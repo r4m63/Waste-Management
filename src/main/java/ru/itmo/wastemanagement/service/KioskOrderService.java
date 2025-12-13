@@ -84,6 +84,7 @@ public class KioskOrderService {
                 .containerSize(cs)
                 .user(user)
                 .fraction(fraction)
+                .weight(dto.getWeight())
                 .createdAt(LocalDateTime.now())
                 .status(status)
                 .build();
@@ -129,6 +130,7 @@ public class KioskOrderService {
         order.setContainerSize(cs);
         order.setFraction(fraction);
         order.setUser(user);
+        order.setWeight(dto.getWeight());
 
         if (dto.getStatus() != null) {
             order.setStatus(dto.getStatus());

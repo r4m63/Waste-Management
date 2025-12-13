@@ -22,6 +22,8 @@ public class KioskOrderRowDto {
     Integer fractionId;
     String fractionName;
 
+    Double weight;
+
     Integer userId;
     String userName;
 
@@ -49,6 +51,7 @@ public class KioskOrderRowDto {
                 .fractionName(
                         o.getFraction() != null ? o.getFraction().getName() : null
                 )
+                .weight(o.getWeight())
                 .userId(
                         o.getUser() != null ? o.getUser().getId() : null
                 )

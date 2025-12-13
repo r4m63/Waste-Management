@@ -1,5 +1,6 @@
 package ru.itmo.wastemanagement.dto.kioskorder;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.itmo.wastemanagement.entity.enums.OrderStatus;
@@ -22,6 +23,9 @@ public class KioskOrderUpsertDto {
 
     @NotNull(message = "Выберите фракцию (fractionId).")
     private Integer fractionId;
+
+    @DecimalMin(value = "0.0", message = "Вес не может быть отрицательным.")
+    private Double weight;
 
     @NotNull(message = "Укажите статус заказа.")
     private OrderStatus status; // CREATED / CONFIRMED / CANCELLED

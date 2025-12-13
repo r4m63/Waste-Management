@@ -20,6 +20,7 @@ import { apiFetch } from "@/lib/apiClient.js"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 export default function KioskOrdersPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -29,6 +30,7 @@ export default function KioskOrdersPage() {
     const [garbagePointId, setGarbagePointId] = useState(null)
     const [containerSizeId, setContainerSizeId] = useState(null)
     const [fractionId, setFractionId] = useState(null)
+    const [weight, setWeight] = useState("")
     const [status, setStatus] = useState("CREATED")
 
     // таблица
@@ -58,6 +60,7 @@ export default function KioskOrdersPage() {
         setGarbagePointId(null)
         setContainerSizeId(null)
         setFractionId(null)
+        setWeight("")
         setStatus("CREATED")
     }
 
@@ -216,6 +219,8 @@ export default function KioskOrdersPage() {
         if (!garbagePointId) return "Выберите точку сбора."
         if (!containerSizeId) return "Выберите размер контейнера."
         if (!fractionId) return "Выберите фракцию."
+        if (weight !== "" && Number.isNaN(Number(weight))) return "Вес должен быть числом."
+        if (weight !== "" && Number(weight) < 0) return "Вес не может быть отрицательным."
         if (!status) return "Выберите статус."
         return null
     }
@@ -231,6 +236,7 @@ export default function KioskOrdersPage() {
             garbagePointId,
             containerSizeId,
             fractionId,
+            weight: weight === "" ? null : Number(weight),
             status,
         }
 
@@ -275,6 +281,11 @@ export default function KioskOrdersPage() {
         setGarbagePointId(row?.garbagePointId ?? row?.garbage_point_id ?? row?.garbagePoint?.id ?? null)
         setContainerSizeId(row?.containerSizeId ?? row?.container_size_id ?? row?.containerSize?.id ?? null)
         setFractionId(row?.fractionId ?? row?.fraction_id ?? row?.fraction?.id ?? null)
+        setWeight(
+            row?.weight !== undefined && row?.weight !== null
+                ? String(row.weight)
+                : "",
+        )
         setStatus(row?.status ?? "CREATED")
 
         setIsDialogOpen(true)
@@ -482,6 +493,20 @@ export default function KioskOrdersPage() {
                                         </Command>
                                     </PopoverContent>
                                 </Popover>
+                            </div>
+
+                            {/* Вес */}
+                            <div className="space-y-2">
+                                <Label htmlFor="weight">Вес (кг)</Label>
+                                <Input
+                                    id="weight"
+                                    type="number"
+                                    min={0}
+                                    step="0.01"
+                                    placeholder="Например, 12.5"
+                                    value={weight}
+                                    onChange={(e) => setWeight(e.target.value)}
+                                />
                             </div>
 
                             {/* Статус */}
