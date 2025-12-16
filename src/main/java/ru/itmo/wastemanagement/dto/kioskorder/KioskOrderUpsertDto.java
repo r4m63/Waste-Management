@@ -12,7 +12,6 @@ import ru.itmo.wastemanagement.entity.enums.OrderStatus;
 @Builder
 public class KioskOrderUpsertDto {
 
-    @NotNull(message = "Выберите точку сбора (garbagePointId).")
     private Integer garbagePointId;
 
     @NotNull(message = "Выберите размер контейнера (containerSizeId).")
@@ -27,6 +26,5 @@ public class KioskOrderUpsertDto {
     @DecimalMin(value = "0.0", message = "Вес не может быть отрицательным.")
     private Double weight;
 
-    @NotNull(message = "Укажите статус заказа.")
     private OrderStatus status; // CREATED / CONFIRMED / CANCELLED
 }

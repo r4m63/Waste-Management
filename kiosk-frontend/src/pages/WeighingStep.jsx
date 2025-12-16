@@ -9,8 +9,10 @@ import {
 
 export default function WeighingStep({
                                          isWeighing,
+                                         isSubmitting,
                                          weight,
                                          confirmed,
+                                         submitError,
                                          onStartWeighing,
                                          onConfirm,
                                      }) {
@@ -60,10 +62,22 @@ export default function WeighingStep({
                         size="lg"
                         className="w-full max-w-md justify-center rounded-2xl text-lg shadow-lg shadow-success/30"
                         onPress={onConfirm}
-                        isDisabled={isWeighing}
+                        isDisabled={isWeighing || isSubmitting}
                     >
-                        Подтвердить приём
+                        {isSubmitting ? (
+                            <div className="flex items-center gap-2">
+                                <Spinner size="sm" color="white" />
+                                Отправка...
+                            </div>
+                        ) : (
+                            "Подтвердить приём"
+                        )}
                     </Button>
+                    {submitError && (
+                        <p className="mt-3 text-center text-sm text-danger-500">
+                            {submitError}
+                        </p>
+                    )}
                 </div>
             )}
 

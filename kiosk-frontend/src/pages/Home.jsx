@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react'
 import {Button, Card, CardBody, CardFooter, CardHeader, Divider, Progress,} from '@nextui-org/react'
+import {apiFetch} from "../lib/apiClient.js";
+import {API_BASE} from "../../cfg.js";
 
 import LanguageStep from './LanguageStep'
 import PhoneStep from './PhoneStep'
@@ -19,6 +21,8 @@ export default function Home() {
     const [isWeighing, setIsWeighing] = useState(false)
     const [weight, setWeight] = useState(null)
     const [confirmed, setConfirmed] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitError, setSubmitError] = useState(null)
     const weighingTimer = useRef()
     const resetTimer = useRef()
 
@@ -76,6 +80,7 @@ export default function Home() {
         if (isWeighing) return
         setConfirmed(false)
         setWeight(null)
+        setSubmitError(null)
         setIsWeighing(true)
         weighingTimer.current = setTimeout(() => {
             const measuredWeight = (Math.random() * 80 + 2).toFixed(1)
@@ -84,22 +89,59 @@ export default function Home() {
         }, 1000)
     }
 
-    const handleConfirm = () => {
-        if (!weight || isWeighing) return
-        setConfirmed(true)
-        if (resetTimer.current) {
-            clearTimeout(resetTimer.current)
+    const handleConfirm = async () => {
+        if (!weight || isWeighing || isSubmitting) return
+        setSubmitError(null)
+
+        if (!containerSize || !wasteType) {
+            setSubmitError("Выберите размер контейнера и тип отходов.")
+            return
         }
-        resetTimer.current = setTimeout(() => {
-            setStep(0)
-            setLanguage(DEFAULT_LANGUAGE)
-            setPhone('')
-            setContainerSize(null)
-            setWasteType(null)
-            setWeight(null)
-            setIsWeighing(false)
-            setConfirmed(false)
-        }, 1500)
+
+        const payload = {
+            containerSizeId: Number(containerSize),
+            fractionId: Number(wasteType),
+            weight: Number(weight),
+            status: "CREATED",
+        }
+
+        setIsSubmitting(true)
+
+        try {
+            const res = await apiFetch(`${API_BASE}/api/kiosk-orders`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}))
+                throw new Error(errorData.message || `Ошибка: ${res.status} ${res.statusText}`)
+            }
+
+            setConfirmed(true)
+            if (resetTimer.current) {
+                clearTimeout(resetTimer.current)
+            }
+            resetTimer.current = setTimeout(() => {
+                setStep(0)
+                setLanguage(DEFAULT_LANGUAGE)
+                setPhone('')
+                setContainerSize(null)
+                setWasteType(null)
+                setWeight(null)
+                setIsWeighing(false)
+                setConfirmed(false)
+            }, 1500)
+        } catch (e) {
+            const message = e instanceof Error ? e.message : "Не удалось подтвердить приём"
+            setSubmitError(message)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const renderStep = () => {
@@ -133,8 +175,10 @@ export default function Home() {
                 return (
                     <WeighingStep
                         isWeighing={isWeighing}
+                        isSubmitting={isSubmitting}
                         weight={weight}
                         confirmed={confirmed}
+                        submitError={submitError}
                         onStartWeighing={startWeighing}
                         onConfirm={handleConfirm}
                     />

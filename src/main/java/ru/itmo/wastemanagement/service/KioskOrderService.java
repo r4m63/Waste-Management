@@ -1,8 +1,11 @@
 package ru.itmo.wastemanagement.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.wastemanagement.config.security.CustomUserDetails;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kioskorder.KioskOrderRowDto;
@@ -46,10 +49,9 @@ public class KioskOrderService {
 
     @Transactional
     public Integer createOrder(KioskOrderUpsertDto dto) {
-        GarbagePoint gp = garbagePointRepository.findById(dto.getGarbagePointId())
-                .orElseThrow(() -> ResourceNotFoundException.of(
-                        GarbagePoint.class, "id", dto.getGarbagePointId()
-                ));
+        User user = resolveOrderUser(dto);
+
+        GarbagePoint gp = resolveGarbagePoint(dto.getGarbagePointId(), user);
 
         ContainerSize cs = containerSizeRepository.findById(Long.valueOf(dto.getContainerSizeId()))
                 .orElseThrow(() -> ResourceNotFoundException.of(
@@ -60,20 +62,6 @@ public class KioskOrderService {
                 .orElseThrow(() -> ResourceNotFoundException.of(
                         Fraction.class, "id", dto.getFractionId()
                 ));
-
-        User user = null;
-        if (dto.getUserId() != null) {
-            user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> ResourceNotFoundException.of(
-                            User.class, "id", dto.getUserId()
-                    ));
-
-            if (user.getRole() != UserRole.KIOSK && user.getRole() != UserRole.ADMIN) {
-                throw new BadRequestException(
-                        "Пользователь id=%d не может оформлять заказ киоска".formatted(dto.getUserId())
-                );
-            }
-        }
 
         OrderStatus status = dto.getStatus() != null
                 ? dto.getStatus()
@@ -97,10 +85,9 @@ public class KioskOrderService {
         KioskOrder order = kioskOrderRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of(KioskOrder.class, "id", id));
 
-        GarbagePoint gp = garbagePointRepository.findById(dto.getGarbagePointId())
-                .orElseThrow(() -> ResourceNotFoundException.of(
-                        GarbagePoint.class, "id", dto.getGarbagePointId()
-                ));
+        User user = resolveOrderUser(dto);
+
+        GarbagePoint gp = resolveGarbagePoint(dto.getGarbagePointId(), user);
 
         ContainerSize cs = containerSizeRepository.findById(Long.valueOf(dto.getContainerSizeId()))
                 .orElseThrow(() -> ResourceNotFoundException.of(
@@ -112,20 +99,6 @@ public class KioskOrderService {
                         Fraction.class, "id", dto.getFractionId()
                 ));
 
-        User user = null;
-        if (dto.getUserId() != null) {
-            user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> ResourceNotFoundException.of(
-                            User.class, "id", dto.getUserId()
-                    ));
-
-            if (user.getRole() != UserRole.KIOSK && user.getRole() != UserRole.ADMIN) {
-                throw new BadRequestException(
-                        "Пользователь id=%d не может оформлять заказ киоска".formatted(dto.getUserId())
-                );
-            }
-        }
-
         order.setGarbagePoint(gp);
         order.setContainerSize(cs);
         order.setFraction(fraction);
@@ -136,8 +109,6 @@ public class KioskOrderService {
             order.setStatus(dto.getStatus());
         }
 
-        // createdAt не трогаем
-        // save() не обязателен, но можно:
         kioskOrderRepository.save(order);
     }
 
@@ -147,5 +118,48 @@ public class KioskOrderService {
                 .orElseThrow(() -> ResourceNotFoundException.of(KioskOrder.class, "id", id));
 
         kioskOrderRepository.delete(order);
+    }
+
+    private User resolveOrderUser(KioskOrderUpsertDto dto) {
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> ResourceNotFoundException.of(
+                            User.class, "id", dto.getUserId()
+                    ));
+
+            if (user.getRole() != UserRole.KIOSK && user.getRole() != UserRole.ADMIN) {
+                throw new BadRequestException(
+                        "Пользователь id=%d не может оформлять заказ киоска".formatted(dto.getUserId())
+                );
+            }
+            return user;
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails principal) {
+            Integer userId = principal.getId();
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> ResourceNotFoundException.of(User.class, "id", userId));
+        }
+
+        return null;
+    }
+
+    private GarbagePoint resolveGarbagePoint(Integer garbagePointId, User kioskUser) {
+        if (garbagePointId != null) {
+            return garbagePointRepository.findById(garbagePointId)
+                    .orElseThrow(() -> ResourceNotFoundException.of(
+                            GarbagePoint.class, "id", garbagePointId
+                    ));
+        }
+
+        if (kioskUser != null) {
+            return garbagePointRepository.findFirstByKiosk_Id(kioskUser.getId())
+                    .orElseThrow(() -> new BadRequestException(
+                            "Не найдено точки сбора для киоска id=%d".formatted(kioskUser.getId())
+                    ));
+        }
+
+        throw new BadRequestException("Не удалось определить точку сбора: передайте garbagePointId или выполните запрос от имени киоска");
     }
 }
