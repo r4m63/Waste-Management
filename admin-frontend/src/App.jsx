@@ -13,6 +13,7 @@ import DriversPage from "@/pages/DriversPage.jsx";
 import KioskOrdersPage from "@/pages/KioskOrdersPage.jsx";
 import {AuthProvider, useAuth} from "@/context/AuthContext.jsx";
 import FractionsPage from "@/pages/FractionsPage.jsx";
+import RoutesPage from "@/pages/RoutesPage.jsx";
 
 export default function App() {
     return (
@@ -51,6 +52,7 @@ function AppRoutes() {
                 <Route path="pos/fractions" element={<FractionsPage/>}/>
                 <Route path="vehicles" element={<VehiclesPage/>}/>
                 <Route path="vehicles/drivers" element={<DriversPage/>}/>
+                <Route path="planning/routes" element={<RoutesPage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>
             </Route>
         </Routes>

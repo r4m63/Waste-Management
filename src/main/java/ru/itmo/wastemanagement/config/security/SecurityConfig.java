@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
                                 "/api/drivers/**",
-                                "/api/vehicles/**")
+                                "/api/vehicles/**",
+                                "/api/routes/**")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

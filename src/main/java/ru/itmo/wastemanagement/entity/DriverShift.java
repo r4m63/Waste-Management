@@ -36,10 +36,6 @@ public class DriverShift {
     private LocalDateTime closedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(
-            name = "status",
-            nullable = false,
-            columnDefinition = "shift_status" // тип PostgreSQL enum
-    )
-    private ShiftStatus status = ShiftStatus.open;
+    @Column(nullable = false)
+    private ShiftStatus status = ShiftStatus.OPEN;
 }
