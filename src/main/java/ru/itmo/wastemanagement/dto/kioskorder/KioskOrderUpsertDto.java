@@ -16,7 +16,7 @@ public class KioskOrderUpsertDto {
     private Integer garbagePointId;
 
     @NotNull(message = "Выберите размер контейнера (containerSizeId).")
-    private Long containerSizeId;
+    private Integer containerSizeId;
 
     // Кто создал заказ (киоск / оператор) — можно null
     private Integer userId;

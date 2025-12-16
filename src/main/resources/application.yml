@@ -1,12 +1,6 @@
 server:
   port: ${SERVER_PORT}
-
-logging:
-  level:
-    root: INFO
-    ru.itmo.wastemanagement: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  address: 0.0.0.0
 
 spring:
   application:

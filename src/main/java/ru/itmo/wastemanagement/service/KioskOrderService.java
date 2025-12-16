@@ -51,7 +51,7 @@ public class KioskOrderService {
                         GarbagePoint.class, "id", dto.getGarbagePointId()
                 ));
 
-        ContainerSize cs = containerSizeRepository.findById(dto.getContainerSizeId())
+        ContainerSize cs = containerSizeRepository.findById(Long.valueOf(dto.getContainerSizeId()))
                 .orElseThrow(() -> ResourceNotFoundException.of(
                         ContainerSize.class, "id", dto.getContainerSizeId()
                 ));
@@ -102,7 +102,7 @@ public class KioskOrderService {
                         GarbagePoint.class, "id", dto.getGarbagePointId()
                 ));
 
-        ContainerSize cs = containerSizeRepository.findById(dto.getContainerSizeId())
+        ContainerSize cs = containerSizeRepository.findById(Long.valueOf(dto.getContainerSizeId()))
                 .orElseThrow(() -> ResourceNotFoundException.of(
                         ContainerSize.class, "id", dto.getContainerSizeId()
                 ));

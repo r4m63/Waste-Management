@@ -36,11 +36,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers("/api/kiosk-orders/**").hasAnyRole("ADMIN", "KIOSK")
+                        .requestMatchers("/api/container-sizes/**", "/api/fractions/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
                                 "/api/drivers/**",
-                                "/api/vehicles/**",
-                                "/api/container-sizes/**")
+                                "/api/vehicles/**")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

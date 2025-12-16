@@ -1,73 +1,96 @@
+import {useEffect, useMemo, useState} from 'react'
 import {
     Card,
     CardBody,
     Chip,
+    Spinner,
 } from '@nextui-org/react'
-
-const containerSizes = [
-    {
-        id: 'xs',
-        label: 'XS',
-        width: 40,
-        length: 30,
-        height: 30,
-        description: 'Малые пакеты, до 15 кг',
-    },
-    {
-        id: 's',
-        label: 'S',
-        width: 60,
-        length: 40,
-        height: 40,
-        description: 'Небольшие мешки и коробки, до 25 кг',
-    },
-    {
-        id: 'm',
-        label: 'M',
-        width: 80,
-        length: 60,
-        height: 60,
-        description: 'Стандартные мешки, до 40 кг',
-    },
-    {
-        id: 'l',
-        label: 'L',
-        width: 100,
-        length: 70,
-        height: 70,
-        description: 'Крупные мешки или контейнеры, до 60 кг',
-    },
-    {
-        id: 'xl',
-        label: 'XL',
-        width: 120,
-        length: 90,
-        height: 90,
-        description: 'Паллетные короба, до 90 кг',
-    },
-    {
-        id: 'xxl',
-        label: 'XXL',
-        width: 140,
-        length: 100,
-        height: 100,
-        description: 'Габаритные контейнеры, до 120 кг',
-    },
-    {
-        id: 'xxxl',
-        label: 'XXXL',
-        width: 160,
-        length: 120,
-        height: 120,
-        description: 'Максимальный объём, до 200 кг',
-    },
-]
+import {apiFetch} from "../lib/apiClient.js";
+import {API_BASE} from "../../cfg.js";
 
 export default function ContainerStep({containerSize, onSelectSize}) {
+    const [containerSizes, setContainerSizes] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        let isMounted = true
+
+        const fetchContainerSizes = async () => {
+            setIsLoading(true)
+            setError(null)
+
+            try {
+                const body = {
+                    startRow: 0,
+                    endRow: 100,
+                    sortModel: [],
+                    filterModel: {},
+                }
+
+                const res = await apiFetch(`${API_BASE}/api/container-sizes/query`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(body),
+                })
+
+                if (!res.ok) {
+                    throw new Error(`Ошибка загрузки (${res.status})`)
+                }
+
+                const data = await res.json()
+                if (!isMounted) return
+                setContainerSizes(Array.isArray(data.rows) ? data.rows : [])
+            } catch (e) {
+                console.error("Не удалось получить размеры контейнеров", e)
+                if (isMounted) setError("Не удалось загрузить размеры контейнеров")
+            } finally {
+                if (isMounted) setIsLoading(false)
+            }
+        }
+
+        fetchContainerSizes()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
+    const sizesToRender = useMemo(() => containerSizes, [containerSizes])
+
+    if (isLoading) {
+        return (
+            <div className="flex h-40 items-center justify-center">
+                <Spinner color="primary" label="Загрузка размеров..." />
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="rounded-xl border border-danger-100 bg-danger-50/40 p-4 text-danger-600">
+                {error}
+            </div>
+        )
+    }
+
+    if (!sizesToRender.length) {
+        return (
+            <div className="rounded-xl border border-default-200 bg-content2/40 p-4 text-default-600">
+                Размеры контейнеров не найдены.
+            </div>
+        )
+    }
+
     return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {containerSizes.map((size) => {
+            {sizesToRender.map((size) => {
                 const isSelected = containerSize === size.id
+                const label = size.code || `ID ${size.id}`
+                const dimension = (value) => (value == null ? '—' : value)
                 return (
                     <Card
                         key={size.id}
@@ -80,7 +103,7 @@ export default function ContainerStep({containerSize, onSelectSize}) {
                         <CardBody className="flex min-h-[190px] flex-col gap-3">
                             <div>
                                 <p className="text-xs uppercase tracking-[0.25em] text-default-500">Размер</p>
-                                <h3 className="text-3xl font-semibold">{size.label}</h3>
+                                <h3 className="text-3xl font-semibold">{label}</h3>
                                 <p className="text-small text-default-500">{size.description}</p>
                             </div>
 
@@ -92,21 +115,29 @@ export default function ContainerStep({containerSize, onSelectSize}) {
                                     <p>
                                         Ширина:{' '}
                                         <span className="font-semibold text-foreground">
-                                            {size.width} см
+                                            {dimension(size.width)} см
                                         </span>
                                     </p>
                                     <p>
                                         Длина:{' '}
                                         <span className="font-semibold text-foreground">
-                                            {size.length} см
+                                            {dimension(size.length)} см
                                         </span>
                                     </p>
                                     <p>
                                         Высота:{' '}
                                         <span className="font-semibold text-foreground">
-                                            {size.height} см
+                                            {dimension(size.height)} см
                                         </span>
                                     </p>
+                                    {size.capacity != null && (
+                                        <p>
+                                            Вместимость:{' '}
+                                            <span className="font-semibold text-foreground">
+                                                {size.capacity} л
+                                            </span>
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
