@@ -104,24 +104,7 @@ const data = {
 
             ],
         },
-        {
-            title: "Справочники и настройки",
-            icon: Settings2,
-            items: [
-                {
-                    title: "Справочники",
-                    url: "/settings/dictionaries",
-                },
-                {
-                    title: "Настройки планировщика",
-                    url: "/settings/planner",
-                },
-                {
-                    title: "Интеграции (карта, SMS)",
-                    url: "/settings/integrations",
-                },
-            ],
-        },
+
     ],
     navSecondary: [
         {

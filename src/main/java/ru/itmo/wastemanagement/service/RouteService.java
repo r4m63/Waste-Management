@@ -8,11 +8,15 @@ import ru.itmo.wastemanagement.dto.route.RouteStopDto;
 import ru.itmo.wastemanagement.entity.GarbagePoint;
 import ru.itmo.wastemanagement.entity.Route;
 import ru.itmo.wastemanagement.entity.RouteStop;
+import ru.itmo.wastemanagement.entity.User;
+import ru.itmo.wastemanagement.entity.enums.UserRole;
 import ru.itmo.wastemanagement.exception.BadRequestException;
+import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
 import ru.itmo.wastemanagement.repository.GarbagePointRepository;
 import ru.itmo.wastemanagement.repository.KioskOrderRepository;
 import ru.itmo.wastemanagement.repository.RouteRepository;
 import ru.itmo.wastemanagement.repository.RouteStopRepository;
+import ru.itmo.wastemanagement.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -28,6 +32,7 @@ public class RouteService {
     private final RouteStopRepository routeStopRepository;
     private final KioskOrderRepository kioskOrderRepository;
     private final GarbagePointRepository garbagePointRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public List<RouteDto> getAllRoutesWithStops() {
@@ -96,13 +101,52 @@ public class RouteService {
                     .expectedCapacity(weight != null ? (int) Math.round(weight) : null)
                     .build();
             stops.add(stop);
+            gp.setOpen(false); // помечаем как "в обработке", чтобы не попадала в следующее авто-планирование
         }
         routeStopRepository.saveAll(stops);
+        garbagePointRepository.saveAll(pointsToVisit);
 
         return toDto(route, stops);
     }
 
+    @Transactional
+    public void deleteRoute(Integer id) {
+        if (!routeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Route", "id", id);
+        }
+        routeStopRepository.deleteByRoute_Id(id);
+        routeRepository.deleteById(id);
+    }
+
+    @Transactional
+    public RouteDto assignDriver(Integer routeId, Integer driverId, java.time.LocalDateTime plannedStart, java.time.LocalDateTime plannedEnd) {
+        Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Route", "id", routeId));
+
+        if (driverId != null) {
+            User driver = userRepository.findById(driverId)
+                    .orElseThrow(() -> ResourceNotFoundException.of(User.class, "id", driverId));
+            if (driver.getRole() != UserRole.DRIVER && driver.getRole() != UserRole.ADMIN) {
+                throw new BadRequestException("Пользователь не является водителем: id=" + driverId);
+            }
+            route.setDriver(driver);
+        } else {
+            route.setDriver(null);
+        }
+
+        route.setPlannedStartAt(plannedStart);
+        route.setPlannedEndAt(plannedEnd);
+
+        routeRepository.save(route);
+
+        List<RouteStop> stops = routeStopRepository.findByRoute_IdInOrderByRoute_IdAscSeqNoAsc(List.of(routeId));
+        return toDto(route, stops);
+    }
+
     private boolean needsCleanup(GarbagePoint gp, Double weight) {
+        if (!gp.isOpen()) {
+            return false;
+        }
         double totalWeight = weight != null ? weight : 0d;
         Integer capacity = gp.getCapacity();
         if (capacity == null || capacity <= 0) {
