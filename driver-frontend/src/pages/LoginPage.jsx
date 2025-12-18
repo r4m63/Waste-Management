@@ -15,6 +15,10 @@ function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (!API_BASE && import.meta.env.DEV) {
+      setError('Не задан VITE_BACKEND_BASE для driver-frontend (.env)')
+      return
+    }
     if (!userLogin.trim() || !password.trim()) {
       setError('Введите логин и пароль')
       return
@@ -31,7 +35,7 @@ function LoginPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null)
-        setError(data?.error || 'Неверный логин или пароль')
+        setError(data?.error || data?.message || `Ошибка авторизации: ${res.status} ${res.statusText}`)
         return
       }
 
@@ -43,7 +47,7 @@ function LoginPage() {
       }
 
       setUser({ login: data.login, role: data.role })
-      const redirectTo = location.state?.from?.pathname || '/routes'
+      const redirectTo = location.state?.from?.pathname || '/'
       navigate(redirectTo, { replace: true })
     } catch (e) {
       setError('Ошибка подключения')

@@ -13,7 +13,10 @@ public interface KioskOrderRepository extends JpaRepository<KioskOrder, Integer>
 
     @Query("""
             select ko.garbagePoint.id as garbagePointId,
-                   coalesce(sum(coalesce(ko.weight, 0)), 0) as totalWeight
+                   coalesce(sum(coalesce(ko.weight, 0)), 0) as totalWeight,
+                   count(ko.id) as orderCount,
+                   count(ko.weight) as weightedCount,
+                   coalesce(sum(coalesce(ko.containerSize.capacity, 0)), 0) as totalContainerCapacity
             from KioskOrder ko
             where (ko.status is null or ko.status <> ru.itmo.wastemanagement.entity.enums.OrderStatus.CANCELLED)
             group by ko.garbagePoint.id

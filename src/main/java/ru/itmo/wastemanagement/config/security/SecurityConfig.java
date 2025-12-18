@@ -37,6 +37,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers("/api/kiosk-orders/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers("/api/container-sizes/**", "/api/fractions/**").hasAnyRole("ADMIN", "KIOSK")
+                        .requestMatchers(
+                                "/api/routes/my",
+                                "/api/routes/*/my",
+                                "/api/routes/*/accept",
+                                "/api/routes/*/start",
+                                "/api/routes/*/finish",
+                                "/api/routes/*/stops/*"
+                        ).hasRole("DRIVER")
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
                                 "/api/drivers/**",

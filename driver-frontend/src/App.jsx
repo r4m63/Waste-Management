@@ -1,8 +1,8 @@
 import {Navigate, NavLink, Outlet, Route, Routes, useLocation} from 'react-router-dom'
 import {useAuth} from './context/AuthContext.jsx'
-import RoutesPage from './pages/RoutesPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
+import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import RoutePage from './pages/RoutePage.jsx'
 import './App.css'
 
 const navLinkClass = ({isActive}) => (isActive ? 'nav__link nav__link--active' : 'nav__link')
@@ -18,7 +18,7 @@ function Layout() {
                     Driver Portal
                 </div>
                 <nav className="nav">
-                    <NavLink to="/routes" className={navLinkClass}>
+                    <NavLink to="/" end className={navLinkClass}>
                         Маршруты
                     </NavLink>
                 </nav>
@@ -55,10 +55,10 @@ export default function App() {
                     </Protected>
                 }
             >
-                <Route index element={<Navigate to="/routes" replace/>}/>
-                <Route path="routes" element={<RoutesPage/>}/>
-                <Route path="*" element={<NotFoundPage/>}/>
+                <Route index element={<HomePage/>}/>
+                <Route path="route/:id" element={<RoutePage/>}/>
             </Route>
+            <Route path="*" element={<Navigate to="/" replace/>}/>
         </Routes>
     )
 }
@@ -78,7 +78,7 @@ function AnonOnly({children}) {
     const {isAuthenticated, isDriver, loading} = useAuth()
     if (loading) return null
     if (isAuthenticated && isDriver) {
-        return <Navigate to="/routes" replace/>
+        return <Navigate to="/" replace/>
     }
     return children
 }

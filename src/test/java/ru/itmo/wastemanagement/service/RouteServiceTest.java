@@ -70,9 +70,9 @@ class RouteServiceTest {
 
         // weights from kiosk orders: gp1=70kg (cap 100 -> 70%), gp2=20kg (cap 200 -> 10%, skip), gp3=50kg (cap 60 -> 83%)
         when(kioskOrderRepository.findActiveWeightsByGarbagePoint()).thenReturn(List.of(
-                new Object[]{1, 70d},
-                new Object[]{2, 20d},
-                new Object[]{3, 50d}
+                new Object[]{1, 70d, 1L, 1L, 0L},
+                new Object[]{2, 20d, 1L, 1L, 0L},
+                new Object[]{3, 50d, 1L, 1L, 0L}
         ));
 
         when(garbagePointRepository.findById(1)).thenReturn(Optional.of(gp(1, 100, "Address 1")));
@@ -101,14 +101,25 @@ class RouteServiceTest {
     }
 
     @Test
-    void autoGenerateFailsWhenNoFilledPoints() {
+    void autoGenerateFallsBackWhenBelowThreshold() {
+        when(routeRepository.save(any(Route.class))).thenAnswer(invocation -> {
+            Route r = invocation.getArgument(0);
+            if (r.getId() == null) {
+                r.setId(101);
+            }
+            return r;
+        });
+        when(routeStopRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
         when(kioskOrderRepository.findActiveWeightsByGarbagePoint()).thenReturn(List.<Object[]>of(
-                new Object[]{1, 5d} // capacity 100 => 5%
+                new Object[]{1, 0d, 1L, 0L, 10L} // no weight provided -> fallback to container capacity
         ));
         when(garbagePointRepository.findById(1)).thenReturn(Optional.of(gp(1, 100, "Addr")));
 
-        assertThatThrownBy(() -> routeService.autoGenerateFromKioskOrders())
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("70%");
+        RouteDto dto = routeService.autoGenerateFromKioskOrders();
+
+        assertThat(dto.getId()).isEqualTo(101);
+        assertThat(dto.getStops()).hasSize(1);
+        assertThat(dto.getStops().get(0).getGarbagePointId()).isEqualTo(1);
     }
 }
