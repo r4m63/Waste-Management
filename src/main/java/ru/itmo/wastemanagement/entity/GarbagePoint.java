@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,5 +44,23 @@ public class GarbagePoint {
     @JoinColumn(name = "kiosk_id")
     private User kiosk;
 
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "garbage_point_fractions",
+            joinColumns = @JoinColumn(name = "garbage_point_id"),
+            inverseJoinColumns = @JoinColumn(name = "fraction_id")
+    )
+    private Set<Fraction> fractions = new HashSet<>();
+
+    public void addFraction(Fraction fraction) {
+        this.fractions.add(fraction);
+        fraction.getGarbagePoints().add(this);
+    }
+
+    public void removeFraction(Fraction fraction) {
+        this.fractions.remove(fraction);
+        fraction.getGarbagePoints().remove(this);
+    }
 }
 

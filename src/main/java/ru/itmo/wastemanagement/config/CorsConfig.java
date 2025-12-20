@@ -34,6 +34,9 @@ public class CorsConfig {
         allowedOrigins.add(appConfig.getKioskFrontendURL());
         allowedOrigins.add(appConfig.getDriverFrontendURL());
         allowedOrigins.add(appConfig.getBackendURL());
+        allowedOrigins.add("http://10.150.134.188:5175/"); //
+        allowedOrigins.add("http://10.150.134.188:5174/"); //
+        allowedOrigins.add("http://10.150.134.188:5173/"); //
         allowedOrigins = allowedOrigins.stream()
                 .filter(Objects::nonNull)
                 .toList();

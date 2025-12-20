@@ -58,11 +58,11 @@ const data = {
                     url: "/pos/terminals",
                 },
                 {
-                    title: "Тарифы и фракции",
-                    url: "/pos/tariffs",
+                    title: "Фракции и контейнеры",
+                    url: "/pos/fractions",
                 },
                 {
-                    title: "Операции / чеки",
+                    title: "Заказы",
                     url: "/pos/operations",
                 },
             ],
@@ -73,11 +73,11 @@ const data = {
             items: [
                 {
                     title: "ТС (автопарк)",
-                    url: "/resources/vehicles",
+                    url: "/vehicles",
                 },
                 {
                     title: "Водители",
-                    url: "/resources/drivers",
+                    url: "/vehicles/drivers",
                 },
                 {
                     title: "Смены водителей",
@@ -86,38 +86,12 @@ const data = {
             ],
         },
         {
-            title: "Планирование маршрутов",
+            title: "Маршруты",
             icon: Route,
             items: [
                 {
-                    title: "Потребности по точкам",
-                    url: "/planning/demand",
-                },
-                {
-                    title: "Автопланирование",
-                    url: "/planning/auto",
-                },
-                {
-                    title: "Маршруты (draft/planned)",
+                    title: "Планировние и маршруты",
                     url: "/planning/routes",
-                },
-                {
-                    title: "Непокрытые точки",
-                    url: "/planning/uncovered",
-                },
-            ],
-        },
-        {
-            title: "Выполнение рейсов",
-            icon: Activity,
-            items: [
-                {
-                    title: "Онлайн-мониторинг",
-                    url: "/execution/monitoring",
-                },
-                {
-                    title: "История маршрутов",
-                    url: "/execution/history",
                 },
                 {
                     title: "События остановок",
@@ -127,26 +101,10 @@ const data = {
                     title: "Инциденты",
                     url: "/execution/stop-events",
                 },
+
             ],
         },
-        {
-            title: "Справочники и настройки",
-            icon: Settings2,
-            items: [
-                {
-                    title: "Справочники",
-                    url: "/settings/dictionaries",
-                },
-                {
-                    title: "Настройки планировщика",
-                    url: "/settings/planner",
-                },
-                {
-                    title: "Интеграции (карта, SMS)",
-                    url: "/settings/integrations",
-                },
-            ],
-        },
+
     ],
     navSecondary: [
         {

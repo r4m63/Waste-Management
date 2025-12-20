@@ -45,11 +45,13 @@ public class KioskOrder {
     @JoinColumn(name = "fraction_id", nullable = false)
     private Fraction fraction;
 
+    @Column(name = "weight")
+    private Double weight;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status = OrderStatus.confirmed;
+    private OrderStatus status = OrderStatus.CONFIRMED;
 }
-

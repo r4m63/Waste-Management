@@ -1,5 +1,6 @@
 server:
   port: ${SERVER_PORT}
+  address: 0.0.0.0
 
 spring:
   application:

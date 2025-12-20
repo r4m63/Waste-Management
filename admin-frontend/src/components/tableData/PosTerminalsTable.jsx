@@ -6,6 +6,7 @@ import {API_BASE} from "../../../cfg.js"
 import {Button} from "@/components/ui/button"
 import {MoreHorizontal} from "lucide-react"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function PosTerminalsTable({
                                               onOpenEditTerminalModal,
@@ -39,7 +40,7 @@ export default function PosTerminalsTable({
                                 Редактировать
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
+                                className="text-red-600 focus:text-red-700 focus:bg-red-100 dark:focus:bg-red-900/30"
                                 onClick={() => onDeleteTerminal?.(p.data)}
                             >
                                 Удалить
@@ -124,9 +125,8 @@ export default function PosTerminalsTable({
                         filterModel: params.filterModel || {},
                     }
 
-                    const res = await fetch(`${API_BASE}/api/kiosk/query`, {
+                    const res = await apiFetch(`${API_BASE}/api/kiosk/query`, {
                         method: "POST",
-                        credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
                             Accept: "application/json",

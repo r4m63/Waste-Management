@@ -18,6 +18,7 @@ import PosTerminalsTable from "@/components/tableData/PosTerminalsTable.jsx"
 import {API_BASE} from "../../cfg.js"
 import {toast} from "sonner"
 import {parseApiError} from "@/lib/utils.js"
+import {apiFetch} from "@/lib/apiClient.js"
 
 export default function PosTerminalsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -67,9 +68,8 @@ export default function PosTerminalsPage() {
             : `${API_BASE}/api/kiosk`
 
         try {
-            const res = await fetch(url, {
+            const res = await apiFetch(url, {
                 method: isEdit ? "PUT" : "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
@@ -106,7 +106,6 @@ export default function PosTerminalsPage() {
         setIsDialogOpen(true)
     }, [])
 
-    // 🔥 УДАЛЕНИЕ
     const handleDeleteTerminal = useCallback(
         async (row) => {
             if (!row?.id) return
@@ -114,9 +113,8 @@ export default function PosTerminalsPage() {
             if (!window.confirm(`Удалить терминал #${row.id}?`)) return
 
             try {
-                const res = await fetch(`${API_BASE}/api/kiosk/${row.id}`, {
+                const res = await apiFetch(`${API_BASE}/api/kiosk/${row.id}`, {
                     method: "DELETE",
-                    credentials: "include",
                 })
 
                 if (res.ok) {
@@ -163,7 +161,7 @@ export default function PosTerminalsPage() {
                 <div className="flex-1 min-h-[400px]">
                     <PosTerminalsTable
                         onOpenEditTerminalModal={handleOpenEditTerminalModal}
-                        onDeleteTerminal={handleDeleteTerminal}   // 👈 ПРОКИНУЛИ
+                        onDeleteTerminal={handleDeleteTerminal}
                         onReadyRefresh={(fn) => setRefreshGrid(() => fn)}
                         onReadyControls={(controls) => setTableControls(controls)}
                     />

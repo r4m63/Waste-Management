@@ -1,4 +1,4 @@
-// postcss.config.js
+// postcss.cfg.js
 
 export default {
     plugins: {

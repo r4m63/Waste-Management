@@ -1,6 +1,7 @@
 // components/nav-user.jsx
 
 import {Bell, ChevronsUpDown, CircleUser, LogOut, Settings,} from "lucide-react"
+import {useNavigate} from "react-router-dom"
 
 import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {
@@ -13,9 +14,17 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar"
+import {useAuth} from "@/context/AuthContext.jsx"
 
 export function NavUser({user}) {
     const {isMobile} = useSidebar()
+    const {logout} = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        await logout()
+        navigate("/login", {replace: true})
+    }
 
     return (
         <SidebarMenu>
@@ -78,8 +87,11 @@ export function NavUser({user}) {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem>
-                            <LogOut/>
+                        <DropdownMenuItem
+                            className="text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="text-red-600 dark:text-red-400"/>
                             Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
