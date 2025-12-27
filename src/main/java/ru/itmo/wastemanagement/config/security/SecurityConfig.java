@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/garbage-points/open").permitAll()
                         .requestMatchers("/api/kiosk-orders/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers("/api/container-sizes/**", "/api/fractions/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers(

@@ -11,6 +11,7 @@ import ru.itmo.wastemanagement.dto.gridtable.GridTableRequest;
 import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.service.GarbagePointService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,6 +20,12 @@ import java.util.Map;
 public class GarbagePointController {
 
     private final GarbagePointService garbagePointService;
+
+    @GetMapping("/open")
+    public ResponseEntity<List<GarbagePointRowDto>> getOpenPoints() {
+        List<GarbagePointRowDto> points = garbagePointService.getOpenPoints();
+        return ResponseEntity.ok(points);
+    }
 
     @PostMapping("/query")
     public ResponseEntity<?> query(@RequestBody @Valid GridTableRequest req) {

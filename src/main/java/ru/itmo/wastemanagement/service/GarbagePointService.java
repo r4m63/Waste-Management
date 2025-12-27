@@ -86,4 +86,12 @@ public class GarbagePointService {
         garbagePointRepository.delete(gp);
     }
 
+    @Transactional(readOnly = true)
+    public List<GarbagePointRowDto> getOpenPoints() {
+        List<GarbagePoint> openPoints = garbagePointRepository.findByOpenTrue();
+        return openPoints.stream()
+                .map(GarbagePointRowDto::fromEntity)
+                .toList();
+    }
+
 }
