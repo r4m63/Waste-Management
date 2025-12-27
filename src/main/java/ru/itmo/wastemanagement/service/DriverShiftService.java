@@ -54,7 +54,7 @@ public class DriverShiftService {
             return Optional.empty();
         }
 
-        return driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.OPEN)
+        return driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.open)
                 .map(DriverShiftDto::fromEntity);
     }
 
@@ -69,7 +69,7 @@ public class DriverShiftService {
             return false;
         }
 
-        return driverShiftRepository.existsByDriver_IdAndStatus(driver.getId(), ShiftStatus.OPEN);
+        return driverShiftRepository.existsByDriver_IdAndStatus(driver.getId(), ShiftStatus.open);
     }
 
     @Transactional
@@ -86,7 +86,7 @@ public class DriverShiftService {
         }
 
         // Check if driver already has an open shift
-        if (driverShiftRepository.existsByDriver_IdAndStatus(driver.getId(), ShiftStatus.OPEN)) {
+        if (driverShiftRepository.existsByDriver_IdAndStatus(driver.getId(), ShiftStatus.open)) {
             throw new BadRequestException("У водителя уже есть открытая смена");
         }
 
@@ -100,7 +100,7 @@ public class DriverShiftService {
                 .driver(driver)
                 .vehicle(vehicle)
                 .openedAt(LocalDateTime.now())
-                .status(ShiftStatus.OPEN)
+                .status(ShiftStatus.open)
                 .build();
 
         shift = driverShiftRepository.save(shift);
@@ -121,11 +121,11 @@ public class DriverShiftService {
             }
         }
 
-        if (shift.getStatus() == ShiftStatus.CLOSED) {
+        if (shift.getStatus() == ShiftStatus.closed) {
             throw new BadRequestException("Смена уже закрыта");
         }
 
-        shift.setStatus(ShiftStatus.CLOSED);
+        shift.setStatus(ShiftStatus.closed);
         shift.setClosedAt(LocalDateTime.now());
 
         shift = driverShiftRepository.save(shift);

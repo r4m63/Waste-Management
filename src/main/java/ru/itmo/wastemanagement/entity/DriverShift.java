@@ -37,5 +37,6 @@ public class DriverShift {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ShiftStatus status = ShiftStatus.OPEN;
+    @Builder.Default
+    private ShiftStatus status = ShiftStatus.open;
 }

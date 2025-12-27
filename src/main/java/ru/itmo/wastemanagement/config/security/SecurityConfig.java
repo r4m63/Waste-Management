@@ -46,11 +46,19 @@ public class SecurityConfig {
                                 "/api/routes/*/finish",
                                 "/api/routes/*/stops/*"
                         ).hasRole("DRIVER")
+                        .requestMatchers(
+                                "/api/shifts/my/current",
+                                "/api/shifts/open",
+                                "/api/shifts/*/close"
+                        ).hasRole("DRIVER")
+                        .requestMatchers(HttpMethod.POST, "/api/incidents").hasRole("DRIVER")
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
                                 "/api/drivers/**",
                                 "/api/vehicles/**",
-                                "/api/routes/**")
+                                "/api/routes/**",
+                                "/api/shifts/**",
+                                "/api/incidents/**")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

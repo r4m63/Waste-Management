@@ -345,7 +345,7 @@ public class RouteService {
         }
 
         // Check if driver has an open shift
-        DriverShift openShift = driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.OPEN)
+        DriverShift openShift = driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.open)
                 .orElse(null);
         if (openShift == null) {
             throw new BadRequestException("Для начала маршрута необходимо открыть смену");
