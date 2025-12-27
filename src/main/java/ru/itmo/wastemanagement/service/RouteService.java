@@ -15,6 +15,9 @@ import ru.itmo.wastemanagement.entity.enums.StopStatus;
 import ru.itmo.wastemanagement.dto.route.RouteStopUpdateDto;
 import ru.itmo.wastemanagement.exception.BadRequestException;
 import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
+import ru.itmo.wastemanagement.entity.DriverShift;
+import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
+import ru.itmo.wastemanagement.repository.DriverShiftRepository;
 import ru.itmo.wastemanagement.repository.GarbagePointRepository;
 import ru.itmo.wastemanagement.repository.KioskOrderRepository;
 import ru.itmo.wastemanagement.repository.RouteRepository;
@@ -37,6 +40,7 @@ public class RouteService {
     private final KioskOrderRepository kioskOrderRepository;
     private final GarbagePointRepository garbagePointRepository;
     private final UserRepository userRepository;
+    private final DriverShiftRepository driverShiftRepository;
 
     @Transactional(readOnly = true)
     public List<RouteDto> getAllRoutesWithStops() {
@@ -338,6 +342,18 @@ public class RouteService {
 
         if (route.getDriver() == null || !Objects.equals(route.getDriver().getId(), driver.getId())) {
             throw new BadRequestException("Маршрут не назначен этому водителю");
+        }
+
+        // Check if driver has an open shift
+        DriverShift openShift = driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.OPEN)
+                .orElse(null);
+        if (openShift == null) {
+            throw new BadRequestException("Для начала маршрута необходимо открыть смену");
+        }
+
+        // Link route to shift if not already linked
+        if (route.getShift() == null) {
+            route.setShift(openShift);
         }
 
         if (route.getStatus() == RouteStatus.completed || route.getStatus() == RouteStatus.cancelled) {
