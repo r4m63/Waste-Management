@@ -1,7 +1,7 @@
 // components/app-sidebar.jsx
 
 import {
-    Activity,
+    AlertTriangle,
     CalendarClock,
     Command,
     LifeBuoy,
@@ -10,7 +10,6 @@ import {
     Recycle,
     Route,
     Send,
-    Settings2,
     Truck,
 } from "lucide-react"
 import {NavMain} from "@/components/nav-main"
@@ -81,7 +80,7 @@ const data = {
                 },
                 {
                     title: "Смены водителей",
-                    url: "/resources/shifts",
+                    url: "/vehicles/shifts",
                 },
             ],
         },
@@ -90,18 +89,13 @@ const data = {
             icon: Route,
             items: [
                 {
-                    title: "Планировние и маршруты",
+                    title: "Планирование и маршруты",
                     url: "/planning/routes",
                 },
                 {
-                    title: "События остановок",
-                    url: "/execution/stop-events",
-                },
-                {
                     title: "Инциденты",
-                    url: "/execution/stop-events",
+                    url: "/execution/incidents",
                 },
-
             ],
         },
 
