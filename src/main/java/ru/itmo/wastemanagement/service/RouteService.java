@@ -458,11 +458,23 @@ public class RouteService {
         stop.setNote(dto.getNote());
 
         LocalDateTime now = LocalDateTime.now();
-        if (stop.getTimeFrom() == null && newStatus != StopStatus.planned) {
-            stop.setTimeFrom(now);
-        }
-        if ((newStatus == StopStatus.done || newStatus == StopStatus.skipped || newStatus == StopStatus.unavailable) && stop.getTimeTo() == null) {
-            stop.setTimeTo(now);
+        
+        // Constraint требует: либо оба NULL, либо оба NOT NULL
+        // Для всех статусов кроме planned устанавливаем time_from и time_to
+        if (newStatus != StopStatus.planned) {
+            // Устанавливаем time_from при первом изменении статуса
+            if (stop.getTimeFrom() == null) {
+                stop.setTimeFrom(now);
+            }
+            // Для промежуточных статусов (arrived, loading) ставим time_to = time_from,
+            // чтобы удовлетворить constraint. Позже обновим time_to при завершении.
+            // Для финальных статусов (done, skipped, unavailable) ставим текущее время.
+            if (newStatus == StopStatus.done || newStatus == StopStatus.skipped || newStatus == StopStatus.unavailable) {
+                stop.setTimeTo(now);
+            } else if (stop.getTimeTo() == null) {
+                // Для промежуточных статусов: если time_to еще не установлен, ставим = time_from
+                stop.setTimeTo(stop.getTimeFrom());
+            }
         }
 
         routeStopRepository.save(stop);

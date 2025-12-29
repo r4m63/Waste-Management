@@ -55,7 +55,9 @@ public class SecurityConfig {
                                 "/api/shifts/open",
                                 "/api/shifts/*/close"
                         ).hasRole("DRIVER")
+                        // Водитель: создание инцидентов и просмотр инцидентов по маршруту
                         .requestMatchers(HttpMethod.POST, "/api/incidents").hasRole("DRIVER")
+                        .requestMatchers(HttpMethod.GET, "/api/incidents/route/*").hasAnyRole("DRIVER", "ADMIN")
                         // Админ: полный доступ к управлению
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
