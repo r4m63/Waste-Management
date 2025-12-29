@@ -10,7 +10,7 @@ CREATE TYPE incident_type AS ENUM ('access_denied','traffic','vehicle_issue','ov
 
 CREATE TABLE users
 (
-    id         SERIAL PRIMARY KEY,
+    id         BIGSERIAL PRIMARY KEY,
     role       user_role   NOT NULL,
     phone      text UNIQUE,
     name       text,
@@ -22,7 +22,7 @@ CREATE TABLE users
 
 CREATE TABLE garbage_points
 (
-    id         SERIAL PRIMARY KEY,
+    id         BIGSERIAL PRIMARY KEY,
     address    text        NOT NULL,
     capacity   integer     NOT NULL CHECK (capacity >= 0),
     is_open    boolean     NOT NULL DEFAULT true,
@@ -37,7 +37,7 @@ CREATE TABLE garbage_points
 
 CREATE TABLE container_sizes
 (
-    id       SERIAL PRIMARY KEY,
+    id       BIGSERIAL PRIMARY KEY,
     code     container_size_code UNIQUE NOT NULL,
     capacity integer                    NOT NULL CHECK (capacity > 0)
     -- еще длина/ширина/высота
@@ -55,7 +55,7 @@ ON CONFLICT (code) DO NOTHING;
 
 CREATE TABLE fractions
 (
-    id           SERIAL PRIMARY KEY,
+    id           BIGSERIAL PRIMARY KEY,
     name         text UNIQUE NOT NULL, -- "Пластик", "Стекло"
     code         text UNIQUE NOT NULL, -- "plastic", "glass"
     description  text,
@@ -76,7 +76,7 @@ CREATE TABLE garbage_point_fractions
 
 CREATE TABLE kiosk_orders
 (
-    id                SERIAL PRIMARY KEY,
+    id                BIGSERIAL PRIMARY KEY,
     garbage_point_id  integer      NOT NULL REFERENCES garbage_points (id) ON DELETE RESTRICT,
     container_size_id integer      NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
     user_id           integer      REFERENCES users (id) ON DELETE SET NULL,
@@ -87,7 +87,7 @@ CREATE TABLE kiosk_orders
 
 CREATE TABLE vehicles
 (
-    id           SERIAL PRIMARY KEY,
+    id           BIGSERIAL PRIMARY KEY,
     plate_number text UNIQUE NOT NULL,
     name         text,
     capacity     integer,
@@ -96,7 +96,7 @@ CREATE TABLE vehicles
 
 CREATE TABLE driver_shifts
 (
-    id         SERIAL PRIMARY KEY,
+    id         BIGSERIAL PRIMARY KEY,
     driver_id  integer      NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
     vehicle_id integer      REFERENCES vehicles (id) ON DELETE SET NULL,
     opened_at  timestamptz  NOT NULL DEFAULT now(),
@@ -116,7 +116,7 @@ CREATE UNIQUE INDEX ON driver_shifts (driver_id) WHERE status = 'open';
 
 CREATE TABLE routes
 (
-    id               SERIAL PRIMARY KEY,
+    id               BIGSERIAL PRIMARY KEY,
     planned_date     date         NOT NULL,
     driver_id        integer      REFERENCES users (id) ON DELETE SET NULL,
     vehicle_id       integer      REFERENCES vehicles (id) ON DELETE SET NULL,
@@ -130,7 +130,7 @@ CREATE TABLE routes
 
 CREATE TABLE route_stops
 (
-    id                SERIAL PRIMARY KEY,
+    id                BIGSERIAL PRIMARY KEY,
     route_id          integer     NOT NULL REFERENCES routes (id) ON DELETE CASCADE,
     seq_no            integer     NOT NULL,
     garbage_point_id  integer     REFERENCES garbage_points (id) ON DELETE SET NULL,
@@ -194,7 +194,7 @@ EXECUTE FUNCTION route_stops_autoseq();
 
 CREATE TABLE stop_events
 (
-    id         SERIAL PRIMARY KEY,
+    id         BIGSERIAL PRIMARY KEY,
     stop_id    integer         NOT NULL REFERENCES route_stops (id) ON DELETE CASCADE,
     event_type stop_event_type NOT NULL,
     created_at timestamptz     NOT NULL DEFAULT now(),
@@ -204,7 +204,7 @@ CREATE TABLE stop_events
 
 CREATE TABLE incidents
 (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     stop_id     integer       NOT NULL REFERENCES route_stops (id) ON DELETE CASCADE,
     type        incident_type NOT NULL,
     description text,
