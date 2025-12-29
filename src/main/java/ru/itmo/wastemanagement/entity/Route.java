@@ -58,7 +58,7 @@ public class Route {
     private LocalDateTime finishedAt;
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "route_status")
+    @Column(nullable = false)
     @Builder.Default
     private RouteStatus status = RouteStatus.planned;
 }

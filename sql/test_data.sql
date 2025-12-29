@@ -1,34 +1,29 @@
 -- Тестовые данные для системы управления отходами
 BEGIN;
 
--- Пользователи (пароли: aa для админов, dd для водителей, rr для жителей, ww для работников, kk для киосков)
--- BCrypt хеш для "aa": $2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO
--- BCrypt хеш для "dd": $2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq
--- BCrypt хеш для "rr": $2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq
--- BCrypt хеш для "ww": $2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq
--- BCrypt хеш для "kk": $2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv
+-- Пользователи (пароли: aa для админов, dd для водителей, rr для жителей, kk для киосков)
+-- Все пароли в открытом виде (plain text) для удобства тестирования
+-- SecurityConfig поддерживает plain text через fallback
 INSERT INTO users (id, role, phone, name, is_active, login, password) VALUES
-(1, 'admin', '+79991234567', 'Иванов Иван', true, 'admin1', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
-(2, 'admin', '+79991234568', 'Петрова Мария', true, 'admin2', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
-(3, 'courier', '+79991234569', 'Сидоров Петр', true, 'driver1', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
-(4, 'courier', '+79991234570', 'Козлов Андрей', true, 'driver2', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
-(5, 'courier', '+79991234571', 'Смирнова Ольга', true, 'driver3', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
-(6, 'resident', '+79991234572', 'Васильев Василий', true, 'resident1', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
-(7, 'resident', '+79991234573', 'Николаева Анна', true, 'resident2', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
-(8, 'resident', '+79991234574', 'Федоров Дмитрий', true, 'resident3', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
-(9, 'worker', '+79991234575', 'Михайлов Михаил', true, 'worker1', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq'),
-(10, 'worker', '+79991234576', 'Александрова Елена', true, 'worker2', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq'),
--- Киоски
-(11, 'kiosk', '+79991234577', 'Киоск Кронверкский', true, 'kiosk1', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(12, 'kiosk', '+79991234578', 'Киоск Биржевая', true, 'kiosk2', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(13, 'kiosk', '+79991234579', 'Киоск Садовая', true, 'kiosk3', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(14, 'kiosk', '+79991234580', 'Киоск Невский', true, 'kiosk4', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(15, 'kiosk', '+79991234581', 'Киоск Литейный', true, 'kiosk5', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(16, 'kiosk', '+79991234582', 'Киоск Московский', true, 'kiosk6', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(17, 'kiosk', '+79991234583', 'Киоск Обуховской', true, 'kiosk7', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
-(18, 'kiosk', '+79991234584', 'Киоск Лиговский', true, 'kiosk8', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv');
+(1, 'ADMIN', '+79991234567', 'Иванов Иван', true, 'admin1', 'aa'),
+(2, 'ADMIN', '+79991234568', 'Петрова Мария', true, 'admin2', 'aa'),
+(3, 'DRIVER', '+79991234569', 'Сидоров Петр', true, 'driver1', 'dd'),
+(4, 'DRIVER', '+79991234570', 'Козлов Андрей', true, 'driver2', 'dd'),
+(5, 'DRIVER', '+79991234571', 'Смирнова Ольга', true, 'driver3', 'dd'),
+(6, 'RESIDENT', '+79991234572', 'Васильев Василий', true, 'resident1', 'rr'),
+(7, 'RESIDENT', '+79991234573', 'Николаева Анна', true, 'resident2', 'rr'),
+(8, 'RESIDENT', '+79991234574', 'Федоров Дмитрий', true, 'resident3', 'rr'),
+-- Киоски (убрали worker - его нет в Java enum)
+(11, 'KIOSK', '+79991234577', 'Киоск Кронверкский', true, 'kiosk1', 'kk'),
+(12, 'KIOSK', '+79991234578', 'Киоск Биржевая', true, 'kiosk2', 'kk'),
+(13, 'KIOSK', '+79991234579', 'Киоск Садовая', true, 'kiosk3', 'kk'),
+(14, 'KIOSK', '+79991234580', 'Киоск Невский', true, 'kiosk4', 'kk'),
+(15, 'KIOSK', '+79991234581', 'Киоск Литейный', true, 'kiosk5', 'kk'),
+(16, 'KIOSK', '+79991234582', 'Киоск Московский', true, 'kiosk6', 'kk'),
+(17, 'KIOSK', '+79991234583', 'Киоск Обуховской', true, 'kiosk7', 'kk'),
+(18, 'KIOSK', '+79991234584', 'Киоск Лиговский', true, 'kiosk8', 'kk');
 -- Обновляем sequence для users
-SELECT setval('users_id_seq', 18);
+SELECT setval('users_id_seq', 18); -- 2 админа + 3 водителя + 3 жителя + 8 киосков = 16, но оставляем 18 для совместимости
 
 -- Точки сбора мусора (привязываем киоски)
 INSERT INTO garbage_points (id, address, capacity, is_open, lat, lon, admin_id, kiosk_id) VALUES
@@ -77,32 +72,32 @@ INSERT INTO garbage_point_fractions (garbage_point_id, fraction_id, is_active) V
 -- Заказы киосков  
 INSERT INTO kiosk_orders (id, garbage_point_id, container_size_id, user_id, fraction_id, status) VALUES
 -- Точка 1: Кронверкский
-(1, 1, 1, 6, 1, 'confirmed'), -- XS пластик
-(2, 1, 3, 7, 3, 'confirmed'), -- M бумага
-(3, 1, 5, 8, 2, 'confirmed'), -- XL стекло
-(4, 1, 2, 6, 4, 'confirmed'), -- S металл
+(1, 1, 1, 6, 1, 'CONFIRMED'), -- XS пластик
+(2, 1, 3, 7, 3, 'CONFIRMED'), -- M бумага
+(3, 1, 5, 8, 2, 'CONFIRMED'), -- XL стекло
+(4, 1, 2, 6, 4, 'CONFIRMED'), -- S металл
 -- Точка 2: Биржевая
-(5, 2, 4, 7, 1, 'confirmed'), -- L пластик
-(6, 2, 6, 8, 6, 'confirmed'), -- XXL электроника
-(7, 2, 3, 6, 3, 'confirmed'), -- M бумага
+(5, 2, 4, 7, 1, 'CONFIRMED'), -- L пластик
+(6, 2, 6, 8, 6, 'CONFIRMED'), -- XXL электроника
+(7, 2, 3, 6, 3, 'CONFIRMED'), -- M бумага
 -- Точка 3: Садовая
-(8, 3, 2, 7, 1, 'confirmed'), -- S пластик
-(9, 3, 4, 8, 2, 'confirmed'), -- L стекло
-(10, 3, 3, 6, 7, 'confirmed'), -- M органика
+(8, 3, 2, 7, 1, 'CONFIRMED'), -- S пластик
+(9, 3, 4, 8, 2, 'CONFIRMED'), -- L стекло
+(10, 3, 3, 6, 7, 'CONFIRMED'), -- M органика
 -- Точка 4: Невский
-(11, 4, 5, 7, 1, 'confirmed'), -- XL пластик
-(12, 4, 6, 8, 3, 'confirmed'), -- XXL бумага
-(13, 4, 7, 6, 4, 'confirmed'), -- XXXL металл
-(14, 4, 4, 7, 2, 'confirmed'), -- L стекло
+(11, 4, 5, 7, 1, 'CONFIRMED'), -- XL пластик
+(12, 4, 6, 8, 3, 'CONFIRMED'), -- XXL бумага
+(13, 4, 7, 6, 4, 'CONFIRMED'), -- XXXL металл
+(14, 4, 4, 7, 2, 'CONFIRMED'), -- L стекло
 -- Точка 5: Литейный
-(15, 5, 3, 8, 1, 'confirmed'), -- M пластик
-(16, 5, 4, 6, 5, 'confirmed'), -- L батарейки
-(17, 5, 2, 7, 3, 'confirmed'), -- S бумага
+(15, 5, 3, 8, 1, 'CONFIRMED'), -- M пластик
+(16, 5, 4, 6, 5, 'CONFIRMED'), -- L батарейки
+(17, 5, 2, 7, 3, 'CONFIRMED'), -- S бумага
 -- Точка 6: Московский
-(18, 6, 6, 8, 1, 'confirmed'), -- XXL пластик
-(19, 6, 7, 6, 2, 'confirmed'), -- XXXL стекло
-(20, 6, 5, 7, 6, 'confirmed'), -- XL электроника
-(21, 6, 4, 8, 3, 'confirmed'); -- L бумага
+(18, 6, 6, 8, 1, 'CONFIRMED'), -- XXL пластик
+(19, 6, 7, 6, 2, 'CONFIRMED'), -- XXXL стекло
+(20, 6, 5, 7, 6, 'CONFIRMED'), -- XL электроника
+(21, 6, 4, 8, 3, 'CONFIRMED'); -- L бумага
 SELECT setval('kiosk_orders_id_seq', 21);
 
 -- Транспортные средства

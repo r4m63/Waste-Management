@@ -55,7 +55,7 @@ public class RouteStop {
     private Integer actualCapacity;
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "stop_status")
+    @Column(nullable = false)
     @Builder.Default
     private StopStatus status = StopStatus.planned;
 

@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import ru.itmo.wastemanagement.entity.enums.StopEventType;
 
 import java.time.LocalDateTime;
@@ -33,7 +35,7 @@ public class StopEvent {
     @JoinColumn(name = "stop_id", nullable = false)
     private RouteStop stop;
 
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "event_type", nullable = false)
     private StopEventType eventType;
 

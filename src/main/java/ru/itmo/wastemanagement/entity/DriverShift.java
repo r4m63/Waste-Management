@@ -2,6 +2,8 @@ package ru.itmo.wastemanagement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
 
 import java.time.LocalDateTime;
@@ -35,7 +37,7 @@ public class DriverShift {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private ShiftStatus status = ShiftStatus.open;

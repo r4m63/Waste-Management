@@ -233,7 +233,7 @@ public class RouteService {
                     .route(route)
                     .seqNo(seq++)
                     .garbagePoint(gp)
-                    .address(gp.getAddress())
+                    // address не заполняем когда есть garbagePoint - constraint требует либо-либо
                     .expectedCapacity(weight != null ? (int) Math.round(weight) : null)
                     .build();
             stops.add(stop);
@@ -382,8 +382,16 @@ public class RouteService {
             throw new BadRequestException("Для начала маршрута необходимо открыть смену");
         }
 
+        // Проверяем, что если маршрут уже привязан к смене, то эта смена открыта
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя начать маршрут - смена была закрыта. Откройте новую смену.");
+        }
+
         // Link route to shift if not already linked
         if (route.getShift() == null) {
+            route.setShift(openShift);
+        } else if (!Objects.equals(route.getShift().getId(), openShift.getId())) {
+            // Если маршрут привязан к другой смене, перепривязываем к текущей открытой
             route.setShift(openShift);
         }
 
@@ -430,6 +438,11 @@ public class RouteService {
         }
         if (route.getStatus() != RouteStatus.in_progress) {
             throw new BadRequestException("Нельзя обновлять остановки, пока маршрут не в работе");
+        }
+
+        // Проверяем, что у водителя открыта смена
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя обновлять остановки - смена закрыта");
         }
 
         RouteStop stop = routeStopRepository.findById(stopId)
@@ -506,6 +519,11 @@ public class RouteService {
             throw new BadRequestException("Маршрут можно завершить только в статусе in_progress");
         }
 
+        // Проверяем, что смена открыта (если маршрут привязан к смене)
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя завершить маршрут - смена была закрыта. Откройте смену заново.");
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
         List<RouteStop> stops = routeStopRepository.findByRoute_IdInOrderByRoute_IdAscSeqNoAsc(List.of(routeId));
@@ -514,6 +532,10 @@ public class RouteService {
                 continue;
             }
             stop.setStatus(StopStatus.skipped);
+            // Устанавливаем timeFrom если он еще не установлен (для соблюдения constraint)
+            if (stop.getTimeFrom() == null) {
+                stop.setTimeFrom(now);
+            }
             if (stop.getTimeTo() == null) {
                 stop.setTimeTo(now);
             }

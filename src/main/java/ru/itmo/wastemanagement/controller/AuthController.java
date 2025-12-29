@@ -43,6 +43,7 @@ public class AuthController {
 
             return ResponseEntity.ok(Map.of(
                     "message", "login success",
+                    "id", userDetails.getId(),
                     "login", userDetails.getUsername(),
                     "role", userDetails.getAuthorities().stream().findFirst().map(Object::toString).orElse(null)
             ));
@@ -70,6 +71,7 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(Map.of(
+                "id", userDetails.getId(),
                 "login", userDetails.getUsername(),
                 "role", userDetails.getAuthorities().stream().findFirst().map(Object::toString).orElse(null)
         ));

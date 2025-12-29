@@ -1,11 +1,50 @@
-CREATE TYPE user_role AS ENUM ('resident','admin','courier','worker','kiosk');
-CREATE TYPE order_status AS ENUM ('created','confirmed','cancelled');
+CREATE TYPE user_role AS ENUM ('RESIDENT','ADMIN','DRIVER','KIOSK');
+CREATE TYPE order_status AS ENUM ('CREATED','CONFIRMED','CANCELLED');
 CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
 CREATE TYPE route_status AS ENUM ('planned','in_progress','completed','cancelled');
 CREATE TYPE stop_status AS ENUM ('planned','enroute','arrived','loading','unloading','done','skipped','unavailable');
 CREATE TYPE stop_event_type AS ENUM ('start','arrived','loading','unloading','done','skipped','unavailable','comment');
 CREATE TYPE incident_type AS ENUM ('access_denied','traffic','vehicle_issue','overload','other');
+
+-- Алиасы для типов enum чтобы Hibernate мог использовать имена Java классов
+-- PostgreSQL приводит неквотированные идентификаторы к lowercase, поэтому создаем оба варианта
+CREATE DOMAIN "OrderStatus" AS order_status;
+CREATE DOMAIN orderstatus AS order_status;
+CREATE DOMAIN "UserRole" AS user_role;
+CREATE DOMAIN userrole AS user_role;
+CREATE DOMAIN "ShiftStatus" AS shift_status;
+CREATE DOMAIN shiftstatus AS shift_status;
+CREATE DOMAIN "RouteStatus" AS route_status;
+CREATE DOMAIN routestatus AS route_status;
+CREATE DOMAIN "StopStatus" AS stop_status;
+CREATE DOMAIN stopstatus AS stop_status;
+CREATE DOMAIN "StopEventType" AS stop_event_type;
+CREATE DOMAIN stopeventtype AS stop_event_type;
+CREATE DOMAIN "IncidentType" AS incident_type;
+CREATE DOMAIN incidenttype AS incident_type;
+
+-- Создаем операторы сравнения между domain и базовыми enum типами
+-- Это необходимо потому что Hibernate генерирует SQL вида: enum_column <> 'VALUE'::domain
+CREATE FUNCTION order_status_eq_orderstatus(order_status, orderstatus) RETURNS boolean AS $$
+    SELECT $1::text = $2::text;
+$$ LANGUAGE SQL IMMUTABLE;
+CREATE OPERATOR = (LEFTARG = order_status, RIGHTARG = orderstatus, FUNCTION = order_status_eq_orderstatus);
+
+CREATE FUNCTION order_status_ne_orderstatus(order_status, orderstatus) RETURNS boolean AS $$
+    SELECT $1::text <> $2::text;
+$$ LANGUAGE SQL IMMUTABLE;
+CREATE OPERATOR <> (LEFTARG = order_status, RIGHTARG = orderstatus, FUNCTION = order_status_ne_orderstatus);
+
+CREATE FUNCTION orderstatus_eq_order_status(orderstatus, order_status) RETURNS boolean AS $$
+    SELECT $1::text = $2::text;
+$$ LANGUAGE SQL IMMUTABLE;
+CREATE OPERATOR = (LEFTARG = orderstatus, RIGHTARG = order_status, FUNCTION = orderstatus_eq_order_status);
+
+CREATE FUNCTION orderstatus_ne_order_status(orderstatus, order_status) RETURNS boolean AS $$
+    SELECT $1::text <> $2::text;
+$$ LANGUAGE SQL IMMUTABLE;
+CREATE OPERATOR <> (LEFTARG = orderstatus, RIGHTARG = order_status, FUNCTION = orderstatus_ne_order_status);
 
 
 CREATE TABLE users
@@ -37,20 +76,24 @@ CREATE TABLE garbage_points
 
 CREATE TABLE container_sizes
 (
-    id       BIGSERIAL PRIMARY KEY,
-    code     container_size_code UNIQUE NOT NULL,
-    capacity integer                    NOT NULL CHECK (capacity > 0)
-    -- еще длина/ширина/высота
+    id          BIGSERIAL PRIMARY KEY,
+    code        container_size_code UNIQUE NOT NULL,
+    capacity    integer                    NOT NULL CHECK (capacity > 0),
+    length      double precision,
+    width       double precision,
+    height      double precision,
+    description text,
+    created_at  timestamptz                NOT NULL DEFAULT now()
 );
 
-INSERT INTO container_sizes (code, capacity)
-VALUES ('XS', 1),
-       ('S', 2),
-       ('M', 3),
-       ('L', 4),
-       ('XL', 6),
-       ('XXL', 8),
-       ('XXXL', 12)
+INSERT INTO container_sizes (code, capacity, length, width, height, description)
+VALUES ('XS', 1, 0.15, 0.15, 0.25, 'Очень маленький контейнер - 1 литр'),
+       ('S', 2, 0.20, 0.20, 0.30, 'Маленький контейнер - 2 литра'),
+       ('M', 3, 0.25, 0.25, 0.35, 'Средний контейнер - 3 литра'),
+       ('L', 4, 0.30, 0.30, 0.40, 'Большой контейнер - 4 литра'),
+       ('XL', 6, 0.35, 0.35, 0.45, 'Очень большой контейнер - 6 литров'),
+       ('XXL', 8, 0.40, 0.40, 0.50, 'Огромный контейнер - 8 литров'),
+       ('XXXL', 12, 0.50, 0.50, 0.60, 'Максимальный контейнер - 12 литров')
 ON CONFLICT (code) DO NOTHING;
 
 CREATE TABLE fractions
@@ -78,11 +121,12 @@ CREATE TABLE kiosk_orders
 (
     id                BIGSERIAL PRIMARY KEY,
     garbage_point_id  integer      NOT NULL REFERENCES garbage_points (id) ON DELETE RESTRICT,
-    container_size_id integer      NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
+    container_size_id bigint       NOT NULL REFERENCES container_sizes (id) ON DELETE RESTRICT,
     user_id           integer      REFERENCES users (id) ON DELETE SET NULL,
     fraction_id       integer      NOT NULL REFERENCES fractions (id) ON DELETE RESTRICT,
+    weight            double precision,
     created_at        timestamptz  NOT NULL DEFAULT now(),
-    status            order_status NOT NULL DEFAULT 'confirmed'
+    status            order_status NOT NULL DEFAULT 'CONFIRMED'
 );
 
 CREATE TABLE vehicles
@@ -91,7 +135,8 @@ CREATE TABLE vehicles
     plate_number text UNIQUE NOT NULL,
     name         text,
     capacity     integer,
-    is_active    boolean     NOT NULL DEFAULT true
+    is_active    boolean     NOT NULL DEFAULT true,
+    created_at   timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE driver_shifts
@@ -272,7 +317,7 @@ CREATE INDEX ON incidents (created_by);
 -- Создание заказа через киоск с валидацией
 CREATE OR REPLACE FUNCTION create_kiosk_order(
     p_garbage_point_id INTEGER,
-    p_container_size_id INTEGER,
+    p_container_size_id BIGINT,
     p_user_id INTEGER,
     p_fraction_id INTEGER
 ) RETURNS INTEGER AS
@@ -347,7 +392,7 @@ BEGIN
     -- Создание заказа
     INSERT INTO kiosk_orders
         (garbage_point_id, container_size_id, user_id, fraction_id, status)
-    VALUES (p_garbage_point_id, p_container_size_id, p_user_id, p_fraction_id, 'confirmed')
+    VALUES (p_garbage_point_id, p_container_size_id, p_user_id, p_fraction_id, 'CONFIRMED')
     RETURNING id INTO v_order_id;
 
     RETURN v_order_id;

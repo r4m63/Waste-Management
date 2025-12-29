@@ -3,6 +3,16 @@ import {Link, useNavigate, useParams} from 'react-router-dom'
 import {API_BASE} from '../../cfg.js'
 import {apiFetch} from '../lib/apiClient.js'
 
+async function parseError(res) {
+  try {
+    const data = await res.json()
+    return data.message || data.error || `Ошибка: ${res.status} ${res.statusText}`
+  } catch {
+    const text = await res.text().catch(() => '')
+    return text || `Ошибка: ${res.status} ${res.statusText}`
+  }
+}
+
 const STOP_STATUSES = [
   'planned',
   'enroute',
@@ -74,8 +84,8 @@ function RoutePage() {
     try {
       const res = await apiFetch(`${API_BASE}/api/routes/${routeId}/my`)
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       const data = await res.json()
       setRoute(data || null)
@@ -144,8 +154,8 @@ function RoutePage() {
         body: JSON.stringify(payload),
       })
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       await fetchRoute()
     } catch (e) {
@@ -163,8 +173,8 @@ function RoutePage() {
     try {
       const res = await apiFetch(`${API_BASE}/api/routes/${routeId}/finish`, {method: 'PUT'})
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       navigate('/', {replace: true})
     } catch (e) {
@@ -215,8 +225,8 @@ function RoutePage() {
       })
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
 
       // Update stop status to unavailable

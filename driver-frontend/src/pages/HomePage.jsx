@@ -3,6 +3,16 @@ import {useNavigate} from 'react-router-dom'
 import {API_BASE} from '../../cfg.js'
 import {apiFetch} from '../lib/apiClient.js'
 
+async function parseError(res) {
+  try {
+    const data = await res.json()
+    return data.message || data.error || `Ошибка: ${res.status} ${res.statusText}`
+  } catch {
+    const text = await res.text().catch(() => '')
+    return text || `Ошибка: ${res.status} ${res.statusText}`
+  }
+}
+
 function formatDateTime(iso) {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -48,8 +58,8 @@ function HomePage() {
         return
       }
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       const data = await res.json()
       setCurrentShift(data || null)
@@ -70,8 +80,8 @@ function HomePage() {
         headers: {'Content-Type': 'application/json'},
       })
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       const data = await res.json()
       setCurrentShift(data)
@@ -92,8 +102,8 @@ function HomePage() {
         method: 'PUT',
       })
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
+        const errorMsg = await parseError(res)
+        throw new Error(errorMsg)
       }
       setCurrentShift(null)
     } catch (e) {

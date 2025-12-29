@@ -5,13 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.wastemanagement.dto.shift.DriverShiftDto;
 import ru.itmo.wastemanagement.entity.DriverShift;
+import ru.itmo.wastemanagement.entity.Route;
+import ru.itmo.wastemanagement.entity.RouteStop;
 import ru.itmo.wastemanagement.entity.User;
 import ru.itmo.wastemanagement.entity.Vehicle;
+import ru.itmo.wastemanagement.entity.enums.RouteStatus;
 import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
+import ru.itmo.wastemanagement.entity.enums.StopStatus;
 import ru.itmo.wastemanagement.entity.enums.UserRole;
 import ru.itmo.wastemanagement.exception.BadRequestException;
 import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
 import ru.itmo.wastemanagement.repository.DriverShiftRepository;
+import ru.itmo.wastemanagement.repository.RouteRepository;
+import ru.itmo.wastemanagement.repository.RouteStopRepository;
 import ru.itmo.wastemanagement.repository.UserRepository;
 import ru.itmo.wastemanagement.repository.VehicleRepository;
 
@@ -26,6 +32,8 @@ public class DriverShiftService {
     private final DriverShiftRepository driverShiftRepository;
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
+    private final RouteRepository routeRepository;
+    private final RouteStopRepository routeStopRepository;
 
     @Transactional(readOnly = true)
     public List<DriverShiftDto> getAllShifts() {
@@ -123,6 +131,40 @@ public class DriverShiftService {
 
         if (shift.getStatus() == ShiftStatus.closed) {
             throw new BadRequestException("Смена уже закрыта");
+        }
+
+        // Проверяем, что у смены нет активных маршрутов
+        List<Route> activeRoutes = routeRepository.findByShift_IdAndStatusIn(
+            shiftId, 
+            List.of(RouteStatus.planned, RouteStatus.in_progress)
+        );
+        if (!activeRoutes.isEmpty()) {
+            throw new BadRequestException(
+                "Нельзя закрыть смену - есть активные маршруты (" + activeRoutes.size() + "). " +
+                "Сначала завершите все маршруты или отмените их."
+            );
+        }
+
+        // Дополнительно проверяем, что нет незавершенных остановок в маршрутах этой смены
+        List<Route> allShiftRoutes = routeRepository.findByShift_IdAndStatusIn(
+            shiftId,
+            List.of(RouteStatus.planned, RouteStatus.in_progress, RouteStatus.completed)
+        );
+        for (Route route : allShiftRoutes) {
+            List<RouteStop> stops = routeStopRepository.findByRoute_IdInOrderByRoute_IdAscSeqNoAsc(List.of(route.getId()));
+            long incompleteStops = stops.stream()
+                .filter(stop -> stop.getStatus() != StopStatus.done 
+                    && stop.getStatus() != StopStatus.skipped 
+                    && stop.getStatus() != StopStatus.unavailable)
+                .count();
+            
+            if (incompleteStops > 0) {
+                throw new BadRequestException(
+                    "Нельзя закрыть смену - в маршруте №" + route.getId() + 
+                    " осталось незавершенных остановок: " + incompleteStops + ". " +
+                    "Завершите все остановки маршрута."
+                );
+            }
         }
 
         shift.setStatus(ShiftStatus.closed);

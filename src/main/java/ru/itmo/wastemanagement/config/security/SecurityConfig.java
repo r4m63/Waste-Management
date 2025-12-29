@@ -36,8 +36,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/garbage-points/open").permitAll()
+                        // Киоск может читать точки сбора, размеры контейнеров и фракции
+                        .requestMatchers(HttpMethod.GET, "/api/garbage-points/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers("/api/kiosk-orders/**").hasAnyRole("ADMIN", "KIOSK")
                         .requestMatchers("/api/container-sizes/**", "/api/fractions/**").hasAnyRole("ADMIN", "KIOSK")
+                        // Водитель: свои маршруты и операции на них
                         .requestMatchers(
                                 "/api/routes/my",
                                 "/api/routes/*/my",
@@ -46,12 +49,14 @@ public class SecurityConfig {
                                 "/api/routes/*/finish",
                                 "/api/routes/*/stops/*"
                         ).hasRole("DRIVER")
+                        // Водитель: свои смены
                         .requestMatchers(
                                 "/api/shifts/my/current",
                                 "/api/shifts/open",
                                 "/api/shifts/*/close"
                         ).hasRole("DRIVER")
                         .requestMatchers(HttpMethod.POST, "/api/incidents").hasRole("DRIVER")
+                        // Админ: полный доступ к управлению
                         .requestMatchers("/api/kiosk/**",
                                 "/api/garbage-points/**",
                                 "/api/drivers/**",
