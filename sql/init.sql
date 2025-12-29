@@ -15,7 +15,9 @@ CREATE TABLE users
     phone      text UNIQUE,
     name       text,
     is_active  boolean     NOT NULL DEFAULT true,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    login      text UNIQUE,
+    password   text
 );
 
 CREATE TABLE garbage_points

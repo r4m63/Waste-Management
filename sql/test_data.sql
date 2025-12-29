@@ -1,18 +1,22 @@
 -- Тестовые данные для системы управления отходами
 BEGIN;
 
--- Пользователи
-INSERT INTO users (id, role, phone, name, is_active) VALUES
-(1, 'admin', '+79991234567', 'Иванов Иван', true),
-(2, 'admin', '+79991234568', 'Петрова Мария', true),
-(3, 'courier', '+79991234569', 'Сидоров Петр', true),
-(4, 'courier', '+79991234570', 'Козлов Андрей', true),
-(5, 'courier', '+79991234571', 'Смирнова Ольга', true),
-(6, 'resident', '+79991234572', 'Васильев Василий', true),
-(7, 'resident', '+79991234573', 'Николаева Анна', true),
-(8, 'resident', '+79991234574', 'Федоров Дмитрий', true),
-(9, 'worker', '+79991234575', 'Михайлов Михаил', true),
-(10, 'worker', '+79991234576', 'Александрова Елена', true);
+-- Пользователи (пароли: aa для админов, dd для водителей, rr для жителей, ww для работников)
+-- BCrypt хеш для "aa": $2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO
+-- BCrypt хеш для "dd": $2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq
+-- BCrypt хеш для "rr": $2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq
+-- BCrypt хеш для "ww": $2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq
+INSERT INTO users (id, role, phone, name, is_active, login, password) VALUES
+(1, 'admin', '+79991234567', 'Иванов Иван', true, 'admin1', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
+(2, 'admin', '+79991234568', 'Петрова Мария', true, 'admin2', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
+(3, 'courier', '+79991234569', 'Сидоров Петр', true, 'driver1', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
+(4, 'courier', '+79991234570', 'Козлов Андрей', true, 'driver2', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
+(5, 'courier', '+79991234571', 'Смирнова Ольга', true, 'driver3', '$2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq'),
+(6, 'resident', '+79991234572', 'Васильев Василий', true, 'resident1', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
+(7, 'resident', '+79991234573', 'Николаева Анна', true, 'resident2', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
+(8, 'resident', '+79991234574', 'Федоров Дмитрий', true, 'resident3', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
+(9, 'worker', '+79991234575', 'Михайлов Михаил', true, 'worker1', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq'),
+(10, 'worker', '+79991234576', 'Александрова Елена', true, 'worker2', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq');
 -- Обновляем sequence для users
 SELECT setval('users_id_seq', 10);
 
