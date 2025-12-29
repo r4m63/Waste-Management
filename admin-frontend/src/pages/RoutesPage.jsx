@@ -122,10 +122,12 @@ export default function RoutesPage() {
                 const text = await res.text().catch(() => "")
                 throw new Error(text || `Ошибка: ${res.status} ${res.statusText}`)
             }
+            const routes = await res.json()
+            const count = Array.isArray(routes) ? routes.length : 0
             await fetchRoutes()
-            toast.success("Маршрут создан")
+            toast.success(`Создано маршрутов: ${count}`)
         } catch (e) {
-            const msg = e instanceof Error ? e.message : "Не удалось создать маршрут"
+            const msg = e instanceof Error ? e.message : "Не удалось создать маршруты"
             toast.error(msg)
         } finally {
             setGenerating(false)
@@ -216,7 +218,7 @@ export default function RoutesPage() {
                     </Button>
                     <Button size="sm" onClick={handleGenerate} disabled={loading || generating}>
                         {generating && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                        Создать маршрут
+                        Создать маршруты
                     </Button>
                 </div>
             </div>

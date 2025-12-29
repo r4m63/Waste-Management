@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class RouteService {
 
     private static final double DEFAULT_FILL_THRESHOLD = 0.7; // >=70% заполнения
+    private static final int MAX_STOPS_PER_ROUTE = 12; // максимум точек в одном маршруте
 
     private final RouteRepository routeRepository;
     private final RouteStopRepository routeStopRepository;
@@ -134,7 +135,7 @@ public class RouteService {
     }
 
     @Transactional
-    public RouteDto autoGenerateFromKioskOrders() {
+    public List<RouteDto> autoGenerateFromKioskOrders() {
         record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
         Map<Integer, PointLoad> loadByPoint = new HashMap<>();
 
@@ -188,6 +189,33 @@ public class RouteService {
             throw new BadRequestException("Нет точек для маршрута (нет активных заказов или точки закрыты)");
         }
 
+        // Разбиваем точки на группы по MAX_STOPS_PER_ROUTE
+        List<RouteDto> createdRoutes = new ArrayList<>();
+        List<GarbagePoint> currentBatch = new ArrayList<>();
+        
+        for (GarbagePoint gp : pointsToVisit) {
+            currentBatch.add(gp);
+            
+            // Когда набралось MAX_STOPS_PER_ROUTE точек - создаём маршрут
+            if (currentBatch.size() >= MAX_STOPS_PER_ROUTE) {
+                RouteDto route = createSingleRoute(currentBatch, loadByPoint);
+                createdRoutes.add(route);
+                currentBatch.clear();
+            }
+        }
+        
+        // Создаём маршрут из оставшихся точек (если есть)
+        if (!currentBatch.isEmpty()) {
+            RouteDto route = createSingleRoute(currentBatch, loadByPoint);
+            createdRoutes.add(route);
+        }
+        
+        return createdRoutes;
+    }
+
+    private RouteDto createSingleRoute(List<GarbagePoint> points, Map<Integer, ?> loadByPoint) {
+        record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
+        
         Route route = Route.builder()
                 .plannedDate(LocalDate.now())
                 .build();
@@ -195,9 +223,12 @@ public class RouteService {
 
         int seq = 1;
         List<RouteStop> stops = new ArrayList<>();
-        for (GarbagePoint gp : pointsToVisit) {
-            PointLoad pl = loadByPoint.get(gp.getId());
-            Double weight = pl != null ? pl.load() : 0d;
+        for (GarbagePoint gp : points) {
+            Object loadObj = loadByPoint.get(gp.getId());
+            Double weight = 0d;
+            if (loadObj instanceof PointLoad pl) {
+                weight = pl.load();
+            }
             RouteStop stop = RouteStop.builder()
                     .route(route)
                     .seqNo(seq++)
@@ -209,7 +240,7 @@ public class RouteService {
             gp.setOpen(false); // помечаем как "в обработке", чтобы не попадала в следующее авто-планирование
         }
         routeStopRepository.saveAll(stops);
-        garbagePointRepository.saveAll(pointsToVisit);
+        garbagePointRepository.saveAll(points);
 
         return toDto(route, stops);
     }
