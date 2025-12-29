@@ -1,11 +1,12 @@
 -- Тестовые данные для системы управления отходами
 BEGIN;
 
--- Пользователи (пароли: aa для админов, dd для водителей, rr для жителей, ww для работников)
+-- Пользователи (пароли: aa для админов, dd для водителей, rr для жителей, ww для работников, kk для киосков)
 -- BCrypt хеш для "aa": $2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO
 -- BCrypt хеш для "dd": $2a$10$hBn7RxqbpX3hGqnEfG0M1.gRbS7T5c0KsZLF4pZ8wSVYHZ5bLBvUq
 -- BCrypt хеш для "rr": $2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq
 -- BCrypt хеш для "ww": $2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq
+-- BCrypt хеш для "kk": $2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv
 INSERT INTO users (id, role, phone, name, is_active, login, password) VALUES
 (1, 'admin', '+79991234567', 'Иванов Иван', true, 'admin1', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
 (2, 'admin', '+79991234568', 'Петрова Мария', true, 'admin2', '$2a$10$N9qo8uLOickgx2ZMRZoMye7I73TZhQpjppr5FlpIcGdOuBIejUvNO'),
@@ -16,20 +17,29 @@ INSERT INTO users (id, role, phone, name, is_active, login, password) VALUES
 (7, 'resident', '+79991234573', 'Николаева Анна', true, 'resident2', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
 (8, 'resident', '+79991234574', 'Федоров Дмитрий', true, 'resident3', '$2a$10$FxmJ8SJXkF5T5LG5ZQqNKuW9F4i5YK8hS5KsJFQb8JxJh5xLGvDXq'),
 (9, 'worker', '+79991234575', 'Михайлов Михаил', true, 'worker1', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq'),
-(10, 'worker', '+79991234576', 'Александрова Елена', true, 'worker2', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq');
+(10, 'worker', '+79991234576', 'Александрова Елена', true, 'worker2', '$2a$10$HkN7pJ9kQF5bL7cFdGqEQOB8Z5nF6gK9bQ7hJ8cF5gH7qJ8kL9pNq'),
+-- Киоски
+(11, 'kiosk', '+79991234577', 'Киоск Кронверкский', true, 'kiosk1', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(12, 'kiosk', '+79991234578', 'Киоск Биржевая', true, 'kiosk2', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(13, 'kiosk', '+79991234579', 'Киоск Садовая', true, 'kiosk3', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(14, 'kiosk', '+79991234580', 'Киоск Невский', true, 'kiosk4', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(15, 'kiosk', '+79991234581', 'Киоск Литейный', true, 'kiosk5', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(16, 'kiosk', '+79991234582', 'Киоск Московский', true, 'kiosk6', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(17, 'kiosk', '+79991234583', 'Киоск Обуховской', true, 'kiosk7', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv'),
+(18, 'kiosk', '+79991234584', 'Киоск Лиговский', true, 'kiosk8', '$2a$10$Xk7Lm9Qp8Rb5Nc6Td4Se2.Uf3Vg8Wh1Yj9Ik0Zl2Xm5Pn7Qo6Rp3St4Uv');
 -- Обновляем sequence для users
-SELECT setval('users_id_seq', 10);
+SELECT setval('users_id_seq', 18);
 
--- Точки сбора мусора
-INSERT INTO garbage_points (id, address, capacity, is_open, lat, lon, admin_id) VALUES
-(1, 'Кронверкский проспект, 49', 100, true, 59.9570, 30.3082, 1),
-(2, 'Биржевая площадь, 4', 150, true, 59.9433, 30.3234, 1),
-(3, 'Садовая улица, 21', 120, true, 59.9276, 30.3163, 2),
-(4, 'Невский проспект, 85', 200, true, 59.9311, 30.3609, 2),
-(5, 'Литейный проспект, 55', 180, true, 59.9420, 30.3542, 1),
-(6, 'Московский проспект, 100', 250, true, 59.8985, 30.3199, 2),
-(7, 'проспект Обуховской Обороны, 120', 150, true, 59.8770, 30.4534, 1),
-(8, 'Лиговский проспект, 50', 170, true, 59.9236, 30.3598, 2);
+-- Точки сбора мусора (привязываем киоски)
+INSERT INTO garbage_points (id, address, capacity, is_open, lat, lon, admin_id, kiosk_id) VALUES
+(1, 'Кронверкский проспект, 49', 100, true, 59.9570, 30.3082, 1, 11),
+(2, 'Биржевая площадь, 4', 150, true, 59.9433, 30.3234, 1, 12),
+(3, 'Садовая улица, 21', 120, true, 59.9276, 30.3163, 2, 13),
+(4, 'Невский проспект, 85', 200, true, 59.9311, 30.3609, 2, 14),
+(5, 'Литейный проспект, 55', 180, true, 59.9420, 30.3542, 1, 15),
+(6, 'Московский проспект, 100', 250, true, 59.8985, 30.3199, 2, 16),
+(7, 'проспект Обуховской Обороны, 120', 150, true, 59.8770, 30.4534, 1, 17),
+(8, 'Лиговский проспект, 50', 170, true, 59.9236, 30.3598, 2, 18);
 -- Обновляем sequence для garbage_points
 SELECT setval('garbage_points_id_seq', 8);
 

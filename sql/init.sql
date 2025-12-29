@@ -1,4 +1,4 @@
-CREATE TYPE user_role AS ENUM ('resident','admin','courier','worker');
+CREATE TYPE user_role AS ENUM ('resident','admin','courier','worker','kiosk');
 CREATE TYPE order_status AS ENUM ('created','confirmed','cancelled');
 CREATE TYPE container_size_code AS ENUM ('XS','S','M','L','XL','XXL','XXXL');
 CREATE TYPE shift_status AS ENUM ('open','closed');
@@ -30,6 +30,7 @@ CREATE TABLE garbage_points
     lon        double precision,
     created_at timestamptz NOT NULL DEFAULT now(),
     admin_id   integer     REFERENCES users (id) ON DELETE SET NULL,
+    kiosk_id   integer     REFERENCES users (id) ON DELETE SET NULL,
     CHECK (lat IS NULL OR (lat >= -90 AND lat <= 90)),
     CHECK (lon IS NULL OR (lon >= -180 AND lon <= 180))
 );
