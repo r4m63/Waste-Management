@@ -79,8 +79,11 @@ class RouteServiceTest {
         when(garbagePointRepository.findById(2)).thenReturn(Optional.of(gp(2, 200, "Address 2")));
         when(garbagePointRepository.findById(3)).thenReturn(Optional.of(gp(3, 60, "Address 3")));
 
-        RouteDto dto = routeService.autoGenerateFromKioskOrders();
+        List<RouteDto> routes = routeService.autoGenerateFromKioskOrders();
 
+        assertThat(routes).hasSize(1);
+        RouteDto dto = routes.get(0);
+        
         assertThat(dto.getId()).isEqualTo(100);
         assertThat(dto.getStatus()).isEqualTo(RouteStatus.planned);
         assertThat(dto.getPlannedDate()).isEqualTo(LocalDate.now());
@@ -116,8 +119,11 @@ class RouteServiceTest {
         ));
         when(garbagePointRepository.findById(1)).thenReturn(Optional.of(gp(1, 100, "Addr")));
 
-        RouteDto dto = routeService.autoGenerateFromKioskOrders();
+        List<RouteDto> routes = routeService.autoGenerateFromKioskOrders();
 
+        assertThat(routes).hasSize(1);
+        RouteDto dto = routes.get(0);
+        
         assertThat(dto.getId()).isEqualTo(101);
         assertThat(dto.getStops()).hasSize(1);
         assertThat(dto.getStops().get(0).getGarbagePointId()).isEqualTo(1);

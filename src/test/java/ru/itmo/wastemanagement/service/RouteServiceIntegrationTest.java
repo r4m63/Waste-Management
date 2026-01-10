@@ -16,6 +16,7 @@ import ru.itmo.wastemanagement.repository.GarbagePointRepository;
 import ru.itmo.wastemanagement.repository.KioskOrderRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -94,8 +95,11 @@ class RouteServiceIntegrationTest {
                 .status(OrderStatus.CONFIRMED)
                 .build());
 
-        RouteDto dto = routeService.autoGenerateFromKioskOrders();
+        List<RouteDto> routes = routeService.autoGenerateFromKioskOrders();
 
+        assertThat(routes).hasSize(1);
+        RouteDto dto = routes.get(0);
+        
         assertThat(dto.getStops()).hasSize(1);
         assertThat(dto.getStops().get(0).getGarbagePointId()).isEqualTo(gp1.getId());
         assertThat(dto.getStops().get(0).getExpectedCapacity()).isEqualTo(80);

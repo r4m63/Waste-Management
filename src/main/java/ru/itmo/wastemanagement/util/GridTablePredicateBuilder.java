@@ -265,33 +265,46 @@ public final class GridTablePredicateBuilder {
     private static void handleSet(CriteriaBuilder cb, List<Predicate> out, Path<?> path, Map<String, Object> fm) {
         @SuppressWarnings("unchecked")
         // список значений из фильтра
-        // "filterType": "set", "values": ["KEROSENE","NUCLEAR"]
-        List<String> values = (List<String>) fm.get("values");
+        // "filterType": "set", "values": ["KEROSENE","NUCLEAR"] или [true, false]
+        List<Object> values = (List<Object>) fm.get("values");
         if (values == null || values.isEmpty())
             return;
 
         CriteriaBuilder.In<Object> in = cb.in(path); // предикат IN (...) для столбца, на который указывает path.
-        for (String v : values)// Каждое входное значение из UI приходит строкой - приводим к типу колонки
+        for (Object v : values)// Каждое входное значение из UI - приводим к типу колонки
             in.value(castForPath(path, v));
         out.add(in);
     }
 
     @SuppressWarnings("unchecked")
-    private static Object castForPath(Path<?> path, String value) {
+    private static Object castForPath(Path<?> path, Object value) {
         Class<?> t = path.getJavaType();
+        
+        // Если значение уже нужного типа - вернуть как есть
+        if (value != null && t.isInstance(value))
+            return value;
+        
+        String stringValue = value == null ? null : value.toString();
+        
+        // Обработка Boolean
+        if (t.equals(Boolean.class) || t.equals(Boolean.TYPE)) {
+            if (value instanceof Boolean) return value;
+            return Boolean.valueOf(stringValue);
+        }
+        
         if (t.isEnum())
-            return Enum.valueOf((Class<Enum>) t, value);
+            return Enum.valueOf((Class<Enum>) t, stringValue);
         if (t.equals(Integer.class) || t.equals(Integer.TYPE))
-            return Integer.valueOf(value);
+            return Integer.valueOf(stringValue);
         if (t.equals(Long.class) || t.equals(Long.TYPE))
-            return Long.valueOf(value);
+            return Long.valueOf(stringValue);
         if (t.equals(Double.class) || t.equals(Double.TYPE))
-            return Double.valueOf(value);
+            return Double.valueOf(stringValue);
         if (t.equals(Float.class) || t.equals(Float.TYPE))
-            return Float.valueOf(value);
+            return Float.valueOf(stringValue);
         if (t.equals(BigDecimal.class))
-            return new BigDecimal(value);
-        return value;
+            return new BigDecimal(stringValue);
+        return stringValue;
     }
 
     private static Number toNumber(Object o) {

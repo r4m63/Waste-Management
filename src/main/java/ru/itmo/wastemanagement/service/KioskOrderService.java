@@ -1,6 +1,8 @@
 package ru.itmo.wastemanagement.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -11,13 +13,11 @@ import ru.itmo.wastemanagement.dto.gridtable.GridTableResponse;
 import ru.itmo.wastemanagement.dto.kioskorder.KioskOrderRowDto;
 import ru.itmo.wastemanagement.dto.kioskorder.KioskOrderUpsertDto;
 import ru.itmo.wastemanagement.entity.*;
-import ru.itmo.wastemanagement.entity.enums.OrderStatus;
 import ru.itmo.wastemanagement.entity.enums.UserRole;
 import ru.itmo.wastemanagement.exception.BadRequestException;
 import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
 import ru.itmo.wastemanagement.repository.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,6 +31,8 @@ public class KioskOrderService {
     private final ContainerSizeRepository containerSizeRepository;
     private final FractionRepository fractionRepository;
     private final UserRepository userRepository;
+    
+    private final JdbcTemplate jdbcTemplate;
 
     @Transactional(readOnly = true)
     public GridTableResponse<KioskOrderRowDto> queryGrid(GridTableRequest req) {
@@ -50,34 +52,37 @@ public class KioskOrderService {
     @Transactional
     public Integer createOrder(KioskOrderUpsertDto dto) {
         User user = resolveOrderUser(dto);
-
         GarbagePoint gp = resolveGarbagePoint(dto.getGarbagePointId(), user);
 
-        ContainerSize cs = containerSizeRepository.findById(Long.valueOf(dto.getContainerSizeId()))
-                .orElseThrow(() -> ResourceNotFoundException.of(
-                        ContainerSize.class, "id", dto.getContainerSizeId()
-                ));
-
-        Fraction fraction = fractionRepository.findById(dto.getFractionId())
-                .orElseThrow(() -> ResourceNotFoundException.of(
-                        Fraction.class, "id", dto.getFractionId()
-                ));
-
-        OrderStatus status = dto.getStatus() != null
-                ? dto.getStatus()
-                : OrderStatus.CREATED;
-
-        KioskOrder order = KioskOrder.builder()
-                .garbagePoint(gp)
-                .containerSize(cs)
-                .user(user)
-                .fraction(fraction)
-                .weight(dto.getWeight())
-                .createdAt(LocalDateTime.now())
-                .status(status)
-                .build();
-
-        return kioskOrderRepository.save(order).getId();
+        try {
+            // Вызов функции БД create_kiosk_order
+            Integer orderId = jdbcTemplate.queryForObject(
+                    "SELECT create_kiosk_order(?, ?, ?, ?)",
+                    Integer.class,
+                    gp.getId(),
+                    dto.getContainerSizeId(),
+                    user != null ? user.getId() : null,
+                    dto.getFractionId()
+            );
+            return orderId;
+        } catch (DataAccessException e) {
+            // Преобразуем SQL ошибку в понятную бизнес-ошибку
+            String message = e.getMessage();
+            if (message != null) {
+                if (message.contains("Garbage point not found or closed")) {
+                    throw new BadRequestException("Точка сбора не найдена или закрыта");
+                } else if (message.contains("Container size not found")) {
+                    throw new BadRequestException("Размер контейнера не найден");
+                } else if (message.contains("Fraction not found")) {
+                    throw new BadRequestException("Тип отходов не найден");
+                } else if (message.contains("Fraction not accepted at this point")) {
+                    throw new BadRequestException("Данный тип отходов не принимается на этой точке");
+                } else if (message.contains("User not found or inactive")) {
+                    throw new BadRequestException("Пользователь не найден или неактивен");
+                }
+            }
+            throw new BadRequestException("Не удалось создать заказ: " + message);
+        }
     }
 
     @Transactional

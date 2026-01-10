@@ -15,6 +15,9 @@ import ru.itmo.wastemanagement.entity.enums.StopStatus;
 import ru.itmo.wastemanagement.dto.route.RouteStopUpdateDto;
 import ru.itmo.wastemanagement.exception.BadRequestException;
 import ru.itmo.wastemanagement.exception.ResourceNotFoundException;
+import ru.itmo.wastemanagement.entity.DriverShift;
+import ru.itmo.wastemanagement.entity.enums.ShiftStatus;
+import ru.itmo.wastemanagement.repository.DriverShiftRepository;
 import ru.itmo.wastemanagement.repository.GarbagePointRepository;
 import ru.itmo.wastemanagement.repository.KioskOrderRepository;
 import ru.itmo.wastemanagement.repository.RouteRepository;
@@ -31,12 +34,14 @@ import java.util.stream.Collectors;
 public class RouteService {
 
     private static final double DEFAULT_FILL_THRESHOLD = 0.7; // >=70% заполнения
+    private static final int MAX_STOPS_PER_ROUTE = 12; // максимум точек в одном маршруте
 
     private final RouteRepository routeRepository;
     private final RouteStopRepository routeStopRepository;
     private final KioskOrderRepository kioskOrderRepository;
     private final GarbagePointRepository garbagePointRepository;
     private final UserRepository userRepository;
+    private final DriverShiftRepository driverShiftRepository;
 
     @Transactional(readOnly = true)
     public List<RouteDto> getAllRoutesWithStops() {
@@ -130,7 +135,7 @@ public class RouteService {
     }
 
     @Transactional
-    public RouteDto autoGenerateFromKioskOrders() {
+    public List<RouteDto> autoGenerateFromKioskOrders() {
         record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
         Map<Integer, PointLoad> loadByPoint = new HashMap<>();
 
@@ -184,6 +189,33 @@ public class RouteService {
             throw new BadRequestException("Нет точек для маршрута (нет активных заказов или точки закрыты)");
         }
 
+        // Разбиваем точки на группы по MAX_STOPS_PER_ROUTE
+        List<RouteDto> createdRoutes = new ArrayList<>();
+        List<GarbagePoint> currentBatch = new ArrayList<>();
+        
+        for (GarbagePoint gp : pointsToVisit) {
+            currentBatch.add(gp);
+            
+            // Когда набралось MAX_STOPS_PER_ROUTE точек - создаём маршрут
+            if (currentBatch.size() >= MAX_STOPS_PER_ROUTE) {
+                RouteDto route = createSingleRoute(currentBatch, loadByPoint);
+                createdRoutes.add(route);
+                currentBatch.clear();
+            }
+        }
+        
+        // Создаём маршрут из оставшихся точек (если есть)
+        if (!currentBatch.isEmpty()) {
+            RouteDto route = createSingleRoute(currentBatch, loadByPoint);
+            createdRoutes.add(route);
+        }
+        
+        return createdRoutes;
+    }
+
+    private RouteDto createSingleRoute(List<GarbagePoint> points, Map<Integer, ?> loadByPoint) {
+        record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
+        
         Route route = Route.builder()
                 .plannedDate(LocalDate.now())
                 .build();
@@ -191,21 +223,24 @@ public class RouteService {
 
         int seq = 1;
         List<RouteStop> stops = new ArrayList<>();
-        for (GarbagePoint gp : pointsToVisit) {
-            PointLoad pl = loadByPoint.get(gp.getId());
-            Double weight = pl != null ? pl.load() : 0d;
+        for (GarbagePoint gp : points) {
+            Object loadObj = loadByPoint.get(gp.getId());
+            Double weight = 0d;
+            if (loadObj instanceof PointLoad pl) {
+                weight = pl.load();
+            }
             RouteStop stop = RouteStop.builder()
                     .route(route)
                     .seqNo(seq++)
                     .garbagePoint(gp)
-                    .address(gp.getAddress())
+                    // address не заполняем когда есть garbagePoint - constraint требует либо-либо
                     .expectedCapacity(weight != null ? (int) Math.round(weight) : null)
                     .build();
             stops.add(stop);
             gp.setOpen(false); // помечаем как "в обработке", чтобы не попадала в следующее авто-планирование
         }
         routeStopRepository.saveAll(stops);
-        garbagePointRepository.saveAll(pointsToVisit);
+        garbagePointRepository.saveAll(points);
 
         return toDto(route, stops);
     }
@@ -340,6 +375,26 @@ public class RouteService {
             throw new BadRequestException("Маршрут не назначен этому водителю");
         }
 
+        // Check if driver has an open shift
+        DriverShift openShift = driverShiftRepository.findByDriver_IdAndStatus(driver.getId(), ShiftStatus.open)
+                .orElse(null);
+        if (openShift == null) {
+            throw new BadRequestException("Для начала маршрута необходимо открыть смену");
+        }
+
+        // Проверяем, что если маршрут уже привязан к смене, то эта смена открыта
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя начать маршрут - смена была закрыта. Откройте новую смену.");
+        }
+
+        // Link route to shift if not already linked
+        if (route.getShift() == null) {
+            route.setShift(openShift);
+        } else if (!Objects.equals(route.getShift().getId(), openShift.getId())) {
+            // Если маршрут привязан к другой смене, перепривязываем к текущей открытой
+            route.setShift(openShift);
+        }
+
         if (route.getStatus() == RouteStatus.completed || route.getStatus() == RouteStatus.cancelled) {
             throw new BadRequestException("Маршрут нельзя начать в статусе: " + route.getStatus());
         }
@@ -385,6 +440,11 @@ public class RouteService {
             throw new BadRequestException("Нельзя обновлять остановки, пока маршрут не в работе");
         }
 
+        // Проверяем, что у водителя открыта смена
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя обновлять остановки - смена закрыта");
+        }
+
         RouteStop stop = routeStopRepository.findById(stopId)
                 .orElseThrow(() -> ResourceNotFoundException.of(RouteStop.class, "id", stopId));
 
@@ -398,11 +458,23 @@ public class RouteService {
         stop.setNote(dto.getNote());
 
         LocalDateTime now = LocalDateTime.now();
-        if (stop.getTimeFrom() == null && newStatus != StopStatus.planned) {
-            stop.setTimeFrom(now);
-        }
-        if ((newStatus == StopStatus.done || newStatus == StopStatus.skipped || newStatus == StopStatus.unavailable) && stop.getTimeTo() == null) {
-            stop.setTimeTo(now);
+        
+        // Constraint требует: либо оба NULL, либо оба NOT NULL
+        // Для всех статусов кроме planned устанавливаем time_from и time_to
+        if (newStatus != StopStatus.planned) {
+            // Устанавливаем time_from при первом изменении статуса
+            if (stop.getTimeFrom() == null) {
+                stop.setTimeFrom(now);
+            }
+            // Для промежуточных статусов (arrived, loading) ставим time_to = time_from,
+            // чтобы удовлетворить constraint. Позже обновим time_to при завершении.
+            // Для финальных статусов (done, skipped, unavailable) ставим текущее время.
+            if (newStatus == StopStatus.done || newStatus == StopStatus.skipped || newStatus == StopStatus.unavailable) {
+                stop.setTimeTo(now);
+            } else if (stop.getTimeTo() == null) {
+                // Для промежуточных статусов: если time_to еще не установлен, ставим = time_from
+                stop.setTimeTo(stop.getTimeFrom());
+            }
         }
 
         routeStopRepository.save(stop);
@@ -459,6 +531,11 @@ public class RouteService {
             throw new BadRequestException("Маршрут можно завершить только в статусе in_progress");
         }
 
+        // Проверяем, что смена открыта (если маршрут привязан к смене)
+        if (route.getShift() != null && route.getShift().getStatus() != ShiftStatus.open) {
+            throw new BadRequestException("Нельзя завершить маршрут - смена была закрыта. Откройте смену заново.");
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
         List<RouteStop> stops = routeStopRepository.findByRoute_IdInOrderByRoute_IdAscSeqNoAsc(List.of(routeId));
@@ -467,6 +544,10 @@ public class RouteService {
                 continue;
             }
             stop.setStatus(StopStatus.skipped);
+            // Устанавливаем timeFrom если он еще не установлен (для соблюдения constraint)
+            if (stop.getTimeFrom() == null) {
+                stop.setTimeFrom(now);
+            }
             if (stop.getTimeTo() == null) {
                 stop.setTimeTo(now);
             }

@@ -54,9 +54,9 @@ public class RouteController {
     }
 
     @PostMapping("/auto-generate")
-    public ResponseEntity<RouteDto> autoGenerate() {
-        RouteDto dto = routeService.autoGenerateFromKioskOrders();
-        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    public ResponseEntity<List<RouteDto>> autoGenerate() {
+        List<RouteDto> routes = routeService.autoGenerateFromKioskOrders();
+        return ResponseEntity.status(HttpStatus.CREATED).body(routes);
     }
 
     @DeleteMapping("/{id}")

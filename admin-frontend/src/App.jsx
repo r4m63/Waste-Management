@@ -14,6 +14,8 @@ import KioskOrdersPage from "@/pages/KioskOrdersPage.jsx";
 import {AuthProvider, useAuth} from "@/context/AuthContext.jsx";
 import FractionsPage from "@/pages/FractionsPage.jsx";
 import RoutesPage from "@/pages/RoutesPage.jsx";
+import IncidentsPage from "@/pages/IncidentsPage.jsx";
+import ShiftsPage from "@/pages/ShiftsPage.jsx";
 
 export default function App() {
     return (
@@ -52,7 +54,9 @@ function AppRoutes() {
                 <Route path="pos/fractions" element={<FractionsPage/>}/>
                 <Route path="vehicles" element={<VehiclesPage/>}/>
                 <Route path="vehicles/drivers" element={<DriversPage/>}/>
+                <Route path="vehicles/shifts" element={<ShiftsPage/>}/>
                 <Route path="planning/routes" element={<RoutesPage/>}/>
+                <Route path="execution/incidents" element={<IncidentsPage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>
             </Route>
         </Routes>
