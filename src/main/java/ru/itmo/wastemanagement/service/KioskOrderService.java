@@ -31,7 +31,7 @@ public class KioskOrderService {
     private final ContainerSizeRepository containerSizeRepository;
     private final FractionRepository fractionRepository;
     private final UserRepository userRepository;
-    
+
     private final JdbcTemplate jdbcTemplate;
 
     @Transactional(readOnly = true)
@@ -55,7 +55,6 @@ public class KioskOrderService {
         GarbagePoint gp = resolveGarbagePoint(dto.getGarbagePointId(), user);
 
         try {
-            // Вызов функции БД create_kiosk_order
             Integer orderId = jdbcTemplate.queryForObject(
                     "SELECT create_kiosk_order(?, ?, ?, ?)",
                     Integer.class,
@@ -66,7 +65,6 @@ public class KioskOrderService {
             );
             return orderId;
         } catch (DataAccessException e) {
-            // Преобразуем SQL ошибку в понятную бизнес-ошибку
             String message = e.getMessage();
             if (message != null) {
                 if (message.contains("Garbage point not found or closed")) {

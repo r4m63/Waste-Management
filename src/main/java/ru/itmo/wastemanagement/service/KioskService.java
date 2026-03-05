@@ -63,7 +63,6 @@ public class KioskService {
         User kiosk = userRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of(User.class, "id", id));
 
-        // теоретически не может поменяться и проверка излишняя
         if (kiosk.getRole() != UserRole.KIOSK)
             throw new BadRequestException("Пользователь с id=%d не является киоском".formatted(id));
 

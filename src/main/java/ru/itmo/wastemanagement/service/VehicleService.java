@@ -64,7 +64,6 @@ public class VehicleService {
 
         String newPlate = dto.getPlateNumber().trim();
 
-        // если номер поменялся — проверяем уникальность
         if (!newPlate.equals(vehicle.getPlateNumber())) {
             if (vehicleRepository.existsByPlateNumber(newPlate)) {
                 throw new ConflictException("Транспортное средство с таким госномером уже существует");
@@ -75,8 +74,6 @@ public class VehicleService {
         vehicle.setName(dto.getName() != null ? dto.getName().trim() : null);
         vehicle.setCapacity(dto.getCapacity());
         vehicle.setActive(dto.getActive() != null ? dto.getActive() : vehicle.isActive());
-
-        // save() не обязателен — JPA сам засинхает
     }
 
     @Transactional

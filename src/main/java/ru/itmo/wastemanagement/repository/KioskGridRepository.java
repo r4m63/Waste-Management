@@ -23,20 +23,16 @@ public class KioskGridRepository {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        // 1) лёгкий запрос только по id
         CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<User> root = cq.from(User.class);
 
-        // WHERE из filterModel
         List<Predicate> predicates = GridTablePredicateBuilder.build(cb, root, req.getFilterModel());
-        // всегда только KIOSK
         predicates.add(cb.equal(root.get("role"), UserRole.KIOSK));
 
         if (!predicates.isEmpty()) {
             cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        // ORDER BY
         if (req.getSortModel() != null && !req.getSortModel().isEmpty()) {
             List<Order> orders = new ArrayList<>();
             req.getSortModel().forEach(s -> {
@@ -55,7 +51,6 @@ public class KioskGridRepository {
             );
         }
 
-        // ВАЖНО: id как Integer
         cq.select(root.get("id").as(Integer.class));
 
         List<Integer> ids = em.createQuery(cq)
@@ -67,14 +62,12 @@ public class KioskGridRepository {
             return List.of();
         }
 
-        // 2) тянем сущности по id
         List<User> items = em.createQuery(
                         "select u from User u where u.id in :ids and u.role = :role", User.class)
                 .setParameter("ids", ids)
                 .setParameter("role", UserRole.KIOSK)
                 .getResultList();
 
-        // восстановить порядок как в ids
         Map<Integer, Integer> rank = new HashMap<>(ids.size() * 2);
         for (int i = 0; i < ids.size(); i++) {
             rank.put(ids.get(i), i);

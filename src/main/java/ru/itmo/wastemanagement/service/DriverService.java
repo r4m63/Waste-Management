@@ -100,12 +100,11 @@ public class DriverService {
             driver.setActive(dto.getActive());
         }
 
-        // пароль меняем только если передан и не пустой
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             driver.setPassword(passwordEncoder.encode(dto.getPassword().trim()));
         }
 
-        userRepository.save(driver); // можно и не вызывать, но так явно
+        userRepository.save(driver); 
     }
 
     @Transactional

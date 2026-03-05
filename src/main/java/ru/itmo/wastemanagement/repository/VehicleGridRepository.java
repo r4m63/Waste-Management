@@ -24,18 +24,15 @@ public class VehicleGridRepository {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        // 1) лёгкий запрос только по id (ТИП Integer, а не Long)
         CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<Vehicle> root = cq.from(Vehicle.class);
 
-        // WHERE по filterModel
         List<Predicate> predicates =
                 GridTablePredicateBuilder.build(cb, root, req.getFilterModel());
         if (!predicates.isEmpty()) {
             cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        // ORDER BY
         if (req.getSortModel() != null && !req.getSortModel().isEmpty()) {
             List<Order> orders = new ArrayList<>();
             req.getSortModel().forEach(s -> {
@@ -48,11 +45,9 @@ public class VehicleGridRepository {
             });
             cq.orderBy(orders);
         } else {
-            // дефолт: новые id сверху
             cq.orderBy(cb.desc(root.get("id")));
         }
 
-        // выбираем только id (без .as(Long.class))
         cq.select(root.get("id"));
 
         List<Integer> ids = em.createQuery(cq)
@@ -64,14 +59,12 @@ public class VehicleGridRepository {
             return List.of();
         }
 
-        // 2) тянем сущности по id
         List<Vehicle> items = em.createQuery(
                         "select v from Vehicle v where v.id in :ids",
                         Vehicle.class)
                 .setParameter("ids", ids)
                 .getResultList();
 
-        // восстановить порядок как в ids
         Map<Integer, Integer> rank = new HashMap<>(ids.size() * 2);
         for (int i = 0; i < ids.size(); i++) {
             rank.put(ids.get(i), i);

@@ -93,7 +93,6 @@ public class DriverShiftService {
             throw new BadRequestException("Пользователь не является водителем");
         }
 
-        // Check if driver already has an open shift
         if (driverShiftRepository.existsByDriver_IdAndStatus(driver.getId(), ShiftStatus.open)) {
             throw new BadRequestException("У водителя уже есть открытая смена");
         }
@@ -120,10 +119,9 @@ public class DriverShiftService {
         DriverShift shift = driverShiftRepository.findById(shiftId)
                 .orElseThrow(() -> new ResourceNotFoundException("DriverShift", "id", shiftId));
 
-        // Verify the shift belongs to the driver
         if (driverLogin != null && !driverLogin.isBlank()) {
             User driver = userRepository.findByLogin(driverLogin).orElse(null);
-            if (driver != null && shift.getDriver() != null 
+            if (driver != null && shift.getDriver() != null
                     && !shift.getDriver().getId().equals(driver.getId())) {
                 throw new BadRequestException("Смена не принадлежит этому водителю");
             }
@@ -133,9 +131,8 @@ public class DriverShiftService {
             throw new BadRequestException("Смена уже закрыта");
         }
 
-        // Проверяем, что у смены нет активных маршрутов
         List<Route> activeRoutes = routeRepository.findByShift_IdAndStatusIn(
-            shiftId, 
+            shiftId,
             List.of(RouteStatus.planned, RouteStatus.in_progress)
         );
         if (!activeRoutes.isEmpty()) {
@@ -145,7 +142,6 @@ public class DriverShiftService {
             );
         }
 
-        // Дополнительно проверяем, что нет незавершенных остановок в маршрутах этой смены
         List<Route> allShiftRoutes = routeRepository.findByShift_IdAndStatusIn(
             shiftId,
             List.of(RouteStatus.planned, RouteStatus.in_progress, RouteStatus.completed)
@@ -153,14 +149,14 @@ public class DriverShiftService {
         for (Route route : allShiftRoutes) {
             List<RouteStop> stops = routeStopRepository.findByRoute_IdInOrderByRoute_IdAscSeqNoAsc(List.of(route.getId()));
             long incompleteStops = stops.stream()
-                .filter(stop -> stop.getStatus() != StopStatus.done 
-                    && stop.getStatus() != StopStatus.skipped 
+                .filter(stop -> stop.getStatus() != StopStatus.done
+                    && stop.getStatus() != StopStatus.skipped
                     && stop.getStatus() != StopStatus.unavailable)
                 .count();
-            
+
             if (incompleteStops > 0) {
                 throw new BadRequestException(
-                    "Нельзя закрыть смену - в маршруте №" + route.getId() + 
+                    "Нельзя закрыть смену - в маршруте №" + route.getId() +
                     " осталось незавершенных остановок: " + incompleteStops + ". " +
                     "Завершите все остановки маршрута."
                 );
@@ -174,4 +170,3 @@ public class DriverShiftService {
         return DriverShiftDto.fromEntity(shift);
     }
 }
-

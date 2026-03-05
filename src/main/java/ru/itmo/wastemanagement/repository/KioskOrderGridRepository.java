@@ -24,18 +24,15 @@ public class KioskOrderGridRepository {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        // 1) лёгкий запрос только по id
         CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<KioskOrder> root = cq.from(KioskOrder.class);
 
-        // WHERE по filterModel
         List<Predicate> predicates =
                 GridTablePredicateBuilder.build(cb, root, req.getFilterModel());
         if (!predicates.isEmpty()) {
             cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        // ORDER BY
         if (req.getSortModel() != null && !req.getSortModel().isEmpty()) {
             List<Order> orders = new ArrayList<>();
             req.getSortModel().forEach(s -> {
@@ -48,14 +45,12 @@ public class KioskOrderGridRepository {
             });
             cq.orderBy(orders);
         } else {
-            // дефолт — новые сверху
             cq.orderBy(
                     cb.desc(root.get("createdAt")),
                     cb.desc(root.get("id"))
             );
         }
 
-        // выбираем только id
         cq.select(root.get("id").as(Integer.class));
 
         List<Integer> ids = em.createQuery(cq)
@@ -67,7 +62,6 @@ public class KioskOrderGridRepository {
             return List.of();
         }
 
-        // 2) тянем сущности по id с fetch join'ами, чтобы не ловить N+1
         List<KioskOrder> items = em.createQuery(
                         "select ko from KioskOrder ko " +
                                 "left join fetch ko.garbagePoint gp " +
@@ -80,7 +74,6 @@ public class KioskOrderGridRepository {
                 .setParameter("ids", ids)
                 .getResultList();
 
-        // восстановить порядок как в ids
         Map<Integer, Integer> rank = new HashMap<>(ids.size() * 2);
         for (int i = 0; i < ids.size(); i++) {
             rank.put(ids.get(i), i);

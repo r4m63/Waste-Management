@@ -24,17 +24,14 @@ public class GarbagePointGridRepository {
 
         var cb = em.getCriteriaBuilder();
 
-        // 1) лёгкий запрос только по id
         CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<GarbagePoint> root = cq.from(GarbagePoint.class);
 
-        // WHERE по filterModel
         var predicates = GridTablePredicateBuilder.build(cb, root, req.getFilterModel());
         if (!predicates.isEmpty()) {
             cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        // ORDER BY
         if (req.getSortModel() != null && !req.getSortModel().isEmpty()) {
             List<Order> orders = new ArrayList<>();
             req.getSortModel().forEach(s -> {
@@ -47,14 +44,12 @@ public class GarbagePointGridRepository {
             });
             cq.orderBy(orders);
         } else {
-            // дефолт: новые точки сверху
             cq.orderBy(
                     cb.desc(root.get("createdAt")),
                     cb.desc(root.get("id"))
             );
         }
 
-        // ВАЖНО: id как Integer
         cq.select(root.get("id").as(Integer.class));
 
         List<Integer> ids = em.createQuery(cq)
@@ -66,7 +61,6 @@ public class GarbagePointGridRepository {
             return List.of();
         }
 
-        // 2) тянем сущности по id (можно добавить fetch join'ы, если надо)
         List<GarbagePoint> items = em.createQuery(
                         "select gp from GarbagePoint gp " +
                                 "left join fetch gp.admin " +
@@ -75,7 +69,6 @@ public class GarbagePointGridRepository {
                 .setParameter("ids", ids)
                 .getResultList();
 
-        // восстановить порядок
         Map<Integer, Integer> rank = new HashMap<>(ids.size() * 2);
         for (int i = 0; i < ids.size(); i++) {
             rank.put(ids.get(i), i);

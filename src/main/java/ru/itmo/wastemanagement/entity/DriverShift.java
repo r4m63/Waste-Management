@@ -21,12 +21,10 @@ public class DriverShift {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // driver_id BIGINT NOT NULL REFERENCES users(id)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "driver_id", nullable = false)
     private User driver;
 
-    // vehicle_id BIGINT REFERENCES vehicles(id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
