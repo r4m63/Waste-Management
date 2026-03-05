@@ -1,4 +1,3 @@
-// src/pages/KioskOrdersPage.jsx
 
 import { useCallback, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -26,18 +25,15 @@ export default function KioskOrdersPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [activeOrder, setActiveOrder] = useState(null)
 
-    // поля формы
     const [garbagePointId, setGarbagePointId] = useState(null)
     const [containerSizeId, setContainerSizeId] = useState(null)
     const [fractionId, setFractionId] = useState(null)
     const [weight, setWeight] = useState("")
     const [status, setStatus] = useState("CREATED")
 
-    // таблица
     const [refreshGrid, setRefreshGrid] = useState(() => () => {})
     const [tableControls, setTableControls] = useState(null)
 
-    // справочники
     const [gpOptions, setGpOptions] = useState([])
     const [csOptions, setCsOptions] = useState([])
     const [fractionOptions, setFractionOptions] = useState([])
@@ -50,7 +46,6 @@ export default function KioskOrdersPage() {
     const [isCsPopoverOpen, setIsCsPopoverOpen] = useState(false)
     const [isFractionPopoverOpen, setIsFractionPopoverOpen] = useState(false)
 
-    // FIX: флаги “уже пытались загрузить” (даже если пришёл пустой список)
     const [gpsFetched, setGpsFetched] = useState(false)
     const [csFetched, setCsFetched] = useState(false)
     const [fractionsFetched, setFractionsFetched] = useState(false)
@@ -64,7 +59,6 @@ export default function KioskOrdersPage() {
         setStatus("CREATED")
     }
 
-    // ============= Загрузка справочных данных (без бесконечной загрузки) =============
 
     const fetchGarbagePoints = useCallback(async () => {
         if (gpsFetched || isGpLoading) return
@@ -183,7 +177,6 @@ export default function KioskOrdersPage() {
         }
     }, [fractionsFetched, isFractionLoading])
 
-    // ============= Лейблы для комбобоксов =============
 
     const selectedGpLabel = useMemo(() => {
         if (garbagePointId == null) return ""
@@ -213,7 +206,6 @@ export default function KioskOrdersPage() {
         return code && name ? `${name} (${code})` : base
     }, [fractionId, fractionOptions])
 
-    // ============= Валидация и сохранение =============
 
     const validate = () => {
         if (!garbagePointId) return "Выберите точку сбора."
@@ -353,12 +345,6 @@ export default function KioskOrdersPage() {
                 onOpenChange={(open) => {
                     setIsDialogOpen(open)
 
-                    // (опционально) если хочешь при каждом открытии модалки заново подтягивать справочники:
-                    // if (open) {
-                    //   setGpsFetched(false); setGpOptions([]);
-                    //   setCsFetched(false); setCsOptions([]);
-                    //   setFractionsFetched(false); setFractionOptions([]);
-                    // }
                 }}
             >
                 <DialogContent>
@@ -371,7 +357,7 @@ export default function KioskOrdersPage() {
 
                     <div className="space-y-4">
                         <div className="grid gap-4">
-                            {/* Точка сбора */}
+                            
                             <div className="space-y-2">
                                 <Label>Точка сбора</Label>
                                 <Popover
@@ -411,7 +397,7 @@ export default function KioskOrdersPage() {
                                 </Popover>
                             </div>
 
-                            {/* Размер контейнера */}
+                            
                             <div className="space-y-2">
                                 <Label>Размер контейнера</Label>
                                 <Popover
@@ -454,7 +440,7 @@ export default function KioskOrdersPage() {
                                 </Popover>
                             </div>
 
-                            {/* Фракция */}
+                            
                             <div className="space-y-2">
                                 <Label>Фракция</Label>
                                 <Popover
@@ -495,7 +481,7 @@ export default function KioskOrdersPage() {
                                 </Popover>
                             </div>
 
-                            {/* Вес */}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="weight">Вес (кг)</Label>
                                 <Input
@@ -509,7 +495,7 @@ export default function KioskOrdersPage() {
                                 />
                             </div>
 
-                            {/* Статус */}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="status">Статус</Label>
                                 <Select value={status} onValueChange={setStatus}>

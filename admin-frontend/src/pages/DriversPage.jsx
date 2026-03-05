@@ -1,4 +1,3 @@
-// src/pages/DriversPage.jsx
 
 import {useCallback, useState} from "react"
 import {Button} from "@/components/ui/button"

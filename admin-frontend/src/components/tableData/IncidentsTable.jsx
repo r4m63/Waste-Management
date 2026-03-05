@@ -1,4 +1,3 @@
-// src/components/tableData/IncidentsTable.jsx
 
 import React, {useMemo} from "react"
 import {AgGridTable} from "@/components/tableData/AgGridTable.jsx"

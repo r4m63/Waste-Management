@@ -9,7 +9,6 @@ export function ThemeProvider({children}) {
         const stored = localStorage.getItem("theme");
         if (stored === "light" || stored === "dark") return stored;
 
-        // если нет сохранённого — берём системную
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         return prefersDark ? "dark" : "light";
     });

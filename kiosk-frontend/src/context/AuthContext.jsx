@@ -46,7 +46,6 @@ export function AuthProvider({children}) {
         try {
             await apiFetch(`${API_BASE}/logout`, {method: "POST"});
         } catch (e) {
-            // ignore
         } finally {
             setUser(null);
         }

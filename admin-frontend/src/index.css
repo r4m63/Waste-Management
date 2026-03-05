@@ -1,118 +1,14 @@
-/*@import "ag-grid-community/styles/ag-grid.css";*/
-/*@import "ag-grid-community/styles/ag-theme-quartz.css";*/
+
+
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    :root {
-        /* светлая тема (можешь оставить свою, я привожу пример) */
-        --background: 0 0% 100%;
-        --foreground: 222 47% 11%;
+    :root 
 
-        --card: 0 0% 100%;
-        --card-foreground: 222 47% 11%;
-
-        --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
-
-        /* мягкий серый для muted/вторичных блоков */
-        --muted: 210 16% 96%;
-        --muted-foreground: 215 15% 45%;
-
-        /* нейтральный серый primary, без яркого синего */
-        --primary: 222 9% 30%;
-        --primary-foreground: 210 20% 96%;
-
-        --secondary: 210 16% 96%;
-        --secondary-foreground: 222 47% 11%;
-
-        --accent: 210 16% 96%;
-        --accent-foreground: 222 47% 11%;
-
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-
-        --border: 215 15% 85%;
-        --input: 215 15% 85%;
-        --ring: 222 9% 30%;
-
-        --radius: 0.75rem;
-
-
-        /*--ag-background-color: hsl(var(--card));*/
-        /*--ag-foreground-color: hsl(var(--foreground));*/
-
-        /*--ag-header-background-color: hsl(var(--muted));*/
-        /*--ag-header-foreground-color: hsl(var(--muted-foreground));*/
-
-        /*--ag-odd-row-background-color: hsl(var(--background));*/
-        /*--ag-even-row-background-color: hsl(var(--card));*/
-
-        /*--ag-row-hover-color: hsl(var(--muted));*/
-        /*--ag-selected-row-background-color: hsl(var(--accent));*/
-        /*--ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
-        /*--ag-border-color: hsl(var(--border));*/
-        /*--ag-secondary-border-color: hsl(var(--border));*/
-
-        /*--ag-input-border-color: hsl(var(--border));*/
-        /*--ag-input-focus-border-color: hsl(var(--ring));*/
-    }
-
-    .dark {
-        /* фон – тёмно-серый, без синего */
-        --background: 220 14% 10%;
-        --foreground: 210 20% 96%;
-
-        --card: 220 14% 14%;
-        --card-foreground: 210 20% 96%;
-
-        --popover: 220 14% 14%;
-        --popover-foreground: 210 20% 96%;
-
-        /* muted/фоновые блоки – чуть светлее карточки */
-        --muted: 220 14% 18%;
-        --muted-foreground: 220 9% 65%;
-
-        /* primary – тоже серый, чуть ярче, без синего */
-        --primary: 220 9% 60%;
-        --primary-foreground: 220 14% 10%;
-
-        --secondary: 220 14% 20%;
-        --secondary-foreground: 210 20% 96%;
-
-        --accent: 220 14% 22%;
-        --accent-foreground: 210 20% 96%;
-
-        --destructive: 0 72% 50%;
-        --destructive-foreground: 0 0% 100%;
-
-        --border: 220 14% 22%;
-        --input: 220 14% 22%;
-        --ring: 220 9% 70%;
-
-        --radius: 0.75rem;
-
-
-        /*--ag-background-color: hsl(var(--card));*/
-        /*--ag-foreground-color: hsl(var(--foreground));*/
-
-        /*--ag-header-background-color: hsl(var(--muted));*/
-        /*--ag-header-foreground-color: hsl(var(--muted-foreground));*/
-
-        /*--ag-odd-row-background-color: hsl(var(--background));*/
-        /*--ag-even-row-background-color: hsl(var(--card));*/
-
-        /*--ag-row-hover-color: hsl(var(--muted));*/
-        /*--ag-selected-row-background-color: hsl(var(--accent));*/
-        /*--ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
-        /*--ag-border-color: hsl(var(--border));*/
-        /*--ag-secondary-border-color: hsl(var(--border));*/
-
-        /*--ag-input-border-color: hsl(var(--border));*/
-        /*--ag-input-focus-border-color: hsl(var(--ring));*/
-    }
+    .dark 
 
     * {
         @apply border-border;
@@ -136,9 +32,9 @@
 
 
 
-/* Кастомный скроллбар только внутри SidebarContent */
+
 .wm-sidebar-scroll {
-    /* для Firefox */
+    
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) hsl(var(--background));
 }
@@ -157,51 +53,51 @@
 }
 
 
-/* AG Grid: интеграция с темой shadcn / Tailwind */
-/* Светлая тема */
-/*.ag-theme-quartz {*/
-/*    !* фон таблицы и текст *!*/
-/*    --ag-background-color: hsl(var(--card));*/
-/*    --ag-foreground-color: hsl(var(--foreground));*/
 
-/*    !* хедер *!*/
-/*    --ag-header-background-color: hsl(var(--muted));*/
-/*    --ag-header-foreground-color: hsl(var(--muted-foreground));*/
 
-/*    !* чётные/нечётные строки *!*/
-/*    --ag-odd-row-background-color: hsl(var(--background));*/
-/*    --ag-even-row-background-color: hsl(var(--card));*/
 
-/*    !* hover, выбор строки, бордеры *!*/
-/*    --ag-row-hover-color: hsl(var(--muted));*/
-/*    --ag-selected-row-background-color: hsl(var(--accent));*/
-/*    --ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
-/*    --ag-border-color: hsl(var(--border));*/
-/*    --ag-secondary-border-color: hsl(var(--border));*/
 
-/*    !* фильтры / инпуты / фокус *!*/
-/*    --ag-input-border-color: hsl(var(--border));*/
-/*    --ag-input-focus-border-color: hsl(var(--ring));*/
-/*}*/
 
-/*!* Тёмная тема *!*/
-/*.dark .ag-theme-quartz {*/
-/*    --ag-background-color: hsl(var(--card));*/
-/*    --ag-foreground-color: hsl(var(--foreground));*/
 
-/*    --ag-header-background-color: hsl(var(--muted));*/
-/*    --ag-header-foreground-color: hsl(var(--muted-foreground));*/
 
-/*    --ag-odd-row-background-color: hsl(var(--background));*/
-/*    --ag-even-row-background-color: hsl(var(--card));*/
 
-/*    --ag-row-hover-color: hsl(var(--muted));*/
-/*    --ag-selected-row-background-color: hsl(var(--accent));*/
-/*    --ag-selected-row-foreground-color: hsl(var(--accent-foreground));*/
-/*    --ag-border-color: hsl(var(--border));*/
-/*    --ag-secondary-border-color: hsl(var(--border));*/
 
-/*    --ag-input-border-color: hsl(var(--border));*/
-/*    --ag-input-focus-border-color: hsl(var(--ring));*/
-/*}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

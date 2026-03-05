@@ -1,5 +1,4 @@
 
-// src/components/tableData/KioskOrdersTable.jsx
 
 import React, {useCallback, useMemo, useRef} from "react"
 import {AgGridTable} from "@/components/tableData/AgGridTable.jsx"
@@ -206,7 +205,7 @@ export default function KioskOrdersTable({
                         return
                     }
 
-                    const data = await res.json() // { rows, lastRow }
+                    const data = await res.json()
                     params.successCallback(data.rows || [], data.lastRow ?? 0)
                 } catch (e) {
                     console.error(e)

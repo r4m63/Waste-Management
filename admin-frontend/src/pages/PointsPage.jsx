@@ -1,4 +1,3 @@
-// src/pages/PointsPage.jsx
 
 import { useCallback, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -26,7 +25,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 export default function PointsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    // null — создание, иначе редактирование
     const [activePoint, setActivePoint] = useState(null)
 
     const [address, setAddress] = useState("")
@@ -36,16 +34,13 @@ export default function PointsPage() {
     const [lon, setLon] = useState("")
     const [kioskId, setKioskId] = useState(null)
 
-    // данные для таблицы
     const [refreshGrid, setRefreshGrid] = useState(() => () => {})
     const [tableControls, setTableControls] = useState(null)
 
-    // данные для combobox киосков
     const [kioskOptions, setKioskOptions] = useState([])
     const [isKioskLoading, setIsKioskLoading] = useState(false)
     const [isKioskPopoverOpen, setIsKioskPopoverOpen] = useState(false)
 
-    // Флаг: уже пробовали грузить киоски (даже если пришёл пустой список)
     const [kiosksFetched, setKiosksFetched] = useState(false)
 
     const resetForm = () => {
@@ -118,7 +113,6 @@ export default function PointsPage() {
         resetForm()
     }
 
-    // Открытие модалки на редактирование
     const handleOpenEditPointModal = useCallback((row) => {
         if (!row) return
         setActivePoint(row)
@@ -158,8 +152,6 @@ export default function PointsPage() {
         [refreshGrid],
     )
 
-    // Загрузка списка киосков (users с role=KIOSK) для комбобокса
-    // FIX: без бесконечного цикла (используем kiosksFetched, а не kioskOptions.length)
     const fetchKiosks = useCallback(async () => {
         if (kiosksFetched || isKioskLoading) return
 
@@ -243,8 +235,6 @@ export default function PointsPage() {
                 open={isDialogOpen}
                 onOpenChange={(open) => {
                     setIsDialogOpen(open)
-                    // (опционально) если хочешь каждый раз обновлять список киосков при новом открытии модалки:
-                    // if (open) { setKiosksFetched(false); setKioskOptions([]); }
                 }}
             >
                 <DialogContent>
@@ -311,7 +301,7 @@ export default function PointsPage() {
                                 </div>
                             </div>
 
-                            {/* Combobox для kiosk_id */}
+                            
                             <div className="space-y-2">
                                 <Label>Киоск (user с ролью KIOSK)</Label>
 

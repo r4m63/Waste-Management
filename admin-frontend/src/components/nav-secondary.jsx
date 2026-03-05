@@ -1,4 +1,3 @@
-// components/nav-secondary.jsx
 
 import {
     SidebarGroup,

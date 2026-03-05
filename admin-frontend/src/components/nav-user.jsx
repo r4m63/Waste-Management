@@ -1,4 +1,3 @@
-// components/nav-user.jsx
 
 import {Bell, ChevronsUpDown, CircleUser, LogOut, Settings,} from "lucide-react"
 import {useNavigate} from "react-router-dom"
@@ -64,13 +63,13 @@ export function NavUser({user}) {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        {/*<DropdownMenuSeparator/>*/}
-                        {/*<DropdownMenuGroup>*/}
-                        {/*    <DropdownMenuItem>*/}
-                        {/*        <Sparkles/>*/}
-                        {/*        Upgrade to Pro*/}
-                        {/*    </DropdownMenuItem>*/}
-                        {/*</DropdownMenuGroup>*/}
+                        
+                        
+                        
+                        
+                        
+                        
+                        
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
                             <DropdownMenuItem>

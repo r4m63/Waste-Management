@@ -250,7 +250,7 @@
   font-size: 14px;
 }
 
-/* Shift status */
+
 .shift-status {
   display: inline-flex;
   align-items: center;
@@ -296,7 +296,7 @@
   }
 }
 
-/* Button disabled state */
+
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -304,7 +304,7 @@
   box-shadow: none;
 }
 
-/* Modal */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -350,7 +350,7 @@
   justify-content: flex-end;
 }
 
-/* Incident type selector */
+
 .incident-types {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -390,7 +390,7 @@
   font-size: 24px;
 }
 
-/* Textarea */
+
 .field__textarea {
   width: 100%;
   min-height: 100px;
@@ -411,7 +411,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Danger button */
+
 .button--danger {
   background: linear-gradient(135deg, #f87171, #ef4444);
   color: #fff;

@@ -1,4 +1,3 @@
-// src/pages/PointsMapPage.jsx
 
 import {useCallback, useEffect, useMemo, useState} from "react"
 import {Map, Placemark, YMaps} from "@pbe/react-yandex-maps"
@@ -27,7 +26,6 @@ export default function PointsMapPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [activePoint, setActivePoint] = useState(null)
 
-    // поля формы
     const [address, setAddress] = useState("")
     const [capacity, setCapacity] = useState("")
     const [isOpen, setIsOpen] = useState(true)
@@ -35,17 +33,14 @@ export default function PointsMapPage() {
     const [lon, setLon] = useState("")
     const [kioskId, setKioskId] = useState(null)
 
-    // точки для карты
     const [points, setPoints] = useState([])
     const [isPointsLoading, setIsPointsLoading] = useState(false)
 
-    // combobox киосков
     const [kioskOptions, setKioskOptions] = useState([])
     const [isKioskLoading, setIsKioskLoading] = useState(false)
     const [isKioskPopoverOpen, setIsKioskPopoverOpen] = useState(false)
 
-    // карта
-    const [mapCenter, setMapCenter] = useState([59.93, 30.31]) // СПб
+    const [mapCenter, setMapCenter] = useState([59.93, 30.31])
     const [mapZoom, setMapZoom] = useState(11)
 
     const resetForm = () => {
@@ -58,7 +53,6 @@ export default function PointsMapPage() {
         setKioskId(null)
     }
 
-    // ================== Загрузка точек для карты ==================
 
     const fetchPoints = useCallback(async () => {
         setIsPointsLoading(true)
@@ -84,7 +78,7 @@ export default function PointsMapPage() {
                 return
             }
 
-            const data = await res.json() // { rows, lastRow }
+            const data = await res.json()
             setPoints(data.rows || [])
         } catch (e) {
             console.error("Ошибка загрузки точек для карты", e)
@@ -97,7 +91,6 @@ export default function PointsMapPage() {
         fetchPoints()
     }, [fetchPoints])
 
-    // ================== Загрузка киосков для combobox ==================
 
     const fetchKiosks = useCallback(async () => {
         if (kioskOptions.length > 0 || isKioskLoading) return
@@ -108,7 +101,7 @@ export default function PointsMapPage() {
                 startRow: 0,
                 endRow: 50,
                 sortModel: [{colId: "createdAt", sort: "desc"}],
-                filterModel: {}, // репозиторий сам отдаёт только KIOSK
+                filterModel: {},
             }
 
             const res = await apiFetch(`${API_BASE}/api/kiosk/query`, {
@@ -149,7 +142,6 @@ export default function PointsMapPage() {
         return found.login ? `${name} (${found.login})` : name
     }, [kioskId, kioskOptions])
 
-    // ================== Валидация и сохранение ==================
 
     const validate = () => {
         if (!address.trim()) return "Заполните адрес."
@@ -212,11 +204,10 @@ export default function PointsMapPage() {
         resetForm()
     }
 
-    // ================== Работа с картой ==================
 
     const handleMapClick = useCallback(
         (e) => {
-            const coords = e.get("coords") // [lat, lon]
+            const coords = e.get("coords")
             if (!coords) return
 
             const [latVal, lonVal] = coords

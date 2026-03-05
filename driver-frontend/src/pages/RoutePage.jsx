@@ -70,7 +70,6 @@ function RoutePage() {
   const [savingStopId, setSavingStopId] = useState(null)
   const [finishing, setFinishing] = useState(false)
 
-  // Incident modal state
   const [incidentModal, setIncidentModal] = useState({open: false, stopId: null, stopAddress: ''})
   const [incidentType, setIncidentType] = useState('')
   const [incidentDescription, setIncidentDescription] = useState('')
@@ -184,7 +183,6 @@ function RoutePage() {
     }
   }
 
-  // Incident handlers
   const openIncidentModal = (stop) => {
     setIncidentModal({open: true, stopId: stop.id, stopAddress: stop.address || `Точка #${stop.seqNo}`})
     setIncidentType('')
@@ -229,7 +227,6 @@ function RoutePage() {
         throw new Error(errorMsg)
       }
 
-      // Update stop status to unavailable
       await apiFetch(`${API_BASE}/api/routes/${routeId}/stops/${incidentModal.stopId}`, {
         method: 'PUT',
         headers: {
@@ -410,7 +407,7 @@ function RoutePage() {
         ) : null}
       </section>
 
-      {/* Incident Modal */}
+      
       {incidentModal.open ? (
         <div className="modal-overlay" onClick={closeIncidentModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>

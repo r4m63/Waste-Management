@@ -1,4 +1,3 @@
-// src/components/tableData/FractionsTable.jsx
 
 import React, { useCallback, useMemo, useRef } from "react";
 import { AgGridTable } from "@/components/tableData/AgGridTable.jsx";
@@ -67,7 +66,7 @@ export default function FractionsTable({
                 colId: "name",
                 flex: 1.5,
                 sortable: true,
-                filter: "agTextColumnFilter", // Используем стандартный текстовый фильтр
+                filter: "agTextColumnFilter",
                 floatingFilter: true,
             },
             {
@@ -76,7 +75,7 @@ export default function FractionsTable({
                 colId: "code",
                 flex: 1.2,
                 sortable: true,
-                filter: "agTextColumnFilter", // Используем стандартный текстовый фильтр
+                filter: "agTextColumnFilter",
                 floatingFilter: true,
             },
             {
@@ -85,7 +84,7 @@ export default function FractionsTable({
                 colId: "description",
                 flex: 2,
                 sortable: true,
-                filter: "agTextColumnFilter", // Используем стандартный текстовый фильтр
+                filter: "agTextColumnFilter",
                 floatingFilter: true,
             },
             {
@@ -94,7 +93,7 @@ export default function FractionsTable({
                 colId: "hazardous",
                 width: 120,
                 sortable: true,
-                filter: "agTextColumnFilter", // Заменили agSetColumnFilter на текстовый фильтр
+                filter: "agTextColumnFilter",
                 floatingFilter: true,
                 valueFormatter: ({ value }) =>
                     value === true ? "Да" : value === false ? "Нет" : "",

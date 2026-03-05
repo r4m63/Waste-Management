@@ -1,4 +1,3 @@
-// pages/DashboardPage.jsx
 
 export default function DashboardPage() {
     return (

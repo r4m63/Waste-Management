@@ -1,4 +1,3 @@
-// src/components/tableData/ContainerSizesTable.jsx
 
 import React, {useCallback, useMemo, useRef} from "react";
 import {AgGridTable} from "@/components/tableData/AgGridTable.jsx";

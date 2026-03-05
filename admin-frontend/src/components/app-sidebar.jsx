@@ -1,4 +1,3 @@
-// components/app-sidebar.jsx
 
 import {
     AlertTriangle,

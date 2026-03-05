@@ -1,4 +1,3 @@
-// App.jsx
 
 import {BrowserRouter, Navigate, Route, Routes, useLocation} from "react-router-dom"
 import MainPage from "@/pages/MainPage.jsx";

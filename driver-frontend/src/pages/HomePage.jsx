@@ -42,7 +42,6 @@ function HomePage() {
   const [error, setError] = useState('')
   const [startingId, setStartingId] = useState(null)
 
-  // Shift state
   const [currentShift, setCurrentShift] = useState(null)
   const [shiftLoading, setShiftLoading] = useState(false)
   const [shiftError, setShiftError] = useState('')
@@ -53,7 +52,6 @@ function HomePage() {
     try {
       const res = await apiFetch(`${API_BASE}/api/shifts/my/current`)
       if (res.status === 404) {
-        // No active shift
         setCurrentShift(null)
         return
       }
@@ -165,7 +163,7 @@ function HomePage() {
 
   return (
     <>
-      {/* Shift Panel */}
+      
       <section className="panel" style={{marginBottom: 24}}>
         <header className="panel__header">
           <p className="eyebrow">Смена</p>
@@ -226,7 +224,7 @@ function HomePage() {
         ) : null}
       </section>
 
-      {/* Routes Panel */}
+      
       <section className="panel">
         <header className="panel__header">
           <p className="eyebrow">Маршруты</p>

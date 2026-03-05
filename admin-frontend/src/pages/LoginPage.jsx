@@ -1,4 +1,3 @@
-// pages/LoginPage.jsx
 
 import {ArrowRight, Lock, Mail} from "lucide-react"
 import {Button} from "@/components/ui/button"
@@ -32,7 +31,6 @@ export default function LoginPage() {
         };
 
         try {
-            // Отправляем POST-запрос на сервер
             const response = await apiFetch(`${API_BASE}/login`, {
                 method: "POST",
                 headers: {
@@ -48,14 +46,11 @@ export default function LoginPage() {
                 toast.success("Успешный вход");
                 navigate(redirectTo, {replace: true});
             } else {
-                // Если ошибка, отображаем сообщение
                 const errorData = await response.json().catch(() => null);
                 const message = errorData?.error || errorData?.message || "Ошибка авторизации";
                 toast.error(message);
-                // setErrorMessage(errorData.error || "Ошибка авторизации");
             }
         } catch (error) {
-            // setErrorMessage("Произошла ошибка при подключении");
             const message = error instanceof Error ? error.message : "Ошибка подключения";
             toast.error(message);
         }

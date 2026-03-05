@@ -1,4 +1,3 @@
-// pages/MainPage.jsx
 
 import {Outlet} from "react-router-dom"
 

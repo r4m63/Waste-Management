@@ -1,11 +1,9 @@
 import {Button, Card, CardBody} from '@nextui-org/react'
 import Cleave from 'cleave.js/react'
 
-const MAX_RU_PHONE_DIGITS = 10 // 10 цифр после +7
+const MAX_RU_PHONE_DIGITS = 10
 const DIGIT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
-// Маска: +7 (XXX) XXX-XX-XX
-// Без цифр: +7 (___) ___-__-__
 const formatPhone = (digits) => {
     const cleaned = (digits || '').replace(/\D/g, '').slice(0, MAX_RU_PHONE_DIGITS)
     const chars = cleaned.split('')
@@ -15,18 +13,14 @@ const formatPhone = (digits) => {
 }
 
 export default function PhoneStep({phone, onPhoneChange}) {
-    // phone — только цифры после +7, например "9112345678"
     const digits = (phone ?? '').replace(/\D/g, '').slice(0, MAX_RU_PHONE_DIGITS)
     const formattedValue = formatPhone(digits)
     const digitsCount = digits.length
 
-    // Ввод с физической клавиатуры
     const handleInputChange = (event) => {
         const raw = (event.target.value ?? '').toString()
-        // вытаскиваем все цифры из строки "+7 (9_ _) ___-__-__"
         let onlyDigits = raw.replace(/\D/g, '')
 
-        // первая цифра всегда "7" из "+7", убираем её
         if (onlyDigits.startsWith('7')) {
             onlyDigits = onlyDigits.slice(1)
         }
@@ -35,7 +29,6 @@ export default function PhoneStep({phone, onPhoneChange}) {
         onPhoneChange(normalized)
     }
 
-    // Экранная клавиатура: цифры
     const handleDigitClick = (digit) => {
         if (digitsCount >= MAX_RU_PHONE_DIGITS) return
         const next = (digits + digit).slice(0, MAX_RU_PHONE_DIGITS)
@@ -54,7 +47,7 @@ export default function PhoneStep({phone, onPhoneChange}) {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Поле ввода */}
+            
             <div className="flex flex-col gap-2">
                 <label
                     className="text-base font-medium text-foreground"
@@ -68,7 +61,7 @@ export default function PhoneStep({phone, onPhoneChange}) {
                     type="tel"
                     value={formattedValue}
                     options={{
-                        numericOnly: true, // только цифры с физической клавиатуры
+                        numericOnly: true,
                     }}
                     onChange={handleInputChange}
                     placeholder="+7 (___) ___-__-__"
@@ -76,13 +69,13 @@ export default function PhoneStep({phone, onPhoneChange}) {
                 />
             </div>
 
-            {/* Экранная цифровая клавиатура по центру */}
+            
             <Card className="max-w-sm bg-content2/60 mx-auto">
                 <CardBody className="space-y-3">
 
-                    {/* Сетка цифр + backspace */}
+                    
                     <div className="grid grid-cols-3 gap-3">
-                        {/* 1–9 */}
+                        
                         {DIGIT_KEYS.slice(0, 9).map((key) => (
                             <Button
                                 key={key}
@@ -96,7 +89,7 @@ export default function PhoneStep({phone, onPhoneChange}) {
                             </Button>
                         ))}
 
-                        {/* ⌫, 0 и пустая ячейка для ровной сетки */}
+                        
                         <Button
                             variant="flat"
                             color="primary"
@@ -119,7 +112,7 @@ export default function PhoneStep({phone, onPhoneChange}) {
                         <div/>
                     </div>
 
-                    {/* Кнопка "Очистить" по центру */}
+                    
                     <div className="mt-1 flex justify-center">
                         <Button
                             variant="flat"

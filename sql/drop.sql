@@ -4,7 +4,6 @@ DROP FUNCTION IF EXISTS route_stops_autoseq() CASCADE;
 DROP FUNCTION IF EXISTS create_kiosk_order(INTEGER, BIGINT, INTEGER, INTEGER) CASCADE;
 DROP PROCEDURE IF EXISTS manage_driver_shift(INTEGER, TEXT, INTEGER) CASCADE;
 DROP FUNCTION IF EXISTS start_route(INTEGER, INTEGER) CASCADE;
--- Удаляем операторы сравнения для domain типов
 DROP OPERATOR IF EXISTS = (order_status, orderstatus) CASCADE;
 DROP OPERATOR IF EXISTS <> (order_status, orderstatus) CASCADE;
 DROP OPERATOR IF EXISTS = (orderstatus, order_status) CASCADE;

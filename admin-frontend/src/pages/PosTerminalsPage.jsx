@@ -1,4 +1,3 @@
-// pages/PosTerminalsPage.jsx
 
 import {useCallback, useState} from "react"
 import {Button} from "@/components/ui/button"
@@ -168,7 +167,7 @@ export default function PosTerminalsPage() {
                 </div>
             </div>
 
-            {/* Dialog создания/редактирования — как было */}
+            
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
