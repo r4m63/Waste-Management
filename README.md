@@ -21,6 +21,7 @@
 [🚀 Возможности](#-возможности) •
 [🏗️ Архитектура](#️-архитектура) •
 [🛠️ Технологии](#️-технологический-стек) •
+[📸 Скриншоты](#-скриншоты-интерфейсов) •
 [⚡ Быстрый старт](#-быстрый-старт) •
 [📡 API](#-api-основные-группы) •
 [🧪 Тестирование](#-тестирование)
@@ -92,13 +93,132 @@
 
 ## 🧩 Приложения в составе системы
 
-| Приложение | Назначение | Стек | Порт dev |
-|:--|:--|:--|:--:|
-| `admin-frontend` | Панель администратора | React, Vite, Tailwind, shadcn/ui, AG Grid | `21001` |
-| `driver-frontend` | Кабинет водителя | React, Vite, React Router | `21002` |
-| `kiosk-frontend` | Интерфейс киоска | React, Vite, NextUI, Tailwind | `21003` |
-| `landing-frontend` | Публичная карта точек приема | React, Vite, Yandex Maps | `21004` |
-| `backend` | Бизнес-логика и API | Spring Boot, JPA, Security, PostgreSQL | см. `SERVER_PORT` |
+| Приложение         | Назначение                   | Стек                                      |     Порт dev      |
+| :----------------- | :--------------------------- | :---------------------------------------- | :---------------: |
+| `admin-frontend`   | Панель администратора        | React, Vite, Tailwind, shadcn/ui, AG Grid |      `21001`      |
+| `driver-frontend`  | Кабинет водителя             | React, Vite, React Router                 |      `21002`      |
+| `kiosk-frontend`   | Интерфейс киоска             | React, Vite, NextUI, Tailwind             |      `21003`      |
+| `landing-frontend` | Публичная карта точек приема | React, Vite, Yandex Maps                  |      `21004`      |
+| `backend`          | Бизнес-логика и API          | Spring Boot, JPA, Security, PostgreSQL    | см. `SERVER_PORT` |
+
+---
+
+## 📸 Скриншоты интерфейсов
+
+<div align="center">
+
+### 🛠️ Admin Frontend
+
+![Admin Frontend 1-2](.resources/admin-frontend-1-2.png)
+
+<br/>
+
+![Admin Frontend 3-4](.resources/admin-frontend-3-4.png)
+
+<br/>
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/admin-frontend-5.png" alt="Admin Frontend 5" />
+<br/><b>Admin Screen 5</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/admin-frontend-6.png" alt="Admin Frontend 6" />
+<br/><b>Admin Screen 6</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/admin-frontend-7.png" alt="Admin Frontend 7" />
+<br/><b>Admin Screen 7</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/admin-frontend-8.png" alt="Admin Frontend 8" />
+<br/><b>Admin Screen 8</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/admin-frontend-9.png" alt="Admin Frontend 9" />
+<br/><b>Admin Screen 9</b>
+</td>
+<td width="50%" align="center">
+</td>
+</tr>
+</table>
+
+<br/>
+
+### 🚚 Driver Frontend
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/driver-frontend-1.png" alt="Driver Frontend 1" />
+<br/><b>Driver Screen 1</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/driver-frontend-2.png" alt="Driver Frontend 2" />
+<br/><b>Driver Screen 2</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/driver-frontend-3.png" alt="Driver Frontend 3" />
+<br/><b>Driver Screen 3</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/driver-frontend-4.png" alt="Driver Frontend 4" />
+<br/><b>Driver Screen 4</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/driver-frontend-5.png" alt="Driver Frontend 5" />
+<br/><b>Driver Screen 5</b>
+</td>
+<td width="50%" align="center">
+</td>
+</tr>
+</table>
+
+<br/>
+
+### 🧾 Kiosk Frontend
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/kiosk-frontend-1.png" alt="Kiosk Frontend 1" />
+<br/><b>Kiosk Screen 1</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/kiosk-frontend-2.png" alt="Kiosk Frontend 2" />
+<br/><b>Kiosk Screen 2</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/kiosk-frontend-3.png" alt="Kiosk Frontend 3" />
+<br/><b>Kiosk Screen 3</b>
+</td>
+<td width="50%" align="center">
+<img src=".resources/kiosk-frontend-4.png" alt="Kiosk Frontend 4" />
+<br/><b>Kiosk Screen 4</b>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src=".resources/kiosk-frontend-5.png" alt="Kiosk Frontend 5" />
+<br/><b>Kiosk Screen 5</b>
+</td>
+<td width="50%" align="center">
+</td>
+</tr>
+</table>
+
+</div>
 
 ---
 
@@ -251,45 +371,45 @@ cd landing-frontend && npm install && npm run dev
 <details>
 <summary><b>Auth</b> — аутентификация и сессия</summary>
 
-| Method | Endpoint | Description |
-|:--:|:--|:--|
-| `POST` | `/login` | Вход пользователя |
+| Method | Endpoint  | Description            |
+| :----: | :-------- | :--------------------- |
+| `POST` | `/login`  | Вход пользователя      |
 | `POST` | `/logout` | Выход и очистка сессии |
-| `GET` | `/me` | Текущий пользователь |
+| `GET`  | `/me`     | Текущий пользователь   |
 
 </details>
 
 <details>
 <summary><b>Routes</b> — маршруты и остановки</summary>
 
-| Method | Endpoint |
-|:--:|:--|
-| `GET` | `/api/routes` |
-| `GET` | `/api/routes/my` |
-| `GET` | `/api/routes/{id}/my` |
-| `POST` | `/api/routes/auto-generate` |
-| `PUT` | `/api/routes/{id}/assign` |
-| `PUT` | `/api/routes/{id}/start` |
-| `PUT` | `/api/routes/{id}/finish` |
-| `PUT` | `/api/routes/{routeId}/stops/{stopId}` |
-| `DELETE` | `/api/routes/{id}` |
+|  Method  | Endpoint                               |
+| :------: | :------------------------------------- |
+|  `GET`   | `/api/routes`                          |
+|  `GET`   | `/api/routes/my`                       |
+|  `GET`   | `/api/routes/{id}/my`                  |
+|  `POST`  | `/api/routes/auto-generate`            |
+|  `PUT`   | `/api/routes/{id}/assign`              |
+|  `PUT`   | `/api/routes/{id}/start`               |
+|  `PUT`   | `/api/routes/{id}/finish`              |
+|  `PUT`   | `/api/routes/{routeId}/stops/{stopId}` |
+| `DELETE` | `/api/routes/{id}`                     |
 
 </details>
 
 <details>
 <summary><b>Shifts / Incidents / Master Data</b></summary>
 
-| Group | Prefix |
-|:--|:--|
-| Смены водителей | `/api/shifts` |
-| Инциденты | `/api/incidents` |
-| Точки сбора | `/api/garbage-points` |
-| Заявки киосков | `/api/kiosk-orders` |
-| Контейнеры | `/api/container-sizes` |
-| Фракции | `/api/fractions` |
-| Водители | `/api/drivers` |
-| Транспорт | `/api/vehicles` |
-| Киоски | `/api/kiosk` |
+| Group           | Prefix                 |
+| :-------------- | :--------------------- |
+| Смены водителей | `/api/shifts`          |
+| Инциденты       | `/api/incidents`       |
+| Точки сбора     | `/api/garbage-points`  |
+| Заявки киосков  | `/api/kiosk-orders`    |
+| Контейнеры      | `/api/container-sizes` |
+| Фракции         | `/api/fractions`       |
+| Водители        | `/api/drivers`         |
+| Транспорт       | `/api/vehicles`        |
+| Киоски          | `/api/kiosk`           |
 
 </details>
 
