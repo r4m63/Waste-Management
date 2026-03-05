@@ -35,6 +35,7 @@ public class RouteService {
 
     private static final double DEFAULT_FILL_THRESHOLD = 0.7;
     private static final int MAX_STOPS_PER_ROUTE = 12;
+    private record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
 
     private final RouteRepository routeRepository;
     private final RouteStopRepository routeStopRepository;
@@ -136,7 +137,6 @@ public class RouteService {
 
     @Transactional
     public List<RouteDto> autoGenerateFromKioskOrders() {
-        record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
         Map<Integer, PointLoad> loadByPoint = new HashMap<>();
 
         for (Object[] row : kioskOrderRepository.findActiveWeightsByGarbagePoint()) {
@@ -208,9 +208,7 @@ public class RouteService {
         return createdRoutes;
     }
 
-    private RouteDto createSingleRoute(List<GarbagePoint> points, Map<Integer, ?> loadByPoint) {
-        record PointLoad(double load, boolean hasWeight, boolean hasAnyOrders) {}
-
+    private RouteDto createSingleRoute(List<GarbagePoint> points, Map<Integer, PointLoad> loadByPoint) {
         Route route = Route.builder()
                 .plannedDate(LocalDate.now())
                 .build();

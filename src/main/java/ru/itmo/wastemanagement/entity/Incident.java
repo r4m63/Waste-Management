@@ -55,9 +55,9 @@ public class Incident {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean resolved = false;
 
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
 }
-
